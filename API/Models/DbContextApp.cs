@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using API.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +21,7 @@ namespace Data.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Data Source=DELL\SQLEXPRESS;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
+            optionsBuilder.UseSqlServer(@"Data Source=MINH\SQLEXPRESS;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
 
         }
 
@@ -41,25 +42,41 @@ namespace Data.Models
                 .HasOne(gdg => gdg.GiamGia)
                 .WithMany(g => g.GiayDotGiamGias)
                 .HasForeignKey(gdg => gdg.GiamGiaId);
-            modelBuilder.Entity<TaiKhoan_ChucVu>()
-        .HasOne(tc => tc.TaiKhoan)
-        .WithMany(tk => tk.TaiKhoan_ChucVus)
-        .HasForeignKey(tc => tc.TaiKhoanId)
-        .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<ChucVu>()
+     .HasMany(cv => cv.nhanViens)
+     .WithOne(nv => nv.ChucVu)
+     .HasForeignKey(nv => nv.ChucVuId)
+     .OnDelete(DeleteBehavior.Restrict);
 
-            // Thiết lập quan hệ: TaiKhoan_ChucVu - ChucVu (N-1)
-            modelBuilder.Entity<TaiKhoan_ChucVu>()
-                .HasOne(tc => tc.ChucVu)
-                .WithMany(cv => cv.TaiKhoan_ChucVus)
-                .HasForeignKey(tc => tc.ChucVuId)
-                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<NhanVien>()
+                .HasOne(nv => nv.TaiKhoan)
+                .WithMany()
+                .HasForeignKey(nv => nv.TaikhoanId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
+
+
+            // NhanVien - ChucVu
+            modelBuilder.Entity<NhanVien>()
+                .HasOne(nv => nv.ChucVu)
+                .WithMany(cv => cv.nhanViens)
+                .HasForeignKey(nv => nv.ChucVuId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
+            // NhanVien - TaiKhoan
+         
+
+            //hoadon-taikhoan
+
             modelBuilder.Entity<HoaDon>()
 
                 .HasOne(h => h.taiKhoan)
-                .WithMany(t => t.HoaDons)
+                .WithMany(t => t.hoaDons)
                 .HasForeignKey(h => h.TaiKhoanId)
                 .OnDelete(DeleteBehavior.Restrict); 
-
+            //hoadon-Khachhang
             modelBuilder.Entity<HoaDon>()
                 .HasOne(h => h.khachHang)
                 .WithMany(t => t.HoaDons)
@@ -90,7 +107,8 @@ namespace Data.Models
         }
         public DbSet<TaiKhoan> TaiKhoans { get; set; }
         public DbSet<ChucVu> ChucVus { get; set; }
-        public DbSet<TaiKhoan_ChucVu> TaiKhoan_ChucVus { get; set; }
+        public DbSet<NhanVien> NhanViens { get; set; }
+
         public DbSet<Giay> Giays { get; set; }
         public DbSet<GiayChiTiet> GiayChiTiets { get; set; }
         public DbSet<ChatLieu> ChatLieus { get; set; }
