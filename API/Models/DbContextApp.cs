@@ -20,7 +20,7 @@ namespace Data.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Data Source=DELL\SQLEXPRESS;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
+            optionsBuilder.UseSqlServer(@"Data Source=.;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
 
         }
 
@@ -46,6 +46,11 @@ namespace Data.Models
         .WithMany(tk => tk.TaiKhoan_ChucVus)
         .HasForeignKey(tc => tc.TaiKhoanId)
         .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<GiayChiTiet>()
+                .HasOne(g => g.Giay)
+                .WithMany(gct => gct.GiayChiTiets)
+                .HasForeignKey(g => g.GiayId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Thiết lập quan hệ: TaiKhoan_ChucVu - ChucVu (N-1)
             modelBuilder.Entity<TaiKhoan_ChucVu>()
