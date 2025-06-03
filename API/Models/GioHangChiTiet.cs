@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Data.Models
 {
@@ -14,6 +15,7 @@ namespace Data.Models
 
         public int SoLuongSanPham { get; set; }
 
+      
         public decimal Gia { get; set; }
 
         // Tính toán tự động tránh lưu dữ liệu thừa hoặc sai lệch

@@ -4,10 +4,10 @@ namespace API.IRepository
 {
     public interface ITheLoaiGiayRepository
     {
-        Task<List<TheLoaiGiay>> GetAll();
-        Task<TheLoaiGiay> GetById(Guid TheLoaiGiayId);
-        Task Create(TheLoaiGiay theloaigiay);
-        Task Update(TheLoaiGiay theloaigiay);
-        Task Delete(Guid TheLoaiGiayId);
+        Task<List<TheLoaiGiay>> GetAllTheLoai();
+        Task<TheLoaiGiay> GetByIdTheLoai(Guid TheLoaiGiayId);
+        Task CreateTheLoai(TheLoaiGiay theloaigiay);
+        Task UpdateTheLoai(TheLoaiGiay theloaigiay);
+        Task DeleteTheLoai(Guid TheLoaiGiayId);
     }
 }

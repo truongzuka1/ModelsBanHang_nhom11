@@ -21,9 +21,9 @@ namespace Data.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Data Source=HUY;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
+           
 
-            optionsBuilder.UseSqlServer(@"Data Source=.;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
+            optionsBuilder.UseSqlServer(@"Data Source=DELL\SQLEXPRESS;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
 
 
         }
@@ -107,6 +107,9 @@ namespace Data.Models
            .WithMany()
            .HasForeignKey(kh => kh.TaiKhoanId)
            .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<HoaDonChiTiet>()
+    .Property(x => x.Gia)
+    .HasColumnType("decimal(18,2)");
         }
         public DbSet<KhachHang> KhachHangs { get; set; }
 

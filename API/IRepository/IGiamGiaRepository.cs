@@ -4,10 +4,10 @@ namespace API.IRepository
 {
     public interface IGiamGiaRepository
     {
-        Task<List<GiamGia>> GetAll();
-        Task<GiamGia> GetById(Guid GiamGiaId);
-        Task Create(GiamGia GiamGia);
-        Task Update(GiamGia GiamGia);
-        Task Delete(Guid GiamGiaId);
+        Task<List<GiamGia>> GetAllGiamGia();
+        Task<GiamGia> GetByIdGIamGIa(Guid GiamGiaId);
+        Task CreateGIamGia(GiamGia GiamGia);
+        Task UpdateGiamGia(GiamGia GiamGia);
+        Task DeleteGiamGIa(Guid GiamGiaId);
     }
 }

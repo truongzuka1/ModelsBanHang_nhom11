@@ -18,9 +18,7 @@ namespace Data.Models
 
         [Range(1, int.MaxValue)]
         public int SoLuongSanPham { get; set; }
-
-        [Range(0, float.MaxValue)]
-        public float Gia { get; set; }
+        public decimal Gia { get; set; }
 
         // Navigation properties (optional)
         public HoaDon HoaDons { get; set; }
