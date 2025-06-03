@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(DbContextApp))]
-    [Migration("20250602032237_db110111")]
-    partial class db110111
+    [Migration("20250602074832_ver1")]
+    partial class ver1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -213,10 +213,10 @@ namespace API.Migrations
                     b.Property<Guid>("AnhId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ChatLieuId")
+                    b.Property<Guid?>("ChatLieuId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("DeGiayId")
+                    b.Property<Guid?>("DeGiayId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<float>("Gia")
@@ -225,17 +225,16 @@ namespace API.Migrations
                     b.Property<Guid>("GiayId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("KichCoId")
+                    b.Property<Guid?>("KichCoId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("KieuDangId")
+                    b.Property<Guid?>("KieuDangId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("MauSacId")
+                    b.Property<Guid?>("MauSacId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("MoTa")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("NgaySua")
@@ -247,16 +246,10 @@ namespace API.Migrations
                     b.Property<int>("SoLuongCon")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("TaikhoanId")
+                    b.Property<Guid?>("TheLoaiGiayId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("TaukhoanId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("TheLoaiGiayId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ThuongHieuId")
+                    b.Property<Guid?>("ThuongHieuId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("TrangThai")
@@ -277,8 +270,6 @@ namespace API.Migrations
                     b.HasIndex("KieuDangId");
 
                     b.HasIndex("MauSacId");
-
-                    b.HasIndex("TaikhoanId");
 
                     b.HasIndex("TheLoaiGiayId");
 
@@ -777,15 +768,11 @@ namespace API.Migrations
 
                     b.HasOne("Data.Models.ChatLieu", "ChatLieu")
                         .WithMany("GiayChiTiets")
-                        .HasForeignKey("ChatLieuId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ChatLieuId");
 
                     b.HasOne("Data.Models.DeGiay", "DeGiay")
                         .WithMany("GiayChiTiets")
-                        .HasForeignKey("DeGiayId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DeGiayId");
 
                     b.HasOne("Data.Models.Giay", "Giay")
                         .WithMany("GiayChiTiets")
@@ -795,39 +782,23 @@ namespace API.Migrations
 
                     b.HasOne("Data.Models.KichCo", "KichCo")
                         .WithMany("GiayChiTiets")
-                        .HasForeignKey("KichCoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("KichCoId");
 
                     b.HasOne("Data.Models.KieuDang", "KieuDang")
                         .WithMany("GiayChiTiets")
-                        .HasForeignKey("KieuDangId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("KieuDangId");
 
                     b.HasOne("Data.Models.MauSac", "MauSac")
                         .WithMany("GiayChiTiets")
-                        .HasForeignKey("MauSacId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Data.Models.TaiKhoan", "TaiKhoan")
-                        .WithMany()
-                        .HasForeignKey("TaikhoanId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("MauSacId");
 
                     b.HasOne("Data.Models.TheLoaiGiay", "TheLoaiGiay")
                         .WithMany("GiayChiTiets")
-                        .HasForeignKey("TheLoaiGiayId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TheLoaiGiayId");
 
                     b.HasOne("Data.Models.ThuongHieu", "ThuongHieu")
                         .WithMany("GiayChiTiets")
-                        .HasForeignKey("ThuongHieuId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ThuongHieuId");
 
                     b.Navigation("Anh");
 
@@ -842,8 +813,6 @@ namespace API.Migrations
                     b.Navigation("KieuDang");
 
                     b.Navigation("MauSac");
-
-                    b.Navigation("TaiKhoan");
 
                     b.Navigation("TheLoaiGiay");
 

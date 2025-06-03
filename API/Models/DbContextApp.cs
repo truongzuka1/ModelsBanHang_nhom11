@@ -23,6 +23,9 @@ namespace Data.Models
         {
             optionsBuilder.UseSqlServer(@"Data Source=HUY;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
 
+            optionsBuilder.UseSqlServer(@"Data Source=.;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
+
+
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
