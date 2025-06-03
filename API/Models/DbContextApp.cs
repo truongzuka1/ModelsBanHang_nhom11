@@ -21,6 +21,7 @@ namespace Data.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            optionsBuilder.UseSqlServer(@"Data Source=MINH\SQLEXPRESS;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
 
             optionsBuilder.UseSqlServer(@"Data Source=.;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
 
@@ -44,7 +45,6 @@ namespace Data.Models
                 .HasOne(gdg => gdg.GiamGia)
                 .WithMany(g => g.GiayDotGiamGias)
                 .HasForeignKey(gdg => gdg.GiamGiaId);
-
             modelBuilder.Entity<ChucVu>()
      .HasMany(cv => cv.nhanViens)
      .WithOne(nv => nv.ChucVu)
@@ -71,6 +71,7 @@ namespace Data.Models
             // NhanVien - TaiKhoan
          
 
+            //hoadon-taikhoan
 
             modelBuilder.Entity<HoaDon>()
 
