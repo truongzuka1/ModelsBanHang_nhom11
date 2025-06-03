@@ -1,6 +1,6 @@
 ﻿namespace API.IRepository.Repository
 {
-    public class NhanVienRepository
+    public class TheLoaiGiayRepository
     {
     }
 }

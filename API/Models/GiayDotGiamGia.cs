@@ -11,11 +11,9 @@ namespace Data.Models
     {
         [Key]
         public Guid GiayDotGiamGiaId { get; set; }
-        public Guid GiamGiaId { get; set; }
-        public Guid GiayId { get; set; }
+        public Guid ? GiamGiaId { get; set; }
+        public Guid ? GiayId { get; set; }
         public virtual Giay Giay { get; set; }
-
-       
         public virtual GiamGia GiamGia { get; set; }
        
     }
