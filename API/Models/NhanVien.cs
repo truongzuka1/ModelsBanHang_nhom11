@@ -23,8 +23,8 @@ namespace API.Models
 
         public DateTime NgaySinh { get; set; }
         public bool TrangThai { get; set; }
-        public Guid ChucVuId { get; set; }
-        public Guid TaikhoanId { get; set; }
+        public Guid? ChucVuId { get; set; }
+        public Guid? TaikhoanId { get; set; }
 
         public DateTime NgayCapNhatCuoiCung { get; set; }
 
