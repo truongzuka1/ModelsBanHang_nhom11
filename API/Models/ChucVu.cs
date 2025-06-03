@@ -1,4 +1,5 @@
-﻿using System;
+﻿using API.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
@@ -12,6 +13,7 @@ namespace Data.Models
     {
         [Key]
         public Guid ChucVuId { get; set; }
+       
 
         [Required]
         [StringLength(50)]
@@ -24,7 +26,7 @@ namespace Data.Models
 
         [Required]
         public int TrangThai { get; set; }
-        public virtual ICollection<TaiKhoan_ChucVu> TaiKhoan_ChucVus { get; set; } = new List<TaiKhoan_ChucVu>();
+        public virtual ICollection<NhanVien> nhanViens { get; set; } = new List<NhanVien>();
 
     }
 

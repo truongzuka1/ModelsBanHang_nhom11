@@ -42,9 +42,9 @@ namespace Data.Models
         public Voucher ? voucher { get; set; }
         public TaiKhoan taiKhoan { get; set; }
         public HinhThucThanhToan hinhThucThanhToan {  get; set; }
-        public KhachHang ? khachHang { get; set; }
+        public KhachHang? khachHang { get; set; }
         public virtual ICollection<HoaDonChiTiet> HoaDonChiTietsId { get; set; } = new List<HoaDonChiTiet>();
-
+        
 
     }
 
