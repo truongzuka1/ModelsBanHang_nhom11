@@ -32,12 +32,31 @@ namespace API.Controllers
             return Ok(item);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] GioHangChiTiet model)
+        [HttpPost("AddToCart")]
+        public async Task<IActionResult> AddToCart([FromBody] GioHangChiTiet model)
         {
-            await _repository.AddAsync(model);
-            return CreatedAtAction(nameof(GetById), new { id = model.GioHangChiTietId }, model);
+            if (model.SoLuongSanPham <= 0)
+                return BadRequest("Số lượng sản phẩm phải lớn hơn 0");
+
+            var existingItem = await _repository.GetByGioHangVaGiayChiTietAsync(model.GioHangId, model.GiayChiTietId);
+            if (existingItem != null)
+            {
+                existingItem.SoLuongSanPham += model.SoLuongSanPham;
+                existingItem.NgayCapNhat = DateTime.Now;
+                await _repository.UpdateAsync(existingItem);
+                return Ok(existingItem);
+            }
+            else
+            {
+                model.GioHangChiTietId = Guid.NewGuid();
+                model.NgayTao = DateTime.Now;
+                model.NgayCapNhat = DateTime.Now;
+                model.TrangThai = true;
+                await _repository.AddAsync(model);
+                return CreatedAtAction(nameof(GetById), new { id = model.GioHangChiTietId }, model);
+            }
         }
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] GioHangChiTiet model)

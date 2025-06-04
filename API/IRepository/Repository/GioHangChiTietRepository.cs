@@ -20,12 +20,27 @@ namespace API.IRepository.Repository
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<GioHangChiTiet>> GetByGioHangIdAsync(Guid gioHangId)
+        {
+            return await _context.GioHangChiTiets
+                .Where(x => x.GioHangId == gioHangId)
+                .Include(x => x.GioHang)
+                .Include(x => x.GiayChiTiet)
+                .ToListAsync();
+        }
+
         public async Task<GioHangChiTiet> GetByIdAsync(Guid id)
         {
             return await _context.GioHangChiTiets
                 .Include(x => x.GioHang)
                 .Include(x => x.GiayChiTiet)
                 .FirstOrDefaultAsync(x => x.GioHangChiTietId == id);
+        }
+
+        public async Task<GioHangChiTiet> GetByGioHangVaGiayChiTietAsync(Guid gioHangId, Guid giayChiTietId)
+        {
+            return await _context.GioHangChiTiets
+                .FirstOrDefaultAsync(x => x.GioHangId == gioHangId && x.GiayChiTietId == giayChiTietId);
         }
 
         public async Task AddAsync(GioHangChiTiet entity)
@@ -50,4 +65,5 @@ namespace API.IRepository.Repository
             }
         }
     }
+
 }
