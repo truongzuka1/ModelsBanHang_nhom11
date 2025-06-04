@@ -21,9 +21,9 @@ namespace Data.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Data Source=HUY;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
+           
 
-            optionsBuilder.UseSqlServer(@"Data Source=.;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
+            optionsBuilder.UseSqlServer(@"Data Source=DELL\SQLEXPRESS;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
 
 
         }
@@ -46,12 +46,31 @@ namespace Data.Models
                 .WithMany(g => g.GiayDotGiamGias)
                 .HasForeignKey(gdg => gdg.GiamGiaId);
             modelBuilder.Entity<ChucVu>()
-     .HasMany(cv => cv.nhanViens)
-     .WithOne(nv => nv.ChucVu)
-     .HasForeignKey(nv => nv.ChucVuId)
-     .OnDelete(DeleteBehavior.Restrict);
+        .HasMany(cv => cv.nhanViens)
+        .WithOne(nv => nv.ChucVu)
+        .HasForeignKey(nv => nv.ChucVuId)
+        .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<NhanVien>()
+            // Seed dữ liệu cứng: Admin và Nhân viên
+            modelBuilder.Entity<ChucVu>().HasData(
+                new ChucVu
+                {
+                    ChucVuId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                    TenChucVu = "Admin",
+                    MotaChucVu = "Quản trị hệ thống",
+                    TrangThai = 1
+                },
+                new ChucVu
+                {
+                    ChucVuId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                    TenChucVu = "NhanVien",
+                    MotaChucVu = "Nhân viên bán hàng",
+                    TrangThai = 1
+                });
+           
+        
+
+                    modelBuilder.Entity<NhanVien>()
                 .HasOne(nv => nv.TaiKhoan)
                 .WithMany()
                 .HasForeignKey(nv => nv.TaikhoanId)
@@ -107,6 +126,9 @@ namespace Data.Models
            .WithMany()
            .HasForeignKey(kh => kh.TaiKhoanId)
            .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<HoaDonChiTiet>()
+    .Property(x => x.Gia)
+    .HasColumnType("decimal(18,2)");
         }
         public DbSet<KhachHang> KhachHangs { get; set; }
 

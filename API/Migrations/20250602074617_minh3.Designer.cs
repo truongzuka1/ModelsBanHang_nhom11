@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(DbContextApp))]
-    [Migration("20250602072642_minh2")]
-    partial class minh2
+    [Migration("20250602074617_minh3")]
+    partial class minh3
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -135,6 +135,22 @@ namespace API.Migrations
                     b.HasKey("ChucVuId");
 
                     b.ToTable("ChucVus");
+
+                    b.HasData(
+                        new
+                        {
+                            ChucVuId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            MotaChucVu = "Quản trị hệ thống",
+                            TenChucVu = "Admin",
+                            TrangThai = 1
+                        },
+                        new
+                        {
+                            ChucVuId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            MotaChucVu = "Nhân viên bán hàng",
+                            TenChucVu = "NhanVien",
+                            TrangThai = 1
+                        });
                 });
 
             modelBuilder.Entity("Data.Models.DeGiay", b =>
