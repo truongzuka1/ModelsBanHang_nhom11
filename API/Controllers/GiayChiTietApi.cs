@@ -78,49 +78,10 @@ namespace API.Controllers
             await _degiay.DeleteDeGiay(id);
             return Ok();
         }
-        [HttpPost("upload")]
-        public async Task<IActionResult> UploadAnh([FromForm] IFormFile file, [FromForm] string tenAnh)
-        {
-            if (file == null || file.Length == 0)
-                return BadRequest("Chưa chọn file ảnh.");
 
-            var anh = await _anhRepository.UploadAsync(file, tenAnh);
-            if (anh == null)
-                return StatusCode(500, "Không upload được ảnh.");
 
-            return Ok(anh);
-        }
-        // the  ảnh vào giầy chi tiết
-        [HttpPost("{giayChiTietId}/add-anh")]
-        public async Task<IActionResult> AddAnhToGiayChiTiet(Guid giayChiTietId, [FromQuery] Guid anhId)
-        {
-            var giayChiTiet = await _giayChitiet.getGiayChiTietbyID(giayChiTietId);
-            if (giayChiTiet == null) return NotFound("Không tìm thấy GiayChiTiet");
 
-            var anh = await _anhRepository.GetByIdAsync(anhId);
-            if (anh == null) return NotFound("Không tìm thấy ảnh");
 
-            giayChiTiet.AnhId = anhId;
-            await _giayChitiet.UpdateGiayChiTiet(giayChiTiet, null);
 
-            return Ok(giayChiTiet);
-        }
-        // Sửa file ảnh (upload file mới thay ảnh cũ)
-        [HttpPut("{id}/file")]
-        public async Task<IActionResult> UpdateFile(Guid id, [FromForm] IFormFile file, [FromForm] string tenAnh)
-        {
-            var result = await _anhRepository.UpdateFileAsync(id, file, tenAnh);
-            if (result == null) return NotFound();
-            return Ok(result);
-        }
-
-        // Xóa ảnh
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id)
-        {
-            var success = await _anhRepository.DeleteAsync(id);
-            if (!success) return NotFound();
-            return Ok();
-        }
     }
 }
