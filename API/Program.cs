@@ -1,14 +1,10 @@
-<<<<<<< Updated upstream
-using API.Repository;
-using API.Repository.IRepository;
-=======
+
 
 using API.IRepository;
 using API.IRepository.Repository;
 using API.Repository;
 using API.Repository.IRepository;
 
->>>>>>> Stashed changes
 using Data.Models;
 using Microsoft.EntityFrameworkCore;
 
