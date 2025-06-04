@@ -28,7 +28,7 @@ namespace API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ChucVuId")
+                    b.Property<Guid?>("ChucVuId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Email")
@@ -50,7 +50,7 @@ namespace API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("TaikhoanId")
+                    b.Property<Guid?>("TaikhoanId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("TrangThai")
@@ -132,6 +132,22 @@ namespace API.Migrations
                     b.HasKey("ChucVuId");
 
                     b.ToTable("ChucVus");
+
+                    b.HasData(
+                        new
+                        {
+                            ChucVuId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            MotaChucVu = "Quản trị hệ thống",
+                            TenChucVu = "Admin",
+                            TrangThai = 1
+                        },
+                        new
+                        {
+                            ChucVuId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            MotaChucVu = "Nhân viên bán hàng",
+                            TenChucVu = "NhanVien",
+                            TrangThai = 1
+                        });
                 });
 
             modelBuilder.Entity("Data.Models.DeGiay", b =>
@@ -324,10 +340,10 @@ namespace API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("GiamGiaId")
+                    b.Property<Guid?>("GiamGiaId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("GiayId")
+                    b.Property<Guid?>("GiayId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("GiayDotGiamGiaId");
@@ -489,8 +505,8 @@ namespace API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<float>("Gia")
-                        .HasColumnType("real");
+                    b.Property<decimal>("Gia")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("GiayChiTietId")
                         .HasColumnType("uniqueidentifier");
@@ -548,7 +564,7 @@ namespace API.Migrations
 
                     b.HasIndex("TaiKhoanId");
 
-                    b.ToTable("KhachHang");
+                    b.ToTable("KhachHangs");
                 });
 
             modelBuilder.Entity("Data.Models.KichCo", b =>
@@ -745,14 +761,12 @@ namespace API.Migrations
                     b.HasOne("Data.Models.ChucVu", "ChucVu")
                         .WithMany("nhanViens")
                         .HasForeignKey("ChucVuId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Data.Models.TaiKhoan", "TaiKhoan")
                         .WithMany()
                         .HasForeignKey("TaikhoanId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("ChucVu");
 
@@ -835,15 +849,11 @@ namespace API.Migrations
                 {
                     b.HasOne("Data.Models.GiamGia", "GiamGia")
                         .WithMany("GiayDotGiamGias")
-                        .HasForeignKey("GiamGiaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("GiamGiaId");
 
                     b.HasOne("Data.Models.Giay", "Giay")
                         .WithMany("GiayDotGiamGias")
-                        .HasForeignKey("GiayId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("GiayId");
 
                     b.Navigation("GiamGia");
 
