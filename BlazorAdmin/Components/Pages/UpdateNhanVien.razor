@@ -1,0 +1,50 @@
+﻿@page "/EditNhanVien/{Id:guid}"
+@using API.Models
+@using BlazorAdmin.Service
+@using BlazorAdmin.Service.IService
+@inject INhanVienService NhanVienservice
+@inject NavigationManager manager
+
+<h3>Edit Student</h3>
+
+<EditForm Model="nhanVien" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <ValidationSummary></ValidationSummary>
+    <div class="form-group">
+        <label>HoTen</label>
+        <InputText class="form-control" @bind-Value="nhanVien.HoTen" />
+    </div>
+    <div class="form-group">
+        <label>SoDienThoai</label>
+        <InputText class="form-control" @bind-Value="nhanVien.SoDienThoai" />
+    </div>
+    <div class="form-group">
+        <label>Email</label>
+        <InputText class="form-control" @bind-Value="nhanVien.Email" />
+    </div>
+    <div class="form-group">
+        <label>NgaySinh</label>
+        <InputDate class="form-control" @bind-Value="nhanVien.NgaySinh" />
+    </div>
+    <button type="submit" class="btn btn-success">Save</button>
+ 
+</EditForm>
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private NhanVien nhanVien = new NhanVien();
+
+    protected override async Task OnInitializedAsync()
+    {
+        nhanVien = await NhanVienservice.GetByIdNhanVienAsync(Id);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        nhanVien.NgayCapNhatCuoiCung = DateTime.Now;
+        await NhanVienservice.UpdateNhanVienAsync(nhanVien);
+        manager.NavigateTo("/listnhanvien");
+    }
+}

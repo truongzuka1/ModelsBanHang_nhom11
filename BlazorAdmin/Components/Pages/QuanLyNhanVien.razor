@@ -1,0 +1,87 @@
+﻿@page "/listnhanvien"
+@using API.Models;
+@using BlazorAdmin.Service;
+@using BlazorAdmin.Service.IService
+@inject INhanVienService service;
+@inject NavigationManager manager;
+@inject IJSRuntime JS;
+
+<h3>DanhSachNhanVien</h3>
+@{
+	int stt = 1;
+}
+<button class="btn btn-primary" @onclick="NavigateToCreate">Create</button>
+
+<table class="table">
+	<thead>
+		<tr>
+			<td>STT</td>
+			<td>HoTen</td>
+			<td>Số điện thoại</td>
+			<td>Email</td>
+			<td>Ngày sinh</td>
+		@* 	<td>Chức vụ</td> *@
+			<td>Ngày cập nhật cuối</td>
+			<td>Trạng Thái</td>
+			<td>Hanh Dong</td>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var item in NhanViens)
+		{
+			<tr>
+				<td>@stt</td>
+				<td>@item.HoTen</td>
+				<td>@item.SoDienThoai</td>
+				<td>@item.Email</td>
+				<td>@item.NgaySinh</td>
+			@* 	<td>@item.ChucVu?.TenChucVu</td> *@
+				<td>@item.NgayCapNhatCuoiCung</td>
+				<td>@(item.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")</td>
+
+
+
+				
+				<td>
+					<button class="btn btn-primary" @onclick="() => NavigateToEdit(item.NhanVienId)">Edit</button>
+					<button class="btn btn-danger" @onclick="() => DeleteAsyncNhanVien(item.NhanVienId)">Delete</button>
+				</td>
+			</tr>
+			stt++;
+		}
+	</tbody>
+</table>
+
+@code {
+	private List<NhanVien> NhanViens;
+	protected override async Task OnInitializedAsync()
+	{
+		if (NhanViens == null)
+		{
+			NhanViens = new List<NhanVien>();
+
+		}
+		NhanViens = await service.GetAllNhanVienAsync();
+	}
+
+	protected void NavigateToCreate()
+	{
+		manager.NavigateTo("/AddSanpham");
+	}
+	protected void NavigateToEdit(Guid id)
+	{
+		manager.NavigateTo($"/EditNhanVien/{id}");
+	}
+
+	private async Task DeleteAsyncNhanVien(Guid id)
+	{
+		var deleSanpham = await JS.InvokeAsync<bool>("confirm", $"Bạn có chắc chắn muốn xóa không?");
+		if (deleSanpham)
+		{
+			await service.DeleteNhanVienAsync(id);
+			NhanViens = await service.GetAllNhanVienAsync();
+			StateHasChanged();
+		}
+	}
+
+}

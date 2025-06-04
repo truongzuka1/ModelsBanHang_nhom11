@@ -1,11 +1,13 @@
-﻿namespace API.IRepository
+﻿using API.Models;
+
+namespace API.IRepository
 {
     public interface INhanVienRepository
     {
-        //Task<List<>> GetAllNhanVienAsync();
-        //Task<NhanVien> GetByIdNhanVienAsync(int id);
-        //Task CreateNhanVien(NhanVien nhanVien);
-        //Task DeleteNhanVienAsync(int id);
-        //Task UpdateNhanVienAsync(NhanVien nhanVien);
+            Task<List<NhanVien>> GetAllNhanVienAsync();
+            Task<NhanVien> GetByIdNhanVienAsync(Guid NhanVienId);
+            Task CreateNhanVien(NhanVien nhanVien);
+            Task DeleteNhanVienAsync(Guid NhanVienId);
+            Task UpdateNhanVienAsync(NhanVien nhanVien);
     }
 }
