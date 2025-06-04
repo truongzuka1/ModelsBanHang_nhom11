@@ -39,6 +39,7 @@ namespace API.IRepository.Repository
                 throw new Exception($"Lỗi khi tạo nhân viên: {ex.Message}");
             }
         }
+
         public async Task DeleteNhanVienAsync(Guid NhanVienId)
         {
             try
