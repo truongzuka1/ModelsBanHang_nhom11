@@ -23,6 +23,7 @@ builder.Services.AddScoped<IGiayChiTietRepository, GiayChiTietRepository>();
 builder.Services.AddScoped<IDeGiayRepository, DeGiayRepository>();
 builder.Services.AddScoped<INhanVienRepository, NhanVienRepository>();
 builder.Services.AddScoped<IVoucherRepo, VoucherRepo>();
+builder.Services.AddScoped<IHoaDonRepo, HoaDonRepo>();
 
 var app = builder.Build();
 
