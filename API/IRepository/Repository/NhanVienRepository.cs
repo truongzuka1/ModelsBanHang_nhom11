@@ -4,11 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.IRepository.Repository
 {
-<<<<<<< HEAD:API/IRepository/Repository/NhanVienRepository.cs
     public class NhanVienRepository : INhanVienRepository
-=======
-    public class TheLoaiGiayRepository
->>>>>>> 57f4e0e97e8167b8074d442aed1855af67d265df:API/IRepository/Repository/TheLoaiGiayRepository.cs
     {
         private readonly DbContextApp _db;
         public NhanVienRepository(DbContextApp db)
