@@ -10,7 +10,7 @@
 @{
 	int stt = 1;
 }
-<button class="btn btn-primary" @onclick="NavigateToCreate">Create</button>
+<button class="btn btn-primary" @onclick="NavigateToCreate">Thêm +</button>
 
 <table class="table">
 	<thead>
@@ -20,7 +20,7 @@
 			<td>Số điện thoại</td>
 			<td>Email</td>
 			<td>Ngày sinh</td>
-		@* 	<td>Chức vụ</td> *@
+			<td>Chức vụ</td>
 			<td>Ngày cập nhật cuối</td>
 			<td>Trạng Thái</td>
 			<td>Hanh Dong</td>
@@ -34,10 +34,18 @@
 				<td>@item.HoTen</td>
 				<td>@item.SoDienThoai</td>
 				<td>@item.Email</td>
-				<td>@item.NgaySinh</td>
-			@* 	<td>@item.ChucVu?.TenChucVu</td> *@
+				<td>@item.NgaySinh.ToString("dd/MM/yyyy")</td>
+				<td>@item.ChucVu?.TenChucVu</td>
 				<td>@item.NgayCapNhatCuoiCung</td>
-				<td>@(item.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")</td>
+				<td>
+					<button class="btn btn-sm @(item.TrangThai ? "btn-danger" : "btn-success") me-2"
+							@onclick="() => ToggleTrangThai(item.NhanVienId)">
+						🔄
+					</button>
+					<span>@(item.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")</span>
+				</td>
+
+
 
 
 
@@ -83,5 +91,22 @@
 			StateHasChanged();
 		}
 	}
+	private async Task ToggleTrangThai(Guid id)
+	{
+		var nhanVien = NhanViens.FirstOrDefault(x => x.NhanVienId == id);
+		if (nhanVien != null)
+		{
+
+			nhanVien.TrangThai = !nhanVien.TrangThai;
+
+	
+			await service.UpdateNhanVienAsync(nhanVien);
+
+			// Cập nhật lại danh sách
+			NhanViens = await service.GetAllNhanVienAsync();
+			StateHasChanged();
+		}
+	}
+
 
 }

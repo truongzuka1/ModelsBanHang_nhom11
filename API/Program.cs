@@ -1,11 +1,7 @@
-
-
-﻿using API.IRepository;
 using API.IRepository.Repository;
-
+using API.IRepository;
 
 using Data.Models;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,25 +10,15 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
-// Đăng ký DbContext (chỉ 1 lần duy nhất)
 builder.Services.AddDbContext<DbContextApp>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-// Đăng ký các Repository
+builder.Services.AddScoped<INhanVienRepository, NhanVienRepository>();
 builder.Services.AddScoped<IGiayChiTietRepository, GiayChiTietRepository>();
 builder.Services.AddScoped<IDeGiayRepository, DeGiayRepository>();
-builder.Services.AddScoped<INhanVienRepository, NhanVienRepository>();
-builder.Services.AddScoped<IVoucherRepo, VoucherRepo>();
-builder.Services.AddScoped<IHoaDonRepo, HoaDonRepo>();
-
-builder.Services.AddDbContext<DbContextApp>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
-
+builder.Services.AddScoped<IChiTietHoaDonRepository, ChiTietHoaDonRepository>();
 
 var app = builder.Build();
 
