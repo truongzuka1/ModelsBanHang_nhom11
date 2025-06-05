@@ -31,11 +31,11 @@ namespace BlazorAdmin.Service
             return await _httpClient.GetFromJsonAsync<NhanVien>("/api/NhanViens/" + NhanVienId);
         }
 
-        public async Task UpdateNhanVienAsync(NhanVien nhanVien)
-        {
-            var response = await _httpClient.PutAsJsonAsync($"/api/NhanViens/{nhanVien.NhanVienId}", nhanVien);
-            response.EnsureSuccessStatusCode(); 
-        }
+            public async Task UpdateNhanVienAsync(NhanVien nhanVien)
+            {
+                var response = await _httpClient.PutAsJsonAsync($"/api/NhanViens/{nhanVien.NhanVienId}", nhanVien);
+                response.EnsureSuccessStatusCode(); 
+            }
 
     }
 }

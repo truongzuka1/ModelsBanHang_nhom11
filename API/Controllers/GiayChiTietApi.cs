@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    [ApiController] 
+    [ApiController]
     [Route("api/[controller]")]
     public class GiayChiTietApi : Controller
     {
@@ -42,7 +42,7 @@ namespace API.Controllers
             return Ok(await _degiay.GetDeGiay(id));
         }
         [HttpPost("giaychitiet")]
-        public async Task<ActionResult<GiayChiTiet>> CreateGiayChitiet(GiayChiTiet gct ,Guid? iddegiay)
+        public async Task<ActionResult<GiayChiTiet>> CreateGiayChitiet(GiayChiTiet gct, Guid? iddegiay)
         {
             await _giayChitiet.CreateGiayChiTiet(gct, iddegiay);
             return Ok();
@@ -56,7 +56,7 @@ namespace API.Controllers
         [HttpPut("giaychitiet")]
         public async Task<ActionResult> UpdateGiayChiTiet(GiayChiTiet gct, Guid? dg)
         {
-            await _giayChitiet.UpdateGiayChiTiet(gct , dg);
+            await _giayChitiet.UpdateGiayChiTiet(gct, dg);
             return Ok();
         }
         [HttpDelete("giaychitiet/{id}")]
@@ -77,6 +77,6 @@ namespace API.Controllers
             await _degiay.DeleteDeGiay(id);
             return Ok();
         }
-       
+
     }
 }
