@@ -16,7 +16,7 @@ namespace API.IRepository.Repository
         {
             return await _context.GioHangChiTiets
                 .Include(x => x.GioHang)
-                .Include(x => x.GiayChiTiet)
+                .Include(x => x.Giays)
                 .ToListAsync();
         }
 
@@ -25,7 +25,7 @@ namespace API.IRepository.Repository
             return await _context.GioHangChiTiets
                 .Where(x => x.GioHangId == gioHangId)
                 .Include(x => x.GioHang)
-                .Include(x => x.GiayChiTiet)
+                .Include(x => x.Giays)
                 .ToListAsync();
         }
 
@@ -33,7 +33,7 @@ namespace API.IRepository.Repository
         {
             return await _context.GioHangChiTiets
                 .Include(x => x.GioHang)
-                .Include(x => x.GiayChiTiet)
+                .Include(x => x.Giays)
                 .FirstOrDefaultAsync(x => x.GioHangChiTietId == id);
         }
 
