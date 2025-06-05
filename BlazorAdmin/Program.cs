@@ -30,11 +30,18 @@ builder.Services.AddHttpClient("voucher", client =>
 
 
 // Đăng ký Service
+// Đăng ký các service vào DI container trong Program.cs
 builder.Services.AddScoped<INhanVienService, NhanVienService>();
 builder.Services.AddScoped<IAnhService, AnhService>();
 builder.Services.AddScoped<IChatLieuService, ChatLieuService>();
+builder.Services.AddScoped<IChiTietHoaDonService, ChiTietHoaDonService>();
+builder.Services.AddScoped<IDeGiayService, DeGiayService>();
+builder.Services.AddScoped<IGiamGiaService, GiamGiaService>();
+builder.Services.AddScoped<IGiayChiTietService, GiayChiTietService>();
 builder.Services.AddScoped<IGiayService, GiayService>();
 builder.Services.AddScoped<IHoaDonService, HoaDonService>();
+builder.Services.AddScoped<IKichCoService, KichCoService>();
+builder.Services.AddScoped<ITheLoaiGiayService, TheLoaiGiayService>();
 builder.Services.AddScoped<IThuongHieuService, ThuongHieuService>();
 builder.Services.AddScoped<IVoucherService, VoucherService>();
 var app = builder.Build();

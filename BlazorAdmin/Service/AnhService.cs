@@ -1,6 +1,6 @@
 ﻿using API.IRepository;
 using API.IService;
-using Data.Models;
+using API.Models;
 using Microsoft.AspNetCore.Http;
 
 namespace API.Service

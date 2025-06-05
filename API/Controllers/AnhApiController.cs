@@ -1,5 +1,5 @@
 ﻿using API.IRepository;
-using Data.Models;
+using API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
