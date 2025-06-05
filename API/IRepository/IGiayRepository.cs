@@ -10,5 +10,6 @@ namespace API.IRepository
         Task UpdateAsync(Giay giay);
         Task DeleteAsync(Guid id);
         Task GetByIdWithGiamGiaAsync(Guid id);
+
     }
 }
