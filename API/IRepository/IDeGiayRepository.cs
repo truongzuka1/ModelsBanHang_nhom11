@@ -1,6 +1,6 @@
 ﻿using Data.Models;
 
-namespace API.Repository.IRepository
+namespace API.IRepository
 {
     public interface IDeGiayRepository
     {

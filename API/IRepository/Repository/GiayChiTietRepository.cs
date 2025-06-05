@@ -1,8 +1,8 @@
-﻿using API.Repository.IRepository;
+﻿using API.IRepository;
 using Data.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace API.Repository
+namespace API.IRepository.Repository
 {
     public class GiayChiTietRepository : IGiayChiTietRepository
     {

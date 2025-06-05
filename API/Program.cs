@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 
 
 using API.IRepository;
@@ -5,21 +6,36 @@ using API.IRepository.Repository;
 using API.Repository;
 using API.Repository.IRepository;
 
+=======
+﻿using API.IRepository;
+using API.IRepository.Repository;
+>>>>>>> Stashed changes
 using Data.Models;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<DbContextApp>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
-builder.Services.AddScoped<IGiayChiTietRepository, GiayChiTietRepository>();
-builder.Services.AddScoped<IDeGiayRepository , DeGiayRepository>();
 
+<<<<<<< Updated upstream
+=======
+// Đăng ký DbContext (chỉ 1 lần duy nhất)
+builder.Services.AddDbContext<DbContextApp>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
+// Đăng ký các Repository
+builder.Services.AddScoped<IGiayChiTietRepository, GiayChiTietRepository>();
+builder.Services.AddScoped<IDeGiayRepository, DeGiayRepository>();
+builder.Services.AddScoped<INhanVienRepository, NhanVienRepository>();
+builder.Services.AddScoped<IVoucherRepo, VoucherRepo>();
+builder.Services.AddScoped<IHoaDonRepo, HoaDonRepo>();
+
+>>>>>>> Stashed changes
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

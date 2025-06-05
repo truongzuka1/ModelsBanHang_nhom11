@@ -1,20 +1,18 @@
 ﻿using API.IRepository;
-using API.IRepository.Repository;
-
 using Data.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    [ApiController]
+    [ApiController] 
     [Route("api/[controller]")]
-    public class GiayChiTietApi : Controller
+    public class GiayChiTietController : Controller
     {
         private readonly IGiayChiTietRepository _giayChitiet;
         private readonly IDeGiayRepository _degiay;
         private readonly IAnhRepository _anhRepository;
 
-        public GiayChiTietApi(IGiayChiTietRepository giayChitiet, IDeGiayRepository degiay, IAnhRepository anhRepository)
+        public GiayChiTietController(IGiayChiTietRepository giayChitiet, IDeGiayRepository degiay, IAnhRepository anhRepository)
         {
             _giayChitiet = giayChitiet;
             _degiay = degiay;
@@ -77,10 +75,6 @@ namespace API.Controllers
             await _degiay.DeleteDeGiay(id);
             return Ok();
         }
-
-
-
-
-
+       
     }
 }
