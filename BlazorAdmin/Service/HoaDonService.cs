@@ -3,11 +3,11 @@ using Data.Models;
 
 namespace BlazorAdmin.Service
 {
-    public class HoaDonServiceRepo : IHoaDonService
+    public class HoaDonService : IHoaDonService
     {
         private readonly HttpClient _httpClient;
 
-        public HoaDonServiceRepo(IHttpClientFactory factory)
+        public HoaDonService(IHttpClientFactory factory)
         {
             _httpClient = factory.CreateClient("hoadon");
         }
