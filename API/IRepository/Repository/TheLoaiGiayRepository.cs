@@ -1,35 +1,37 @@
 ﻿using API.Models;
 using Data.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace API.IRepository.Repository
 {
+<<<<<<< HEAD:API/IRepository/Repository/NhanVienRepository.cs
     public class NhanVienRepository : INhanVienRepository
+=======
+    public class TheLoaiGiayRepository
+>>>>>>> 57f4e0e97e8167b8074d442aed1855af67d265df:API/IRepository/Repository/TheLoaiGiayRepository.cs
     {
         private readonly DbContextApp _db;
-
         public NhanVienRepository(DbContextApp db)
         {
             _db = db;
         }
-
         public async Task CreateNhanVien(NhanVien nhanVien)
         {
             try
             {
+              
                 if (nhanVien.TaikhoanId == Guid.Empty)
                 {
                     nhanVien.TaikhoanId = null;
                 }
 
+              
                 if (nhanVien.ChucVuId == null || nhanVien.ChucVuId == Guid.Empty)
                 {
                     nhanVien.ChucVuId = Guid.Parse("22222222-2222-2222-2222-222222222222");
                 }
 
+              
                 nhanVien.NgayCapNhatCuoiCung = DateTime.Now;
 
                 _db.NhanViens.Add(nhanVien);
@@ -41,20 +43,23 @@ namespace API.IRepository.Repository
             }
         }
 
-        public async Task DeleteNhanVienAsync(Guid nhanVienId)
+
+
+
+        public async Task DeleteNhanVienAsync(Guid NhanVienId)
         {
             try
             {
-                var nhanVien = await GetByIdNhanVienAsync(nhanVienId);
-                if (nhanVien != null)
+                var FindIdNhanVien = await GetByIdNhanVienAsync(NhanVienId);
+                if (FindIdNhanVien != null)
                 {
-                    _db.NhanViens.Remove(nhanVien);
+                    _db.Remove<NhanVien>(FindIdNhanVien);
                     await _db.SaveChangesAsync();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw new Exception($"Lỗi khi xoá nhân viên: {ex.Message}");
+                throw;
             }
         }
 
@@ -63,15 +68,15 @@ namespace API.IRepository.Repository
             return await _db.NhanViens.ToListAsync();
         }
 
-        public async Task<NhanVien> GetByIdNhanVienAsync(Guid nhanVienId)
+        public async Task<NhanVien> GetByIdNhanVienAsync(Guid NhanVienId)
         {
             try
             {
-                return await _db.NhanViens.FindAsync(nhanVienId);
+                return await _db.NhanViens.FindAsync(NhanVienId);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw new Exception($"Lỗi khi tìm nhân viên theo ID: {ex.Message}");
+                throw;
             }
         }
 
@@ -79,13 +84,13 @@ namespace API.IRepository.Repository
         {
             try
             {
-                nhanVien.NgayCapNhatCuoiCung = DateTime.Now;
                 _db.NhanViens.Update(nhanVien);
                 await _db.SaveChangesAsync();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw new Exception($"Lỗi khi cập nhật nhân viên: {ex.Message}");
+
+                throw;
             }
         }
     }
