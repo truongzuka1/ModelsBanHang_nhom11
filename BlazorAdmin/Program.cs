@@ -15,6 +15,10 @@ builder.Services.AddScoped(sp => new HttpClient
 });
 
 builder.Services.AddScoped<INhanVienService, NhanVienService>();
+builder.Services.AddScoped<IThuongHieuService, ThuongHieuService>();
+builder.Services.AddScoped<IChatLieuService, ChatLieuService>();
+builder.Services.AddScoped<IGiayService, GiayService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
