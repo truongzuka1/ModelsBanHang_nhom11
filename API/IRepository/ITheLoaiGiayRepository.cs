@@ -4,10 +4,13 @@ namespace API.IRepository
 {
     public interface ITheLoaiGiayRepository
     {
-        Task<List<TheLoaiGiay>> GetAllTheLoai();
-        Task<TheLoaiGiay> GetByIdTheLoai(Guid TheLoaiGiayId);
-        Task CreateTheLoai(TheLoaiGiay theloaigiay);
-        Task UpdateTheLoai(TheLoaiGiay theloaigiay);
-        Task DeleteTheLoai(Guid TheLoaiGiayId);
+        Task<IEnumerable<TheLoaiGiay>> GetAllAsync();
+        Task<TheLoaiGiay> GetByIdAsync(Guid id);
+        Task<TheLoaiGiay> AddAsync(TheLoaiGiay theLoaiGiay);
+        Task<TheLoaiGiay> UpdateAsync(TheLoaiGiay theLoaiGiay);
+        Task<bool> DeleteAsync(Guid id);
+
+        // (Tuỳ chọn) Lấy thể loại của một giày chi tiết
+        Task<TheLoaiGiay> GetTheLoaiByGiayChiTietIdAsync(Guid giayChiTietId);
     }
 }
