@@ -1,10 +1,10 @@
-
 using API.IRepository.Repository;
 using API.IRepository;
-using Data.Models;
+
 using Microsoft.EntityFrameworkCore;
 using API.Repository.IRepository;
 using API.Repository;
+using Data.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,10 +19,12 @@ builder.Services.AddDbContext<DbContextApp>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
 builder.Services.AddScoped<INhanVienRepository, NhanVienRepository>();
 builder.Services.AddScoped<IGiayChiTietRepository, GiayChiTietRepository>();
 builder.Services.AddScoped<IDeGiayRepository, DeGiayRepository>();
 builder.Services.AddScoped<IChiTietHoaDonRepository, ChiTietHoaDonRepository>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

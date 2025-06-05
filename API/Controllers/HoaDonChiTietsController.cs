@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Data.Models;
 using API.IRepository;
-using NuGet.Protocol.Core.Types;
 
 namespace API.Controllers
 {
@@ -15,27 +14,30 @@ namespace API.Controllers
     [ApiController]
     public class HoaDonChiTietsController : ControllerBase
     {
-        private readonly IChiTietHoaDonRepository _context;
+        private readonly IChiTietHoaDonRepository _repository;
 
         public HoaDonChiTietsController(IChiTietHoaDonRepository context)
         {
-            _context = context;
+            _repository = context;
         }
 
         // GET: api/HoaDonChiTiets
         [HttpGet]
         public async Task<ActionResult<IEnumerable<HoaDonChiTiet>>> GetHoaDonChiTiets()
         {
-           return Ok(await _context.GetAllHDCTAsync());
+            var result = await _repository.GetAllHDCTAsync();
+            return Ok(result);
         }
 
         // GET: api/HoaDonChiTiets/5
         [HttpGet("{id}")]
         public async Task<ActionResult<HoaDonChiTiet>> GetHoaDonChiTiet(Guid id)
         {
-            return Ok(await _context.GetByIdHDCTAsync(id));
+            var item = await _repository.GetByIdHDCTAsync(id);
+            if (item == null) return NotFound();
+            return Ok(item);
         }
 
-      
+
     }
 }

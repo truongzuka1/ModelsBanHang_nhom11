@@ -60,5 +60,8 @@ namespace API.Controllers
             await _giayRepository.DeleteAsync(id);
             return Ok();
         }
+
+       
+
     }
 }

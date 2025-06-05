@@ -14,13 +14,14 @@ namespace API.Controllers
         private readonly IGiayChiTietRepository _giayChitiet;
         private readonly IDeGiayRepository _degiay;
         private readonly IAnhRepository _anhRepository;
+        private readonly IKichCoRepository _kichcoRepository;
 
-        public GiayChiTietApi(IGiayChiTietRepository giayChitiet, IDeGiayRepository degiay, IAnhRepository anhRepository)
+        public GiayChiTietApi(IGiayChiTietRepository giayChitiet, IDeGiayRepository degiay, IAnhRepository anhRepository, IKichCoRepository kichcoRepository)
         {
             _giayChitiet = giayChitiet;
             _degiay = degiay;
             _anhRepository = anhRepository;
-
+            _kichcoRepository = kichcoRepository;
         }
         [HttpGet("giaychitiet")]
         public async Task<ActionResult<IEnumerable<GiayChiTiet>>> GetGiayChiTiets()

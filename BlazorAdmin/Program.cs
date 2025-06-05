@@ -21,9 +21,14 @@ builder.Services.AddScoped(sp => new HttpClient
 {
     BaseAddress = new Uri("https://localhost:7246/")
 });
-
+builder.Services.AddHttpClient("voucher", client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7246/");
+});
 
 builder.Services.AddScoped<INhanVienService, NhanVienService>();
+builder.Services.AddScoped<IVoucherService, VoucherServiceRepo>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

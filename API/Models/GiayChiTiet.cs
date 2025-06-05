@@ -41,7 +41,7 @@ namespace Data.Models
         public virtual DeGiay ? DeGiay { get; set; }
         public virtual TheLoaiGiay ? TheLoaiGiay { get; set; }
         public virtual Anh? Anh { get; set; }
-        public virtual ICollection<HoaDonChiTiet>? HoaDonChiTiets { get; set; } = new List<HoaDonChiTiet>();
+
         public virtual ICollection<GioHangChiTiet>?GioHangChiTiets { get; set; } = new List<GioHangChiTiet>();
     }
 }

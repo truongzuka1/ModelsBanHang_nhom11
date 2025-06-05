@@ -1,9 +1,8 @@
-﻿using API.Models;
-using Data.Models;
+﻿using Data.Models;
 
-namespace API.IRepository
+namespace BlazorAdmin.Service.IService
 {
-    public interface IChiTietHoaDonRepository
+    public interface IChiTietHoaDonService
     {
         Task<IEnumerable<HoaDonChiTiet>> GetAllHDCTAsync();
         Task<IEnumerable<HoaDonChiTiet>> GetByHoaDonChiTietIdAsync(Guid hdctID);
