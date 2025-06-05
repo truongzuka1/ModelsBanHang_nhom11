@@ -1,0 +1,45 @@
+﻿@page "/AddSanpham"
+@using API.Models
+@using BlazorAdmin.Service
+@using BlazorAdmin.Service.IService
+@inject INhanVienService NhanVienservice
+@inject NavigationManager manager
+
+<h3 class="mb-3">Thêm nhân viên</h3>
+
+<EditForm Model="std" OnValidSubmit="SubmitFormCreate">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <ValidationSummary></ValidationSummary>
+    <div>
+        <label>HoTen:</label>
+        <InputText @bind-Value="std.HoTen"></InputText>
+    </div>
+    <div>
+        <label>Số điện thoại:</label>
+        <InputText @bind-Value="std.SoDienThoai"></InputText>
+    </div>
+    <div>
+        <label>Email:</label>
+        <InputText @bind-Value="std.Email"></InputText>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Ngày sinh:</label>
+        <InputDate class="form-control" @bind-Value="std.NgaySinh" />
+    </div>
+    <button type="submit" class="btn btn-primary">Thêm</button>
+</EditForm>
+
+@code {
+    private NhanVien std = new NhanVien
+        {
+            TrangThai = true
+        };
+
+    private async Task SubmitFormCreate()
+    {
+        std.NgayCapNhatCuoiCung = DateTime.Now;
+        await NhanVienservice.CreateNhanVien(std);
+        manager.NavigateTo("/listnhanvien");
+    }
+}
+

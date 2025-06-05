@@ -19,10 +19,8 @@ namespace Data.Models
         [Range(1, int.MaxValue)]
         public int SoLuongSanPham { get; set; }
         public decimal Gia { get; set; }
-
-        // Navigation properties (optional)
-        public HoaDon HoaDons { get; set; }
-        public GiayChiTiet GiayChiTiets { get; set; }
+        public virtual HoaDon HoaDons { get; set; }
+        public virtual Giay Giays { get; set; }
     }
 
 }

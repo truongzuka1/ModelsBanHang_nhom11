@@ -1,6 +1,8 @@
 
+
 ﻿using API.IRepository;
 using API.IRepository.Repository;
+
 
 using Data.Models;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +27,12 @@ builder.Services.AddScoped<IDeGiayRepository, DeGiayRepository>();
 builder.Services.AddScoped<INhanVienRepository, NhanVienRepository>();
 builder.Services.AddScoped<IVoucherRepo, VoucherRepo>();
 builder.Services.AddScoped<IHoaDonRepo, HoaDonRepo>();
+
+builder.Services.AddDbContext<DbContextApp>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
 
 var app = builder.Build();
 

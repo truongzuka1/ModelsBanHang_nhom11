@@ -1,72 +1,95 @@
 ﻿using Data.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace API.IRepository.Repository
 {
     public class KichCoRepository : IKichCoRepository
     {
-        public KichCoRepository(DbContextApp db)
+        private readonly DbContextApp _context;
+
+        public KichCoRepository(DbContextApp context)
         {
-            _db = db;
+            _context = context;
         }
 
-        public Task CreateKichCo(KichCo kichco)
+        public async Task<IEnumerable<KichCo>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            return await _context.KichCos.ToListAsync();
         }
 
-        public async Task DeleteKichCo(Guid KichCoId)
+        public async Task<KichCo> GetByIdAsync(Guid id)
         {
-            try
-            {
-                var deletekichco = await _db.KichCos.FindAsync(KichCoId);
-                if (deletekichco != null)
-                {
-                    _db.KichCos.Remove(deletekichco);
-                    await _db.SaveChangesAsync();
-                }
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
+            return await _context.KichCos.FindAsync(id);
         }
 
-        public Task<List<KichCo>> GetAllKichCo()
+        public async Task<KichCo> AddAsync(KichCo kichCo)
         {
-            throw new NotImplementedException();
+            kichCo.KichCoId = Guid.NewGuid();
+            _context.KichCos.Add(kichCo);
+            await _context.SaveChangesAsync();
+            return kichCo;
         }
 
-        public Task<KichCo> GetByIdKichCo(Guid KichCoId)
+        public async Task<KichCo> UpdateAsync(KichCo kichCo)
         {
-            throw new NotImplementedException();
+            var existing = await _context.KichCos.FindAsync(kichCo.KichCoId);
+            if (existing == null) return null;
+
+            existing.TenKichCo = kichCo.TenKichCo;
+            existing.MoTa = kichCo.MoTa;
+            existing.TrangThai = kichCo.TrangThai;
+
+            await _context.SaveChangesAsync();
+            return existing;
         }
 
-        public Task UpdateKichCo(KichCo kichco)
+        public async Task<bool> DeleteAsync(Guid id)
         {
-            throw new NotImplementedException();
+            var kichCo = await _context.KichCos.FindAsync(id);
+            if (kichCo == null) return false;
+            _context.KichCos.Remove(kichCo);
+            await _context.SaveChangesAsync();
+            return true;
         }
-        private readonly DbContextApp _db;
 
-        
-        public async Task DeleteAnh(Guid AnhId)
+        // Thêm kích cỡ vào GiayChiTiet
+        public async Task<bool> AddKichCoToGiayChiTiet(Guid giayChiTietId, Guid kichCoId)
         {
-          
-        }
-        public async Task CreateAnh(Anh anh)
-        {
-            try
-            {
-                _db.Add(anh);
-                await _db.SaveChangesAsync();
-            }
-            catch (Exception)
-            {
+            var giayChiTiet = await _context.GiayChiTiets.FindAsync(giayChiTietId);
+            var kichCo = await _context.KichCos.FindAsync(kichCoId);
+            if (giayChiTiet == null || kichCo == null) return false;
 
-                throw;
-            }
+            // Nếu đã có rồi thì không thêm nữa
+            if (giayChiTiet.KichCoId == kichCoId) return false;
+
+            giayChiTiet.KichCoId = kichCoId;
+            await _context.SaveChangesAsync();
+            return true;
         }
-        
+        public async Task<bool> RemoveKichCoFromGiayChiTiet(Guid giayChiTietId, Guid kichCoId)
+        {
+            var giayChiTiet = await _context.GiayChiTiets.FindAsync(giayChiTietId);
+            if (giayChiTiet == null || giayChiTiet.KichCoId != kichCoId) return false;
+            _context.GiayChiTiets.Remove(giayChiTiet);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        // Lấy danh sách kích cỡ của 1 giày chi tiết (thường chỉ 1, nhưng giữ nguyên kiểu dữ liệu cho linh hoạt)
+        public async Task<IEnumerable<KichCo>> GetKichCosByGiayIdAsync(Guid giayChiTietId)
+        {
+            var giayChiTiet = await _context.GiayChiTiets
+                .Include(x => x.KichCo)
+                .FirstOrDefaultAsync(x => x.GiayChiTietId == giayChiTietId);
+
+            if (giayChiTiet == null || giayChiTiet.KichCo == null)
+                return new List<KichCo>();
+
+            return new List<KichCo> { giayChiTiet.KichCo };
+        }
     }
 }
