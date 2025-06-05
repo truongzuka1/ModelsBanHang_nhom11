@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace API.Migrations
 {
     /// <inheritdoc />
-    public partial class db011111 : Migration
+    public partial class gggg : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -256,8 +258,8 @@ namespace API.Migrations
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     NgaySinh = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TrangThai = table.Column<bool>(type: "bit", nullable: false),
-                    ChucVuId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TaikhoanId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ChucVuId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    TaikhoanId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     NgayCapNhatCuoiCung = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -476,7 +478,8 @@ namespace API.Migrations
                     Gia = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     NgayTao = table.Column<DateTime>(type: "datetime2", nullable: false),
                     NgayCapNhat = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TrangThai = table.Column<bool>(type: "bit", nullable: false)
+                    TrangThai = table.Column<bool>(type: "bit", nullable: false),
+                    GiayId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -487,6 +490,11 @@ namespace API.Migrations
                         principalTable: "GiayChiTiets",
                         principalColumn: "GiayChiTietId",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_GioHangChiTiets_Giays_GiayId",
+                        column: x => x.GiayId,
+                        principalTable: "Giays",
+                        principalColumn: "GiayId");
                     table.ForeignKey(
                         name: "FK_GioHangChiTiets_GioHangs_GioHangId",
                         column: x => x.GioHangId,
@@ -503,16 +511,17 @@ namespace API.Migrations
                     GiayChiTietId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     HoaDonId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SoLuongSanPham = table.Column<int>(type: "int", nullable: false),
-                    Gia = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    Gia = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    GiaysGiayId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_HoaDonChiTiets", x => x.HoaDonChiTietId);
                     table.ForeignKey(
-                        name: "FK_HoaDonChiTiets_GiayChiTiets_GiayChiTietId",
-                        column: x => x.GiayChiTietId,
-                        principalTable: "GiayChiTiets",
-                        principalColumn: "GiayChiTietId",
+                        name: "FK_HoaDonChiTiets_Giays_GiaysGiayId",
+                        column: x => x.GiaysGiayId,
+                        principalTable: "Giays",
+                        principalColumn: "GiayId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_HoaDonChiTiets_HoaDons_HoaDonId",
@@ -520,6 +529,15 @@ namespace API.Migrations
                         principalTable: "HoaDons",
                         principalColumn: "HoaDonId",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "ChucVus",
+                columns: new[] { "ChucVuId", "MotaChucVu", "TenChucVu", "TrangThai" },
+                values: new object[,]
+                {
+                    { new Guid("11111111-1111-1111-1111-111111111111"), "Quản trị hệ thống", "Admin", 1 },
+                    { new Guid("22222222-2222-2222-2222-222222222222"), "Nhân viên bán hàng", "NhanVien", 1 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -588,6 +606,11 @@ namespace API.Migrations
                 column: "GiayChiTietId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_GioHangChiTiets_GiayId",
+                table: "GioHangChiTiets",
+                column: "GiayId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_GioHangChiTiets_GioHangId",
                 table: "GioHangChiTiets",
                 column: "GioHangId");
@@ -598,9 +621,9 @@ namespace API.Migrations
                 column: "KhachHangId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_HoaDonChiTiets_GiayChiTietId",
+                name: "IX_HoaDonChiTiets_GiaysGiayId",
                 table: "HoaDonChiTiets",
-                column: "GiayChiTietId");
+                column: "GiaysGiayId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_HoaDonChiTiets_HoaDonId",
@@ -670,10 +693,10 @@ namespace API.Migrations
                 name: "GiamGias");
 
             migrationBuilder.DropTable(
-                name: "GioHangs");
+                name: "GiayChiTiets");
 
             migrationBuilder.DropTable(
-                name: "GiayChiTiets");
+                name: "GioHangs");
 
             migrationBuilder.DropTable(
                 name: "HoaDons");

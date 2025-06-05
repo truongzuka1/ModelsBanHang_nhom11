@@ -392,6 +392,9 @@ namespace API.Migrations
                     b.Property<Guid>("GiayChiTietId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("GiayId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("GioHangId")
                         .HasColumnType("uniqueidentifier");
 
@@ -410,6 +413,8 @@ namespace API.Migrations
                     b.HasKey("GioHangChiTietId");
 
                     b.HasIndex("GiayChiTietId");
+
+                    b.HasIndex("GiayId");
 
                     b.HasIndex("GioHangId");
 
@@ -511,6 +516,9 @@ namespace API.Migrations
                     b.Property<Guid>("GiayChiTietId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("GiaysGiayId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("HoaDonId")
                         .HasColumnType("uniqueidentifier");
 
@@ -519,7 +527,7 @@ namespace API.Migrations
 
                     b.HasKey("HoaDonChiTietId");
 
-                    b.HasIndex("GiayChiTietId");
+                    b.HasIndex("GiaysGiayId");
 
                     b.HasIndex("HoaDonId");
 
@@ -874,10 +882,14 @@ namespace API.Migrations
             modelBuilder.Entity("Data.Models.GioHangChiTiet", b =>
                 {
                     b.HasOne("Data.Models.GiayChiTiet", "GiayChiTiet")
-                        .WithMany("GioHangChiTiets")
+                        .WithMany()
                         .HasForeignKey("GiayChiTietId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Data.Models.Giay", null)
+                        .WithMany("GioHangChiTiets")
+                        .HasForeignKey("GiayId");
 
                     b.HasOne("Data.Models.GioHang", "GioHang")
                         .WithMany("GioHangChiTiets")
@@ -925,9 +937,9 @@ namespace API.Migrations
 
             modelBuilder.Entity("Data.Models.HoaDonChiTiet", b =>
                 {
-                    b.HasOne("Data.Models.GiayChiTiet", "GiayChiTiets")
+                    b.HasOne("Data.Models.Giay", "Giays")
                         .WithMany("HoaDonChiTiets")
-                        .HasForeignKey("GiayChiTietId")
+                        .HasForeignKey("GiaysGiayId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -937,7 +949,7 @@ namespace API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("GiayChiTiets");
+                    b.Navigation("Giays");
 
                     b.Navigation("HoaDons");
                 });
@@ -994,10 +1006,7 @@ namespace API.Migrations
                     b.Navigation("GiayChiTiets");
 
                     b.Navigation("GiayDotGiamGias");
-                });
 
-            modelBuilder.Entity("Data.Models.GiayChiTiet", b =>
-                {
                     b.Navigation("GioHangChiTiets");
 
                     b.Navigation("HoaDonChiTiets");
