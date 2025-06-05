@@ -1,6 +1,8 @@
 
-using API.Repository;
-using API.Repository.IRepository;
+
+﻿using API.IRepository;
+using API.IRepository.Repository;
+
 
 using Data.Models;
 using Microsoft.EntityFrameworkCore;
@@ -8,14 +10,23 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<DbContextApp>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
+
+// Đăng ký DbContext (chỉ 1 lần duy nhất)
+builder.Services.AddDbContext<DbContextApp>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
+// Đăng ký các Repository
 builder.Services.AddScoped<IGiayChiTietRepository, GiayChiTietRepository>();
-builder.Services.AddScoped<IDeGiayRepository , DeGiayRepository>();
+builder.Services.AddScoped<IDeGiayRepository, DeGiayRepository>();
+builder.Services.AddScoped<INhanVienRepository, NhanVienRepository>();
+builder.Services.AddScoped<IVoucherRepo, VoucherRepo>();
+builder.Services.AddScoped<IHoaDonRepo, HoaDonRepo>();
 
 builder.Services.AddDbContext<DbContextApp>(options =>
 {

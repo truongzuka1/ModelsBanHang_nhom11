@@ -20,6 +20,7 @@ namespace Data.Models
         public virtual ICollection<HoaDonChiTiet>? HoaDonChiTiets { get; set; } = new List<HoaDonChiTiet>();
         public virtual ICollection<GiayDotGiamGia> GiayDotGiamGias { get; set; }
         public virtual ICollection<GiayChiTiet> GiayChiTiets { get; set; }
+        public virtual ICollection<GioHangChiTiet>? GioHangChiTiets { get; set; } = new List<GioHangChiTiet>();
     }
 
 }
