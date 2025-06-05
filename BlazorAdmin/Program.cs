@@ -4,7 +4,7 @@ using BlazorAdmin.Service.IService;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddControllers().AddJsonOptions(options =>
@@ -28,6 +28,7 @@ builder.Services.AddHttpClient("voucher", client =>
 
 builder.Services.AddScoped<INhanVienService, NhanVienService>();
 builder.Services.AddScoped<IVoucherService, VoucherServiceRepo>();
+builder.Services.AddScoped<IChiTietHoaDonService, ChiTietHoaDonService>();
 
 var app = builder.Build();
 
