@@ -1,6 +1,6 @@
 ﻿using Data.Models;
 
-namespace API.IService
+namespace BlazorAdmin.Service.IService
 {
     public interface IGiamGiaService
     {

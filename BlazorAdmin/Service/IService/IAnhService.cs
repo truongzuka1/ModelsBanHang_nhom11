@@ -1,15 +1,15 @@
 ﻿using API.Models;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Components.Forms;
 
-namespace API.IService
+namespace BlazorAdmin.Service.IService
 {
     public interface IAnhService
     {
-        Task<IEnumerable<Anh>> GetAllAsync();
+        Task<List<Anh>> GetAllAsync();
         Task<Anh> GetByIdAsync(Guid id);
-        Task<Anh> UploadAsync(IFormFile file, string tenAnh);
+        Task<Anh> UploadAsync(IBrowserFile file, string tenAnh);
         Task<Anh> UpdateAsync(Anh anh);
-        Task<Anh> UpdateFileAsync(Guid id, IFormFile file, string tenAnh);
+        Task<Anh> UpdateFileAsync(Guid id, IBrowserFile file, string tenAnh);
         Task<bool> DeleteAsync(Guid id);
     }
 }

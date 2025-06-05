@@ -1,46 +1,54 @@
-﻿using API.IRepository;
-using API.IService;
+﻿using API.IService;
+using BlazorAdmin.Service.IService;
 using Data.Models;
+using System.Net.Http.Json;
 
-namespace API.Service
+namespace BlazorAdmin.Service
 {
     public class TheLoaiGiayService : ITheLoaiGiayService
     {
-        private readonly ITheLoaiGiayRepository _theLoaiGiayRepository;
+        private readonly HttpClient _httpClient;
 
-        public TheLoaiGiayService(ITheLoaiGiayRepository theLoaiGiayRepository)
+        public TheLoaiGiayService(IHttpClientFactory httpClientFactory)
         {
-            _theLoaiGiayRepository = theLoaiGiayRepository;
+            _httpClient = httpClientFactory.CreateClient("theloaigiay");
         }
 
         public async Task<IEnumerable<TheLoaiGiay>> GetAllAsync()
         {
-            return await _theLoaiGiayRepository.GetAllAsync();
+            return await _httpClient.GetFromJsonAsync<IEnumerable<TheLoaiGiay>>("api/TheLoaiGiay")
+                   ?? new List<TheLoaiGiay>();
         }
 
         public async Task<TheLoaiGiay> GetByIdAsync(Guid id)
         {
-            return await _theLoaiGiayRepository.GetByIdAsync(id);
+            return await _httpClient.GetFromJsonAsync<TheLoaiGiay>($"api/TheLoaiGiay/{id}");
         }
 
         public async Task<TheLoaiGiay> AddAsync(TheLoaiGiay theLoaiGiay)
         {
-            return await _theLoaiGiayRepository.AddAsync(theLoaiGiay);
+            var response = await _httpClient.PostAsJsonAsync("api/TheLoaiGiay", theLoaiGiay);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<TheLoaiGiay>();
         }
 
         public async Task<TheLoaiGiay> UpdateAsync(TheLoaiGiay theLoaiGiay)
         {
-            return await _theLoaiGiayRepository.UpdateAsync(theLoaiGiay);
+            var response = await _httpClient.PutAsJsonAsync($"api/TheLoaiGiay/{theLoaiGiay.TheLoaiGiayId}", theLoaiGiay);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<TheLoaiGiay>();
         }
 
         public async Task<bool> DeleteAsync(Guid id)
         {
-            return await _theLoaiGiayRepository.DeleteAsync(id);
+            var response = await _httpClient.DeleteAsync($"api/TheLoaiGiay/{id}");
+            response.EnsureSuccessStatusCode();
+            return true;
         }
 
         public async Task<TheLoaiGiay> GetTheLoaiByGiayChiTietIdAsync(Guid giayChiTietId)
         {
-            return await _theLoaiGiayRepository.GetTheLoaiByGiayChiTietIdAsync(giayChiTietId);
+            return await _httpClient.GetFromJsonAsync<TheLoaiGiay>($"api/TheLoaiGiay/giaychitiet/{giayChiTietId}");
         }
     }
 }

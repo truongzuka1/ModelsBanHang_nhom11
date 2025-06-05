@@ -1,42 +1,51 @@
-﻿using API.IRepository;
-using API.IService;
-using BlazorAdmin.Service.IService;
+﻿using BlazorAdmin.Service.IService;
 using Data.Models;
+using System.Net.Http.Json;
 
-namespace API.Service
+namespace BlazorAdmin.Service
 {
     public class GiayChiTietService : IGiayChiTietService
     {
-        private readonly IGiayChiTietRepository _giayChiTietRepository;
+        private readonly HttpClient _httpClient;
 
-        public GiayChiTietService(IGiayChiTietRepository giayChiTietRepository)
+        public GiayChiTietService(IHttpClientFactory httpClientFactory)
         {
-            _giayChiTietRepository = giayChiTietRepository;
+            _httpClient = httpClientFactory.CreateClient("giaychitiet");
         }
 
         public async Task<IEnumerable<GiayChiTiet>> GetAllAsync()
         {
-            return await _giayChiTietRepository.getAllGiayChiTiet();
+            return await _httpClient.GetFromJsonAsync<IEnumerable<GiayChiTiet>>("api/GiayChiTiet")
+                   ?? new List<GiayChiTiet>();
         }
 
         public async Task<GiayChiTiet> GetByIdAsync(Guid id)
         {
-            return await _giayChiTietRepository.getGiayChiTietbyID(id);
+            return await _httpClient.GetFromJsonAsync<GiayChiTiet>($"api/GiayChiTiet/{id}");
         }
 
         public async Task CreateAsync(GiayChiTiet gct, Guid? idDeGiay)
         {
-            await _giayChiTietRepository.CreateGiayChiTiet(gct, idDeGiay);
+            var url = idDeGiay.HasValue
+                ? $"api/GiayChiTiet?idDeGiay={idDeGiay}"
+                : "api/GiayChiTiet";
+            var response = await _httpClient.PostAsJsonAsync(url, gct);
+            response.EnsureSuccessStatusCode();
         }
 
         public async Task UpdateAsync(GiayChiTiet gct, Guid? idDeGiay)
         {
-            await _giayChiTietRepository.UpdateGiayChiTiet(gct, idDeGiay);
+            var url = idDeGiay.HasValue
+                ? $"api/GiayChiTiet/{gct.GiayChiTietId}?idDeGiay={idDeGiay}"
+                : $"api/GiayChiTiet/{gct.GiayChiTietId}";
+            var response = await _httpClient.PutAsJsonAsync(url, gct);
+            response.EnsureSuccessStatusCode();
         }
 
         public async Task DeleteAsync(Guid id)
         {
-            await _giayChiTietRepository.DeleteGiayChiTiet(id);
+            var response = await _httpClient.DeleteAsync($"api/GiayChiTiet/{id}");
+            response.EnsureSuccessStatusCode();
         }
     }
 }

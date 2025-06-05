@@ -1,42 +1,45 @@
-﻿using API.IRepository;
-using API.IService;
-using BlazorAdmin.Service.IService;
+﻿using BlazorAdmin.Service.IService;
 using Data.Models;
+using System.Net.Http.Json;
 
-namespace API.Service
+namespace BlazorAdmin.Service
 {
     public class DeGiayService : IDeGiayService
     {
-        private readonly IDeGiayRepository _deGiayRepository;
+        private readonly HttpClient _httpClient;
 
-        public DeGiayService(IDeGiayRepository deGiayRepository)
+        public DeGiayService(IHttpClientFactory httpClientFactory)
         {
-            _deGiayRepository = deGiayRepository;
+            _httpClient = httpClientFactory.CreateClient("degiay");
         }
 
         public async Task<IEnumerable<DeGiay>> GetAllAsync()
         {
-            return await _deGiayRepository.GetAllDegiay();
+            return await _httpClient.GetFromJsonAsync<IEnumerable<DeGiay>>("api/DeGiay")
+                   ?? new List<DeGiay>();
         }
 
         public async Task<DeGiay> GetByIdAsync(Guid id)
         {
-            return await _deGiayRepository.GetDeGiay(id);
+            return await _httpClient.GetFromJsonAsync<DeGiay>($"api/DeGiay/{id}");
         }
 
         public async Task CreateAsync(DeGiay deGiay)
         {
-            await _deGiayRepository.CreateDeGiay(deGiay);
+            var response = await _httpClient.PostAsJsonAsync("api/DeGiay", deGiay);
+            response.EnsureSuccessStatusCode();
         }
 
         public async Task UpdateAsync(DeGiay deGiay)
         {
-            await _deGiayRepository.UpdateDeGiay(deGiay);
+            var response = await _httpClient.PutAsJsonAsync($"api/DeGiay/{deGiay.DeGiayId}", deGiay);
+            response.EnsureSuccessStatusCode();
         }
 
         public async Task DeleteAsync(Guid id)
         {
-            await _deGiayRepository.DeleteDeGiay(id);
+            var response = await _httpClient.DeleteAsync($"api/DeGiay/{id}");
+            response.EnsureSuccessStatusCode();
         }
     }
 }
