@@ -35,8 +35,8 @@ builder.Services.AddHttpClient("hoadon", client =>
 
 // Đăng ký Service
 builder.Services.AddScoped<INhanVienService, NhanVienService>();
-builder.Services.AddScoped<IVoucherService, VoucherServiceRepo>();
-builder.Services.AddScoped<IHoaDonService, HoaDonServiceRepo>(); 
+builder.Services.AddScoped<IVoucherService, VoucherService>();
+builder.Services.AddScoped<IHoaDonService, HoaDonService>(); 
 builder.Services.AddScoped<IChiTietHoaDonService, ChiTietHoaDonService>();
 
 

@@ -49,7 +49,7 @@ namespace API.Controllers
         [HttpPost]
         public async Task<ActionResult<Voucher>> PostVoucher(Voucher voucher)
         {
-            await _context.Add(voucher);
+            await _context.Create(voucher);
             return CreatedAtAction(nameof(GetVoucher), new { id = voucher.VoucherId }, voucher);
         }
 

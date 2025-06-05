@@ -8,7 +8,7 @@ namespace API.IRepository
         Task<Giay?> GetByIdAsync(Guid id);
         Task AddAsync(Giay giay);
         Task UpdateAsync(Giay giay);
-        Task DeleteAsync(Guid id)
+        Task DeleteAsync(Guid id);
 
     }
 }
