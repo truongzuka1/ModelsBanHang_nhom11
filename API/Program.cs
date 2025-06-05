@@ -1,15 +1,7 @@
-<<<<<<< Updated upstream
 
-
-using API.IRepository;
-using API.IRepository.Repository;
-using API.Repository;
-using API.Repository.IRepository;
-
-=======
 ﻿using API.IRepository;
 using API.IRepository.Repository;
->>>>>>> Stashed changes
+
 using Data.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,8 +12,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-<<<<<<< Updated upstream
-=======
+
 // Đăng ký DbContext (chỉ 1 lần duy nhất)
 builder.Services.AddDbContext<DbContextApp>(options =>
 {
@@ -35,7 +26,6 @@ builder.Services.AddScoped<INhanVienRepository, NhanVienRepository>();
 builder.Services.AddScoped<IVoucherRepo, VoucherRepo>();
 builder.Services.AddScoped<IHoaDonRepo, HoaDonRepo>();
 
->>>>>>> Stashed changes
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
