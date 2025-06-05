@@ -19,6 +19,8 @@ builder.Services.AddHttpClient("voucher", client =>
 });
 builder.Services.AddScoped<INhanVienService, NhanVienService>();
 builder.Services.AddScoped<IVoucherService, VoucherServiceRepo>();
+builder.Services.AddScoped<IKhachHangService, KhachHangService>();//??ng ký khách hàng service
+builder.Services.AddScoped<IDiaChiKhachHangService, DiaChiKhachHangService>();// ??ng kí service ??a ch? khách hàng
 
 var app = builder.Build();
 
