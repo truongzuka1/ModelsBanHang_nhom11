@@ -1,10 +1,7 @@
-<<<<<<< HEAD
-using API.IRepository.Repository;
-using API.IRepository;
-=======
+
 using API.Repository;
 using API.Repository.IRepository;
->>>>>>> 57f4e0e97e8167b8074d442aed1855af67d265df
+
 using Data.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,7 +21,7 @@ builder.Services.AddDbContext<DbContextApp>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
-builder.Services.AddScoped<INhanVienRepository, NhanVienRepository>();
+
 
 var app = builder.Build();
 
