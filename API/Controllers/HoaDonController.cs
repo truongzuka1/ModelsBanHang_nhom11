@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using API.IRepository;
 using Data.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
@@ -17,7 +18,7 @@ namespace API.Controllers
 
         // GET: api/HoaDon
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<HoaDon>>> GetAllHoaDons()
+    public async Task<ActionResult<IEnumerable<HoaDon>>> GetAllHoaDons()
         {
             var hoaDons = await _hoaDonRepo.GetAll();
             return Ok(hoaDons);

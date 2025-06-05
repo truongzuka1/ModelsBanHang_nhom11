@@ -16,12 +16,11 @@ namespace API.Controllers
         private readonly IAnhRepository _anhRepository;
         private readonly IKichCoRepository _kichcoRepository;
 
-        public GiayChiTietApi(IGiayChiTietRepository giayChitiet, IDeGiayRepository degiay, IAnhRepository anhRepository, IKichCoRepository kichcoRepository)
+        public GiayChiTietApi(IGiayChiTietRepository giayChitiet, IDeGiayRepository degiay)
         {
             _giayChitiet = giayChitiet;
             _degiay = degiay;
-            _anhRepository = anhRepository;
-            _kichcoRepository = kichcoRepository;
+          
         }
         [HttpGet("giaychitiet")]
         public async Task<ActionResult<IEnumerable<GiayChiTiet>>> GetGiayChiTiets()
