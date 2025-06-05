@@ -3,11 +3,11 @@ using Data.Models;
 
 namespace BlazorAdmin.Service
 {
-    public class VoucherServiceRepo : IVoucherService
+    public class VoucherService : IVoucherService
     {
         private readonly HttpClient _httpClient;
 
-        public VoucherServiceRepo(IHttpClientFactory httpClientFactory)
+        public VoucherService(IHttpClientFactory httpClientFactory)
         {
             _httpClient = httpClientFactory.CreateClient("voucher");
         }

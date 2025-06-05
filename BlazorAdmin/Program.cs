@@ -1,4 +1,4 @@
-using BlazorAdmin.Components;
+﻿using BlazorAdmin.Components;
 using BlazorAdmin.Service;
 using BlazorAdmin.Service.IService;
 
@@ -16,19 +16,29 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddEndpointsApiExplorer();   
 builder.Services.AddSwaggerGen();             
 
-
 builder.Services.AddScoped(sp => new HttpClient
 {
     BaseAddress = new Uri("https://localhost:7246/")
 });
+
+// Đăng ký HTTP Clients
 builder.Services.AddHttpClient("voucher", client =>
 {
     client.BaseAddress = new Uri("https://localhost:7246/");
 });
 
+
+builder.Services.AddHttpClient("hoadon", client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7246/");
+});
+
+// Đăng ký Service
 builder.Services.AddScoped<INhanVienService, NhanVienService>();
 builder.Services.AddScoped<IVoucherService, VoucherServiceRepo>();
+builder.Services.AddScoped<IHoaDonService, HoaDonServiceRepo>(); 
 builder.Services.AddScoped<IChiTietHoaDonService, ChiTietHoaDonService>();
+
 
 var app = builder.Build();
 
@@ -36,14 +46,12 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
-    app.UseSwagger();                          // D�ng Swagger
+    app.UseSwagger();                          // D�ng Swagger
     app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
 app.UseAntiforgery();
 
