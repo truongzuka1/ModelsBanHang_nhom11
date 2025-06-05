@@ -27,10 +27,7 @@ builder.Services.AddHttpClient("voucher", client =>
     client.BaseAddress = new Uri("https://localhost:7246/");
 });
 
-builder.Services.AddHttpClient("hoadon", client =>
-{
-    client.BaseAddress = new Uri("https://localhost:7246/");
-});
+
 
 // Đăng ký Service
 builder.Services.AddScoped<INhanVienService, NhanVienService>();
