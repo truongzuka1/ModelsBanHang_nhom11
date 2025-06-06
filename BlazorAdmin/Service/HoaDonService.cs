@@ -7,9 +7,9 @@ namespace BlazorAdmin.Service
     {
         private readonly HttpClient _httpClient;
 
-        public HoaDonService(IHttpClientFactory factory)
+        public HoaDonService(HttpClient httpClient)
         {
-            _httpClient = factory.CreateClient("hoadon");
+            _httpClient = httpClient;
         }
 
         public async Task Add(HoaDon hoaDon)
