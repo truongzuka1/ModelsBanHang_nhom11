@@ -1,5 +1,11 @@
+
 ﻿@page "/admin/AddNhanVien"
+
+
+
 @inject INhanVienService NhanVienservice
+
+@inject ITaiKhoanService taiKhoanService
 @inject NavigationManager manager
 
 <h3 class="mb-4">Thêm nhân viên</h3>
@@ -28,6 +34,25 @@
         <InputDate id="ngaySinh" class="form-control" @bind-Value="std.NgaySinh" />
     </div>
 
+    <div class="mb-3">
+        <label for="Tk" class="form-label fw-bold">Tên tài khoản</label>
+        <InputText id="Tk" class="form-control" @bind-Value="username" placeholder="Nhập tên tài khoản" />
+    </div>
+
+    <div class="mb-3">
+        <label for="MK1" class="form-label fw-bold">Mật khẩu</label>
+        <InputText id="MK1" class="form-control" type="password" @bind-Value="password" placeholder="Nhập mật khẩu" />
+    </div>
+
+    <div class="mb-3">
+        <label for="MK2" class="form-label fw-bold">Xác nhận mật khẩu</label>
+        <InputText id="MK2" class="form-control" type="password" @bind-Value="confirmPassword" placeholder="Nhập lại mật khẩu" />
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
 
     <button type="submit" class="btn btn-primary">Thêm</button>
 </EditForm>
@@ -38,10 +63,64 @@
             TrangThai = true
         };
 
+    private string username = "";
+    private string password = "";
+    private string confirmPassword = "";
+    private string errorMessage = "";
+
     private async Task SubmitFormCreate()
     {
-        std.NgayCapNhatCuoiCung = DateTime.Now;
-        await NhanVienservice.CreateNhanVien(std);
-        manager.NavigateTo("/listnhanvien");
+        errorMessage = "";
+
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            errorMessage = "Tên tài khoản không được để trống.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            errorMessage = "Mật khẩu không được để trống.";
+            return;
+        }
+
+        if (password != confirmPassword)
+        {
+            errorMessage = "Mật khẩu và xác nhận mật khẩu không khớp.";
+            return;
+        }
+
+        try
+        {
+            // TODO: Nếu muốn kiểm tra username trùng, cần viết thêm API GetByUsernameAsync(string username)
+            // var existing = await taiKhoanService.GetByUsernameAsync(username);
+            // if (existing != null)
+            // {
+            //     errorMessage = "Tên tài khoản đã tồn tại.";
+            //     return;
+            // }
+
+            var taiKhoan = new Data.Models.TaiKhoan
+                {
+                    TaikhoanId = Guid.NewGuid(),
+                    Username = username,
+                    Password = password,
+                    Ngaytaotaikhoan = DateTime.Now
+                };
+
+            await taiKhoanService.CreateTaiKhoanAsync(taiKhoan);
+
+            std.TaikhoanId = taiKhoan.TaikhoanId;
+            std.NgayCapNhatCuoiCung = DateTime.Now;
+
+          await NhanVienservice.CreateNhanVien(std);
+
+
+            manager.NavigateTo("/listnhanvien");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Đã xảy ra lỗi: " + ex.Message;
+        }
     }
 }

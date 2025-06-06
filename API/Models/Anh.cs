@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Data.Models;
 
-namespace API.Models
+namespace Data.Models
 {
     public class Anh
     {
