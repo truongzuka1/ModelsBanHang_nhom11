@@ -1,5 +1,5 @@
 ﻿using API.IRepository;
-using API.Models;
+using Data.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,7 +23,9 @@ namespace API.Controllers
             return Ok(result);
         }
 
-/*        [HttpGet("{id}")]
+
+
+          [HttpGet("{id}")]
         public async Task<ActionResult<Anh>> GetById(Guid id)
         {
             var result = await _anhRepository.GetByIdAsync(id);

@@ -1,6 +1,6 @@
-
-﻿@page "/listnhanvien"
-
+﻿@using Data.Models;
+@using BlazorAdmin.Service;
+@using BlazorAdmin.Service.IService
 @inject INhanVienService service;
 @inject NavigationManager manager;
 @inject IJSRuntime JS;
