@@ -42,7 +42,7 @@ namespace API.IRepository.Repository
             return await _contextApp.HoaDonChiTiets
                 .Include(x => x.Giays)
                 .Include(x => x.HoaDons)
-                .FirstOrDefaultAsync(x => x.HoaDonId == hoaDonId && x.GiayChiTietId == giayId);
+                .FirstOrDefaultAsync(x => x.HoaDonId == hoaDonId && x.GiayId == giayId);
         }
     }
 }
