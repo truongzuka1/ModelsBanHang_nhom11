@@ -1,0 +1,61 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">BlazorAdmin</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="counter">
+                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="weather">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/listnhanvien">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Nhan Vien
+            </NavLink>
+        </div>
+    </nav>
+</div>
+
+
+@code {
+
+}
+
+<div class="logo">
+</div>
+
+<ul>
+    <li class="active" data-hash="!Home"><span class="menu-label">📊 Thống kê</span></li>
+    <li data-hash="!BanHang"><span class="menu-label">🛒 Bán hàng tại quầy</span></li>
+    <li><span class="menu-label">📦 Quản lý đơn hàng</span></li>
+    <li>
+        <span class="menu-label">👟 Quản lý sản phẩm</span>
+        <span class="arrow">&#9660;</span>
+    </li>
+    <li><span class="menu-label">↩️ Trả hàng</span></li>
+    <li>
+        <span class="menu-label">🏷️ Giảm giá</span>
+        <span class="arrow">&#9660;</span>
+    </li>
+    <li>
+        <span class="menu-label">👤 Tài khoản</span>
+        <span class="arrow">&#9660;</span>
+    </li>
+</ul>
