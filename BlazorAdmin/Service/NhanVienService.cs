@@ -1,6 +1,5 @@
 ﻿using API.Models;
 using BlazorAdmin.Service.IService;
-using Data.Models;
 
 namespace BlazorAdmin.Service
 {
