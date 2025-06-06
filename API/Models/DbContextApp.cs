@@ -51,6 +51,7 @@ namespace Data.Models
         .WithOne(nv => nv.ChucVu)
         .HasForeignKey(nv => nv.ChucVuId)
         .OnDelete(DeleteBehavior.Restrict);
+            //abc
 
             // Seed dữ liệu cứng: Admin và Nhân viên
             modelBuilder.Entity<ChucVu>().HasData(
