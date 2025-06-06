@@ -1,0 +1,139 @@
+﻿@page "/thuonghieu"
+@inject IThuongHieuService ThuongHieuService
+@inject IJSRuntime JS
+@using Data.Models
+@using System.ComponentModel.DataAnnotations
+
+<h3>Quản lý thương hiệu</h3>
+
+@if (thuongHieuList == null)
+{
+    <p><em>Đang tải dữ liệu...</em></p>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Tên thương hiệu</th>
+                <th>Email</th>
+                <th>SDT</th>
+                <th>Địa chỉ</th>
+                <th>Mô tả</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in thuongHieuList)
+            {
+                <tr>
+                    <td>@item.TenThuongHieu</td>
+                    <td>@item.Email</td>
+                    <td>@item.SDT</td>
+                    <td>@item.DiaChi</td>
+                    <td>@item.MoTa</td>
+                    <td>
+                        @(item.TrangThai ? "Hoạt động" : "Không hoạt động")
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" @onclick="() => Edit(item)">Sửa</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => Delete(item.ThuongHieuId)">Xóa</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h4>@(editThuongHieu?.ThuongHieuId == Guid.Empty ? "Thêm mới" : "Chỉnh sửa") thương hiệu</h4>
+
+<EditForm Model="editThuongHieu" OnValidSubmit="Save" class="mb-3">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <InputText class="form-control mb-2" @bind-Value="editThuongHieu.TenThuongHieu" placeholder="Tên thương hiệu" />
+    <ValidationMessage For="@(() => editThuongHieu.TenThuongHieu)" />
+
+    <InputText class="form-control mb-2" @bind-Value="editThuongHieu.Email" placeholder="Email" />
+    <ValidationMessage For="@(() => editThuongHieu.Email)" />
+
+    <InputText class="form-control mb-2" @bind-Value="editThuongHieu.SDT" placeholder="Số điện thoại" />
+    <ValidationMessage For="@(() => editThuongHieu.SDT)" />
+
+    <InputText class="form-control mb-2" @bind-Value="editThuongHieu.DiaChi" placeholder="Địa chỉ" />
+    <ValidationMessage For="@(() => editThuongHieu.DiaChi)" />
+
+    <InputTextArea class="form-control mb-2" @bind-Value="editThuongHieu.MoTa" placeholder="Mô tả" />
+
+    <div class="form-check mb-2">
+        <InputCheckbox class="form-check-input" @bind-Value="editThuongHieu.TrangThai" id="trangThaiCheck" />
+        <label class="form-check-label" for="trangThaiCheck">Hoạt động</label>
+    </div>
+
+    <button class="btn btn-success" type="submit">Lưu</button>
+    @if (editThuongHieu.ThuongHieuId != Guid.Empty)
+    {
+        <button class="btn btn-secondary ms-2" type="button" @onclick="Cancel">Hủy</button>
+    }
+</EditForm>
+
+@code {
+    private List<ThuongHieu> thuongHieuList = new();
+    private ThuongHieu editThuongHieu = new ThuongHieu();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        thuongHieuList = await ThuongHieuService.GetAllAsync();
+    }
+
+    private void Edit(ThuongHieu thuongHieu)
+    {
+        // Clone object để tránh bind trực tiếp vào list
+        editThuongHieu = new ThuongHieu
+            {
+                ThuongHieuId = thuongHieu.ThuongHieuId,
+                TenThuongHieu = thuongHieu.TenThuongHieu,
+                Email = thuongHieu.Email,
+                SDT = thuongHieu.SDT,
+                DiaChi = thuongHieu.DiaChi,
+                MoTa = thuongHieu.MoTa,
+                TrangThai = thuongHieu.TrangThai
+            };
+    }
+
+    private void Cancel()
+    {
+        editThuongHieu = new ThuongHieu();
+    }
+
+    private async Task Save()
+    {
+        if (editThuongHieu.ThuongHieuId == Guid.Empty)
+        {
+            editThuongHieu.ThuongHieuId = Guid.NewGuid();
+            await ThuongHieuService.CreateAsync(editThuongHieu);
+        }
+        else
+        {
+            await ThuongHieuService.UpdateAsync(editThuongHieu);
+        }
+
+        editThuongHieu = new ThuongHieu();
+        await LoadData();
+    }
+
+    private async Task Delete(Guid id)
+    {
+        if (await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn xóa thương hiệu này?"))
+        {
+            await ThuongHieuService.DeleteAsync(id);
+            await LoadData();
+        }
+    }
+}
