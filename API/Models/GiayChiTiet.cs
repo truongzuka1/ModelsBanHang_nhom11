@@ -23,7 +23,7 @@ namespace Data.Models
         public Guid ? KieuDangId { get; set; }
         public Guid ? DeGiayId { get; set; }
         public Guid ? TheLoaiGiayId { get; set; }
-        public Guid AnhId { get; set; }
+    
 
         public int SoLuongCon { get; set; }
         public string AnhGiay { get; set; }
@@ -41,8 +41,10 @@ namespace Data.Models
         public virtual KieuDang ? KieuDang { get; set; }
         public virtual DeGiay ? DeGiay { get; set; }
         public virtual TheLoaiGiay ? TheLoaiGiay { get; set; }
-        public virtual Anh? Anh { get; set; }
+		public virtual ICollection<Anh> Anhs { get; set; } = new List<Anh>();
 
-     
-    }
+
+
+
+	}
 }
