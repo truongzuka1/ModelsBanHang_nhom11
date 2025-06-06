@@ -1,6 +1,27 @@
 ﻿<Router AppAssembly="typeof(Program).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
-        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+        <LayoutView Layout="@ResolveLayout(routeData)">
+            <RouteView RouteData="routeData" />
+        </LayoutView>
     </Found>
+    <NotFound>
+        <h3>404 - Trang không tồn tại</h3>
+        <p>Vui lòng kiểm tra lại đường dẫn.</p>
+    </NotFound>
 </Router>
+
+@code {
+    private Type ResolveLayout(RouteData routeData)
+    {
+        var path = routeData.PageType?.FullName ?? "";
+
+        if (path.Contains(".Admin."))
+            return typeof(BlazorAdmin.Components.Layout.AdminLayout);
+        if (path.Contains(".NhanVien."))
+        {
+            return typeof(BlazorAdmin.Components.Layout.NhanVienLayout);
+        }
+        return typeof(BlazorAdmin.Components.Layout.MainLayout);
+    }
+}
+
