@@ -26,7 +26,7 @@ namespace Data.Models
 
         [Required]
         public int TrangThai { get; set; }
-        public virtual ICollection<NhanVien> nhanViens { get; set; } = new List<NhanVien>();
+        public virtual ICollection<NhanVien> nhanViens { get; set; }
 
     }
 

@@ -28,7 +28,7 @@ namespace API.Models
 
         public DateTime NgayCapNhatCuoiCung { get; set; }
 
-        public virtual ChucVu? ChucVu { get; set; }
+        public ChucVu? ChucVu { get; set; }
         public virtual TaiKhoan? TaiKhoan { get; set; }
     }
 }

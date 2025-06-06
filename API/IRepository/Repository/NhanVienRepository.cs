@@ -1,6 +1,7 @@
 ﻿using API.Models;
 using Data.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Security;
 
 namespace API.IRepository.Repository
 {
@@ -72,6 +73,11 @@ namespace API.IRepository.Repository
             {
                 throw;
             }
+        }
+
+        public async Task<NhanVien> GetIdNhanVienTaiKhoan(Guid tk)
+        {
+            return await _db.NhanViens.FirstOrDefaultAsync(TK => TK.TaikhoanId == tk);
         }
 
         public async Task UpdateNhanVienAsync(NhanVien nhanVien)

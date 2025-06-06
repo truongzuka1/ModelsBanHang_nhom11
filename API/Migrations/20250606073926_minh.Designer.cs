@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(DbContextApp))]
-    [Migration("20250605081816_db00000001")]
-    partial class db00000001
+    [Migration("20250606073926_minh")]
+    partial class minh
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -88,6 +88,20 @@ namespace API.Migrations
                     b.HasIndex("TaikhoanId");
 
                     b.ToTable("NhanViens");
+
+                    b.HasData(
+                        new
+                        {
+                            NhanVienId = new Guid("88888888-8888-8888-8888-888888888888"),
+                            ChucVuId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            Email = "admin@shop.com",
+                            HoTen = "Nguyễn Văn Quản Trị",
+                            NgayCapNhatCuoiCung = new DateTime(2025, 6, 6, 14, 39, 25, 363, DateTimeKind.Local).AddTicks(5316),
+                            NgaySinh = new DateTime(1995, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            SoDienThoai = "0987654321",
+                            TaikhoanId = new Guid("99999999-9999-9999-9999-999999999999"),
+                            TrangThai = true
+                        });
                 });
 
             modelBuilder.Entity("Data.Models.ChatLieu", b =>
@@ -665,6 +679,15 @@ namespace API.Migrations
                     b.HasKey("TaikhoanId");
 
                     b.ToTable("TaiKhoans");
+
+                    b.HasData(
+                        new
+                        {
+                            TaikhoanId = new Guid("99999999-9999-9999-9999-999999999999"),
+                            Ngaytaotaikhoan = new DateTime(2025, 6, 6, 14, 39, 25, 363, DateTimeKind.Local).AddTicks(5246),
+                            Password = "123",
+                            Username = "Admin"
+                        });
                 });
 
             modelBuilder.Entity("Data.Models.TheLoaiGiay", b =>

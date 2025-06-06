@@ -1,5 +1,6 @@
 ﻿using API.Models;
 using BlazorAdmin.Service.IService;
+using Data.Models;
 
 namespace BlazorAdmin.Service
 {
@@ -36,6 +37,8 @@ namespace BlazorAdmin.Service
                 var response = await _httpClient.PutAsJsonAsync($"/api/NhanViens/{nhanVien.NhanVienId}", nhanVien);
                 response.EnsureSuccessStatusCode(); 
             }
+      
+
 
     }
 }
