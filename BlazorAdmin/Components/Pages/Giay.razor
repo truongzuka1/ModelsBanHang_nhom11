@@ -1,0 +1,111 @@
+﻿@page "/giay"
+@inject IGiayService GiayService
+@using Data.Models
+
+<h3>Quản lý giày</h3>
+
+@if (giayList == null)
+{
+    <p><em>Đang tải dữ liệu...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Tên giày</th>
+                <th>Giá</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var giay in giayList)
+            {
+                <tr>
+                    <td>@giay.TenGiay</td>
+                    <td>@giay.Gia</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" @onclick="() => Edit(giay)">Sửa</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => Delete(giay.GiayId)">Xóa</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h4>@(editGiay?.GiayId == Guid.Empty ? "Thêm mới" : "Chỉnh sửa") giày</h4>
+<EditForm Model="@editGiay" OnValidSubmit="Save">
+    <InputText class="form-control mb-2" @bind-Value="editGiay.TenGiay" placeholder="Tên giày" />
+    <InputNumber class="form-control mb-2" @bind-Value="editGiay.Gia" placeholder="Giá" />
+    <button class="btn btn-success" type="submit">Lưu</button>
+    @if (editGiay.GiayId != Guid.Empty)
+    {
+        <button class="btn btn-secondary ms-2" type="button" @onclick="Cancel">Hủy</button>
+    }
+</EditForm>
+
+@code {
+    private List<Giay> giayList = new();
+    private Giay editGiay = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        giayList = await GiayService.GetAllAsync();
+    }
+
+    private void Edit(Giay giay)
+    {
+        editGiay = new Giay
+            {
+                GiayId = giay.GiayId,
+                TenGiay = giay.TenGiay,
+                Gia = giay.Gia
+            };
+    }
+
+    private void Cancel()
+    {
+        editGiay = new Giay(); // reset
+    }
+
+    private async Task Save()
+    {
+        if (editGiay.GiayId == Guid.Empty)
+        {
+            editGiay.GiayId = Guid.NewGuid();
+            await GiayService.CreateAsync(editGiay);
+        }
+        else
+        {
+            await GiayService.UpdateAsync(editGiay);
+        }
+
+        editGiay = new Giay();
+        await LoadData();
+    }
+
+    private async Task Delete(Guid id)
+    {
+        if (await ConfirmDelete())
+        {
+            await GiayService.DeleteAsync(id);
+            await LoadData();
+        }
+    }
+
+    private async Task<bool> ConfirmDelete()
+    {
+        return await Task.FromResult(
+            await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn xóa?")
+        );
+    }
+
+    [Inject]
+    private IJSRuntime JS { get; set; }
+}
