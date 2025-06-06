@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using API.IRepository;
 using Data.Models;
@@ -10,42 +9,63 @@ namespace API.Repository
 {
     public class ChucVuRepository : IChucVuRepository
     {
-        private readonly DbContext _context;
+        private readonly DbContextApp _db;
 
-        public ChucVuRepository(DbContext context)
+        public ChucVuRepository(DbContextApp db)
         {
-            _context = context;
+            _db = db;
         }
 
         public async Task<IEnumerable<ChucVu>> GetAllChucVuAsync()
         {
-            return await _context.Set<ChucVu>().ToListAsync();
+            return await _db.ChucVus.ToListAsync();
         }
 
         public async Task<ChucVu> GetByIdChucVuAsync(Guid id)
         {
-            return await _context.Set<ChucVu>().FindAsync(id);
+            return await _db.ChucVus.FindAsync(id);
         }
 
         public async Task CreateChucVuAsync(ChucVu chucVu)
         {
-            await _context.Set<ChucVu>().AddAsync(chucVu);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _db.ChucVus.Add(chucVu);
+                await _db.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         public async Task UpdateChucVuAsync(ChucVu chucVu)
         {
-            _context.Set<ChucVu>().Update(chucVu);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _db.ChucVus.Update(chucVu);
+                await _db.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         public async Task DeleteChucVuAsync(Guid id)
         {
-            var chucVu = await GetByIdChucVuAsync(id);
-            if (chucVu != null)
+            try
             {
-                _context.Set<ChucVu>().Remove(chucVu);
-                await _context.SaveChangesAsync();
+                var chucVu = await _db.ChucVus.FindAsync(id);
+                if (chucVu != null)
+                {
+                    _db.ChucVus.Remove(chucVu);
+                    await _db.SaveChangesAsync();
+                }
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
     }
