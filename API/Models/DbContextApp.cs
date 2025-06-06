@@ -68,6 +68,7 @@ namespace Data.Models
                     MotaChucVu = "Nhân viên bán hàng",
                     TrangThai = 1
                 });
+
            
         
 
@@ -130,7 +131,9 @@ namespace Data.Models
             modelBuilder.Entity<HoaDonChiTiet>()
     .Property(x => x.Gia)
     .HasColumnType("decimal(18,2)");
+
         }
+
         public DbSet<KhachHang> KhachHangs { get; set; }
 
         public DbSet<TaiKhoan> TaiKhoans { get; set; }
