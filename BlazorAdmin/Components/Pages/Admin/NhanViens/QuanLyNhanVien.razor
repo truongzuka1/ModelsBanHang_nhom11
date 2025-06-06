@@ -1,5 +1,4 @@
-﻿@page "/listnhanvien"
-@using API.Models;
+﻿@using API.Models;
 @using BlazorAdmin.Service;
 @using BlazorAdmin.Service.IService
 @inject INhanVienService service;
@@ -44,12 +43,6 @@
 					</button>
 					<span>@(item.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")</span>
 				</td>
-
-
-
-
-
-				
 				<td>
 					<button class="btn btn-primary" @onclick="() => NavigateToEdit(item.NhanVienId)">Edit</button>
 					<button class="btn btn-danger" @onclick="() => DeleteAsyncNhanVien(item.NhanVienId)">Delete</button>
@@ -70,11 +63,19 @@
 
 		}
 		NhanViens = await service.GetAllNhanVienAsync();
+		await LoadNhanViensAsync();
 	}
+	private async Task LoadNhanViensAsync()
+	{
+		var allNhanViens = await service.GetAllNhanVienAsync();
+		var adminId = Guid.Parse("88888888-8888-8888-8888-888888888888");
+		NhanViens = allNhanViens.Where(x => x.NhanVienId != adminId).ToList();
+	}
+
 
 	protected void NavigateToCreate()
 	{
-		manager.NavigateTo("/AddSanpham");
+		manager.NavigateTo("/AddNhanVien");
 	}
 	protected void NavigateToEdit(Guid id)
 	{
@@ -87,7 +88,7 @@
 		if (deleSanpham)
 		{
 			await service.DeleteNhanVienAsync(id);
-			NhanViens = await service.GetAllNhanVienAsync();
+			await LoadNhanViensAsync();
 			StateHasChanged();
 		}
 	}
@@ -98,12 +99,11 @@
 		{
 
 			nhanVien.TrangThai = !nhanVien.TrangThai;
+			nhanVien.NgayCapNhatCuoiCung = DateTime.Now;
 
-	
+
 			await service.UpdateNhanVienAsync(nhanVien);
-
-			// Cập nhật lại danh sách
-			NhanViens = await service.GetAllNhanVienAsync();
+			await LoadNhanViensAsync();
 			StateHasChanged();
 		}
 	}

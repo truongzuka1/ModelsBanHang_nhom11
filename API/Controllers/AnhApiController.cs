@@ -23,7 +23,6 @@ namespace API.Controllers
             return Ok(result);
         }
 
-
         [HttpGet("{id}")]
         public async Task<ActionResult<Anh>> GetById(Guid id)
         {
@@ -35,4 +34,5 @@ namespace API.Controllers
        
     }
 }
+
 
