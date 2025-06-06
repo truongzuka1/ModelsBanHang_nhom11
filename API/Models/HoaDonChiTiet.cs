@@ -12,9 +12,9 @@ namespace Data.Models
         [Key]
         public Guid HoaDonChiTietId { get; set; } = Guid.NewGuid();
 
-        public Guid GiayChiTietId { get; set; }
+		public Guid GiayId { get; set; }
 
-        public Guid HoaDonId { get; set; }
+		public Guid HoaDonId { get; set; }
 
         [Range(1, int.MaxValue)]
         public int SoLuongSanPham { get; set; }
