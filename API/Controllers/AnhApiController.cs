@@ -30,38 +30,5 @@ namespace API.Controllers
             if (result == null) return NotFound();
             return Ok(result);
         }
-
-        [HttpPost("upload")]
-        public async Task<ActionResult<Anh>> Upload([FromForm] IFormFile file, [FromForm] string tenAnh)
-        {
-            var result = await _anhRepository.UploadAsync(file, tenAnh);
-            if (result == null) return BadRequest("Upload thất bại hoặc file không hợp lệ.");
-            return Ok(result);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<ActionResult<Anh>> Update(Guid id, [FromBody] Anh anh)
-        {
-            if (id != anh.AnhId) return BadRequest("Id không khớp.");
-            var result = await _anhRepository.UpdateAsync(anh);
-            if (result == null) return NotFound();
-            return Ok(result);
-        }
-
-        [HttpPut("{id}/file")]
-        public async Task<ActionResult<Anh>> UpdateFile(Guid id, [FromForm] IFormFile file, [FromForm] string tenAnh)
-        {
-            var result = await _anhRepository.UpdateFileAsync(id, file, tenAnh);
-            if (result == null) return BadRequest("Cập nhật file ảnh thất bại.");
-            return Ok(result);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(Guid id)
-        {
-            var result = await _anhRepository.DeleteAsync(id);
-            if (!result) return NotFound();
-            return Ok();
-        }
     }
 }
