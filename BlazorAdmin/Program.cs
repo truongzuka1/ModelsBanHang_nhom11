@@ -43,6 +43,7 @@ builder.Services.AddScoped<IKichCoService, KichCoService>();
 builder.Services.AddScoped<ITheLoaiGiayService, TheLoaiGiayService>();
 builder.Services.AddScoped<IThuongHieuService, ThuongHieuService>();
 builder.Services.AddScoped<IVoucherService, VoucherService>();
+builder.Services.AddScoped<ITaiKhoanService, TaiKhoanService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

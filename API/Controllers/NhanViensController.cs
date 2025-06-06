@@ -68,6 +68,16 @@ namespace API.Controllers
             return Ok();
         }
 
-       
+        [HttpGet("tk/{taikhoanId}")]
+        public async Task<ActionResult<NhanVien>> GetNhanVienByTaiKhoanId(Guid taikhoanId)
+        {
+            var nhanVien = await _repository.GetIdNhanVienTaiKhoan(taikhoanId);
+            if (nhanVien == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(nhanVien);
+        }
     }
 }

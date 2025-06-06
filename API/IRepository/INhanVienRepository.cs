@@ -9,5 +9,7 @@ namespace API.IRepository
         Task CreateNhanVien(NhanVien nhanVien);
         Task DeleteNhanVienAsync(Guid id);
         Task UpdateNhanVienAsync(NhanVien nhanVien);
+
+        Task<NhanVien> GetIdNhanVienTaiKhoan(Guid TK);
     }
 }

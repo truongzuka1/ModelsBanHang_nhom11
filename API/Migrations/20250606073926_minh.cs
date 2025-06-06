@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace API.Migrations
 {
     /// <inheritdoc />
-    public partial class db00000001 : Migration
+    public partial class minh : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -534,6 +534,16 @@ namespace API.Migrations
                     { new Guid("11111111-1111-1111-1111-111111111111"), "Quản trị hệ thống", "Admin", 1 },
                     { new Guid("22222222-2222-2222-2222-222222222222"), "Nhân viên bán hàng", "NhanVien", 1 }
                 });
+
+            migrationBuilder.InsertData(
+                table: "TaiKhoans",
+                columns: new[] { "TaikhoanId", "Ngaytaotaikhoan", "Password", "Username" },
+                values: new object[] { new Guid("99999999-9999-9999-9999-999999999999"), new DateTime(2025, 6, 6, 14, 39, 25, 363, DateTimeKind.Local).AddTicks(5246), "123", "Admin" });
+
+            migrationBuilder.InsertData(
+                table: "NhanViens",
+                columns: new[] { "NhanVienId", "ChucVuId", "Email", "HoTen", "NgayCapNhatCuoiCung", "NgaySinh", "SoDienThoai", "TaikhoanId", "TrangThai" },
+                values: new object[] { new Guid("88888888-8888-8888-8888-888888888888"), new Guid("11111111-1111-1111-1111-111111111111"), "admin@shop.com", "Nguyễn Văn Quản Trị", new DateTime(2025, 6, 6, 14, 39, 25, 363, DateTimeKind.Local).AddTicks(5316), new DateTime(1995, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "0987654321", new Guid("99999999-9999-9999-9999-999999999999"), true });
 
             migrationBuilder.CreateIndex(
                 name: "IX_diaChiKhachHangs_khachHangId",

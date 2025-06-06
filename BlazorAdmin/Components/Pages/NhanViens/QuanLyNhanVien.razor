@@ -70,7 +70,15 @@
 
 		}
 		NhanViens = await service.GetAllNhanVienAsync();
+		await LoadNhanViensAsync();
 	}
+	private async Task LoadNhanViensAsync()
+	{
+		var allNhanViens = await service.GetAllNhanVienAsync();
+		var adminId = Guid.Parse("88888888-8888-8888-8888-888888888888");
+		NhanViens = allNhanViens.Where(x => x.NhanVienId != adminId).ToList();
+	}
+
 
 	protected void NavigateToCreate()
 	{
@@ -87,7 +95,7 @@
 		if (deleSanpham)
 		{
 			await service.DeleteNhanVienAsync(id);
-			NhanViens = await service.GetAllNhanVienAsync();
+			await LoadNhanViensAsync();
 			StateHasChanged();
 		}
 	}
@@ -102,9 +110,7 @@
 
 	
 			await service.UpdateNhanVienAsync(nhanVien);
-
-			// Cập nhật lại danh sách
-			NhanViens = await service.GetAllNhanVienAsync();
+			await LoadNhanViensAsync();
 			StateHasChanged();
 		}
 	}
