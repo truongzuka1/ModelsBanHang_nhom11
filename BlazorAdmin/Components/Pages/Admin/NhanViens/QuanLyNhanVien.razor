@@ -43,12 +43,6 @@
 					</button>
 					<span>@(item.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")</span>
 				</td>
-
-
-
-
-
-
 				<td>
 					<button class="btn btn-primary" @onclick="() => NavigateToEdit(item.NhanVienId)">Edit</button>
 					<button class="btn btn-danger" @onclick="() => DeleteAsyncNhanVien(item.NhanVienId)">Delete</button>
@@ -81,7 +75,7 @@
 
 	protected void NavigateToCreate()
 	{
-		manager.NavigateTo("/AddSanpham");
+		manager.NavigateTo("/AddNhanVien");
 	}
 	protected void NavigateToEdit(Guid id)
 	{
