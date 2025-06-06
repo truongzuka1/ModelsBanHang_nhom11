@@ -1,0 +1,103 @@
+﻿@page "/chatlieu"
+@inject IChatLieuService ChatLieuService
+@inject IJSRuntime JS
+@using Data.Models
+
+<h3>Quản lý chất liệu</h3>
+
+@if (chatLieuList == null)
+{
+    <p><em>Đang tải dữ liệu...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Tên chất liệu</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var chatLieu in chatLieuList)
+            {
+                <tr>
+                    <td>@chatLieu.TenChatLieu</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" @onclick="() => Edit(chatLieu)">Sửa</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => Delete(chatLieu.ChatLieuId)">Xóa</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h4>@(editChatLieu?.ChatLieuId == Guid.Empty ? "Thêm mới" : "Chỉnh sửa") chất liệu</h4>
+<EditForm Model="@editChatLieu" OnValidSubmit="Save">
+    <InputText class="form-control mb-2" @bind-Value="editChatLieu.TenChatLieu" placeholder="Tên chất liệu" />
+    <button class="btn btn-success" type="submit">Lưu</button>
+    @if (editChatLieu.ChatLieuId != Guid.Empty)
+    {
+        <button class="btn btn-secondary ms-2" type="button" @onclick="Cancel">Hủy</button>
+    }
+</EditForm>
+
+@code {
+    private List<ChatLieu> chatLieuList = new();
+    private ChatLieu editChatLieu = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        chatLieuList = await ChatLieuService.GetAllAsync();
+    }
+
+    private void Edit(ChatLieu chatLieu)
+    {
+        editChatLieu = new ChatLieu
+            {
+                ChatLieuId = chatLieu.ChatLieuId,
+                TenChatLieu = chatLieu.TenChatLieu
+            };
+    }
+
+    private void Cancel()
+    {
+        editChatLieu = new ChatLieu(); // reset form
+    }
+
+    private async Task Save()
+    {
+        if (editChatLieu.ChatLieuId == Guid.Empty)
+        {
+            editChatLieu.ChatLieuId = Guid.NewGuid();
+            await ChatLieuService.CreateAsync(editChatLieu);
+        }
+        else
+        {
+            await ChatLieuService.UpdateAsync(editChatLieu);
+        }
+
+        editChatLieu = new ChatLieu();
+        await LoadData();
+    }
+
+    private async Task Delete(Guid id)
+    {
+        if (await ConfirmDelete())
+        {
+            await ChatLieuService.DeleteAsync(id);
+            await LoadData();
+        }
+    }
+
+    private async Task<bool> ConfirmDelete()
+    {
+        return await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn xóa?");
+    }
+}
