@@ -13,13 +13,13 @@ namespace API.Controllers
         private readonly IGiayChiTietRepository _giayChitiet;
         private readonly IDeGiayRepository _degiay;
         private readonly IAnhRepository _anhRepository;
+        private readonly IKichCoRepository _kichcoRepository;
 
-        public GiayChiTietApi(IGiayChiTietRepository giayChitiet, IDeGiayRepository degiay, IAnhRepository anhRepository)
+        public GiayChiTietApi(IGiayChiTietRepository giayChitiet, IDeGiayRepository degiay)
         {
             _giayChitiet = giayChitiet;
             _degiay = degiay;
-            _anhRepository = anhRepository;
-
+          
         }
         [HttpGet("giaychitiet")]
         public async Task<ActionResult<IEnumerable<GiayChiTiet>>> GetGiayChiTiets()
@@ -42,7 +42,7 @@ namespace API.Controllers
             return Ok(await _degiay.GetDeGiay(id));
         }
         [HttpPost("giaychitiet")]
-        public async Task<ActionResult<GiayChiTiet>> CreateGiayChitiet(GiayChiTiet gct ,Guid? iddegiay)
+        public async Task<ActionResult<GiayChiTiet>> CreateGiayChitiet(GiayChiTiet gct, Guid? iddegiay)
         {
             await _giayChitiet.CreateGiayChiTiet(gct, iddegiay);
             return Ok();
@@ -56,7 +56,7 @@ namespace API.Controllers
         [HttpPut("giaychitiet")]
         public async Task<ActionResult> UpdateGiayChiTiet(GiayChiTiet gct, Guid? dg)
         {
-            await _giayChitiet.UpdateGiayChiTiet(gct , dg);
+            await _giayChitiet.UpdateGiayChiTiet(gct, dg);
             return Ok();
         }
         [HttpDelete("giaychitiet/{id}")]
@@ -77,10 +77,6 @@ namespace API.Controllers
             await _degiay.DeleteDeGiay(id);
             return Ok();
         }
-
-
-
-
 
     }
 }

@@ -27,6 +27,6 @@ namespace Data.Models
 
         public bool TrangThai { get; set; }
         public virtual GioHang GioHang { get; set; }
-        public virtual GiayChiTiet GiayChiTiet { get; set; }
+        public virtual Giay Giays { get; set; }
     }
 }

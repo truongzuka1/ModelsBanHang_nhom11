@@ -23,10 +23,10 @@
   <ItemGroup>
     <ProjectReference Include="..\API\API.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <Folder Include="wwwroot\img\" />
   </ItemGroup>
+
 
 
 </Project>

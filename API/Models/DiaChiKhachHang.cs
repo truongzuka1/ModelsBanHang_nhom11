@@ -20,7 +20,7 @@ namespace Data.Models
        
         public bool TrangThai { get; set; } = true;
 
-        public KhachHang KhachHang { get; set; }
+        public virtual KhachHang KhachHang { get; set; }
 
 
     }
