@@ -24,21 +24,18 @@ namespace BlazorAdmin.Service
         {
             return await _httpClient.GetFromJsonAsync<TheLoaiGiay>($"api/TheLoaiGiay/{id}");
         }
-
         public async Task<TheLoaiGiay> AddAsync(TheLoaiGiay theLoaiGiay)
         {
             var response = await _httpClient.PostAsJsonAsync("api/TheLoaiGiay", theLoaiGiay);
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<TheLoaiGiay>();
         }
-
         public async Task<TheLoaiGiay> UpdateAsync(TheLoaiGiay theLoaiGiay)
         {
             var response = await _httpClient.PutAsJsonAsync($"api/TheLoaiGiay/{theLoaiGiay.TheLoaiGiayId}", theLoaiGiay);
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<TheLoaiGiay>();
         }
-
         public async Task<bool> DeleteAsync(Guid id)
         {
             var response = await _httpClient.DeleteAsync($"api/TheLoaiGiay/{id}");
