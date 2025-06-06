@@ -23,7 +23,7 @@ namespace Data.Models
         {
     
 
-            optionsBuilder.UseSqlServer(@"Data Source=.;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
+            optionsBuilder.UseSqlServer(@"Data Source=MINH\SQLEXPRESS;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
 
 
 
@@ -51,6 +51,7 @@ namespace Data.Models
         .WithOne(nv => nv.ChucVu)
         .HasForeignKey(nv => nv.ChucVuId)
         .OnDelete(DeleteBehavior.Restrict);
+            //abc
 
             // Seed dữ liệu cứng: Admin và Nhân viên
             modelBuilder.Entity<ChucVu>().HasData(
@@ -69,10 +70,31 @@ namespace Data.Models
                     TrangThai = 1
                 });
 
-           
-        
+            var adminTaiKhoanId = Guid.Parse("99999999-9999-9999-9999-999999999999");
 
-                    modelBuilder.Entity<NhanVien>()
+            modelBuilder.Entity<TaiKhoan>().HasData(new TaiKhoan
+            {
+                TaikhoanId = adminTaiKhoanId,
+                Username = "admin",
+                Password = "admin123", 
+                Ngaytaotaikhoan = DateTime.Now
+            });
+
+        
+            modelBuilder.Entity<NhanVien>().HasData(new NhanVien
+            {
+                NhanVienId = Guid.Parse("88888888-8888-8888-8888-888888888888"),
+                HoTen = "Nguyễn Văn Quản Trị",
+                SoDienThoai = "0987654321",
+                Email = "admin@shop.com",
+                NgaySinh = new DateTime(1995, 1, 1),
+                NgayCapNhatCuoiCung = DateTime.Now,
+                TrangThai = true,
+                TaikhoanId = adminTaiKhoanId,
+                ChucVuId = Guid.Parse("11111111-1111-1111-1111-111111111111") 
+            });
+
+            modelBuilder.Entity<NhanVien>()
                 .HasOne(nv => nv.TaiKhoan)
                 .WithMany()
                 .HasForeignKey(nv => nv.TaikhoanId)
