@@ -1,0 +1,206 @@
+﻿
+@page "/themkhachhang"
+@inject IJSRuntime JS
+
+@using Microsoft.JSInterop
+
+<h2 class="text-center">Thêm Khách Hàng</h2>
+<div class="container bg-white rounded shadow p-4" style="max-width: 1200px; margin: auto;">
+    <EditForm Model="formData" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="row">
+            <!-- Cột trái: Thông tin khách hàng -->
+            <div class="col-md-6">
+                <label>Ảnh đại diện</label>
+                <div class="avatar-box mb-3" @onclick="TriggerFileInput">
+                    @if (!string.IsNullOrEmpty(AvatarPreview))
+                    {
+                        <img src="@AvatarPreview" />
+                    }
+                    else
+                    {
+                        <span>Chọn ảnh</span>
+                    }
+                </div>
+                <InputFile OnChange="HandleImageChange" style="display:none" id="avatarInput" />
+
+                <div class="form-group">
+                    <label><span class="text-danger">*</span> Tên khách hàng</label>
+                    <InputText class="form-control" @bind-Value="formData.Name" required />
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <InputText class="form-control" @bind-Value="formData.Email" />
+                </div>
+
+                <div class="form-group">
+                    <label><span class="text-danger">*</span> Số điện thoại</label>
+                    <InputText class="form-control" @bind-Value="formData.Phone" required />
+                </div>
+
+                <div class="form-group">
+                    <label><span class="text-danger">*</span> Ngày sinh</label>
+                    <InputDate class="form-control" @bind-Value="formData.Dob" required />
+                </div>
+
+                <div class="form-group">
+                    <label><span class="text-danger">*</span> Giới tính</label>
+                    <InputSelect class="form-control" @bind-Value="formData.Gender">
+                        <option value="">Chọn giới tính</option>
+                        <option value="Nam">Nam</option>
+                        <option value="Nữ">Nữ</option>
+                    </InputSelect>
+                </div>
+            </div>
+
+            <!-- Cột phải: Địa chỉ -->
+            <div class="col-md-6">
+                <h4>Địa chỉ 1</h4>
+
+                <div class="form-group">
+                    <label><span class="text-danger">*</span> Tên</label>
+                    <InputText class="form-control" @bind-Value="formData.Address.Name" required />
+                </div>
+
+                <div class="form-group">
+                    <label><span class="text-danger">*</span> Số điện thoại</label>
+                    <InputText class="form-control" @bind-Value="formData.Address.Phone" required />
+                </div>
+
+                <div class="form-group">
+                    <label><span class="text-danger">*</span> Tỉnh/thành phố</label>
+                    <InputSelect class="form-control" @bind-Value="formData.Address.Province" @onchange="ProvinceChanged">
+                        <option value="">Chọn tỉnh</option>
+                        @foreach (var province in ProvinceOptions.Keys)
+                        {
+                            <option>@province</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <div class="form-group">
+                    <label><span class="text-danger">*</span> Quận/huyện</label>
+                    <InputSelect class="form-control" @bind-Value="formData.Address.District" @onchange="DistrictChanged">
+                        <option value="">Chọn huyện</option>
+                        @foreach (var d in Districts)
+                        {
+                            <option>@d</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <div class="form-group">
+                    <label><span class="text-danger">*</span> Xã/phường/thị trấn</label>
+                    <InputSelect class="form-control" @bind-Value="formData.Address.Ward">
+                        <option value="">Chọn xã</option>
+                        @foreach (var w in Wards)
+                        {
+                            <option>@w</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <div class="form-group">
+                    <label>Địa chỉ cụ thể</label>
+                    <InputTextArea class="form-control" @bind-Value="formData.Address.Detail" />
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-3">
+            <button class="btn btn-outline-warning" type="submit">Thêm Khách Hàng</button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private CustomerFormModel formData = new();
+    private string AvatarPreview = string.Empty;
+
+    private Dictionary<string, Dictionary<string, List<string>>> ProvinceOptions = new()
+    {
+        ["Lào Cai"] = new()
+        {
+            ["Huyện Si Ma Cai"] = new() { "Xã A", "Xã B" },
+            ["Huyện Mường Khương"] = new() { "Xã C", "Xã D" },
+            ["Huyện Bảo Thắng"] = new() { "Xã E", "Xã F" },
+            ["Huyện Văn Bàn"] = new() { "Xã G", "Xã H" }
+        },
+        ["Hà Nội"] = new()
+        {
+            ["Quận Ba Đình"] = new() { "Phường A", "Phường B" },
+            ["Quận Hoàn Kiếm"] = new() { "Phường C", "Phường D" }
+        }
+    };
+
+    private List<string> Districts = new();
+    private List<string> Wards = new();
+
+    private void ProvinceChanged(ChangeEventArgs e)
+    {
+        formData.Address.Province = e.Value?.ToString() ?? string.Empty;
+        formData.Address.District = string.Empty;
+        formData.Address.Ward = string.Empty;
+        Districts = ProvinceOptions.ContainsKey(formData.Address.Province) ? ProvinceOptions[formData.Address.Province].Keys.ToList() : new();
+        Wards.Clear();
+    }
+
+    private void DistrictChanged(ChangeEventArgs e)
+    {
+        formData.Address.District = e.Value?.ToString() ?? string.Empty;
+        formData.Address.Ward = string.Empty;
+        if (ProvinceOptions.TryGetValue(formData.Address.Province, out var districts))
+        {
+            Wards = districts.ContainsKey(formData.Address.District) ? districts[formData.Address.District] : new();
+        }
+    }
+
+    private void TriggerFileInput()
+    {
+        JS.InvokeVoidAsync("document.getElementById", "avatarInput").AsTask().ContinueWith(_ =>
+        {
+            JS.InvokeVoidAsync("eval", "document.getElementById('avatarInput').click()")
+              .AsTask();
+        });
+    }
+
+    private async Task HandleImageChange(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file != null)
+        {
+            var buffer = new byte[file.Size];
+            await file.OpenReadStream().ReadAsync(buffer);
+            AvatarPreview = "data:image/png;base64," + Convert.ToBase64String(buffer);
+        }
+    }
+
+    private void HandleSubmit()
+    {
+        Console.WriteLine("✅ Khách hàng mới:");
+        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(formData));
+    }
+
+    public class CustomerFormModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
+        public DateTime Dob { get; set; } = DateTime.Now;
+        public string Gender { get; set; } = string.Empty;
+        public AddressModel Address { get; set; } = new();
+    }
+
+    public class AddressModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
+        public string Province { get; set; } = string.Empty;
+        public string District { get; set; } = string.Empty;
+        public string Ward { get; set; } = string.Empty;
+        public string Detail { get; set; } = string.Empty;
+    }
+}

@@ -1,7 +1,9 @@
+
 ﻿@page "/AddNhanVien"
 @using API.Models
 @using BlazorAdmin.Service.IService
 @inject INhanVienService NhanVienservice
+
 @inject ITaiKhoanService taiKhoanService
 @inject NavigationManager manager
 
@@ -110,7 +112,8 @@
             std.TaikhoanId = taiKhoan.TaikhoanId;
             std.NgayCapNhatCuoiCung = DateTime.Now;
 
-            await NhanVienservice.CreateNhanVien(std);
+          await NhanVienservice.CreateNhanVien(std);
+
 
             manager.NavigateTo("/listnhanvien");
         }
