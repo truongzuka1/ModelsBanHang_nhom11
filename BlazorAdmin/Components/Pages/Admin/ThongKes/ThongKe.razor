@@ -5,16 +5,16 @@
 @inject IHoaDonService hoaDonService
 @inject NavigationManager manager
 @inject IJSRuntime JS;
+<h2>Thống kê</h2>
 <EditForm Model="hoaDons" >
     <EditForm Model="hoaDonChiTiets">
-        <h2>Thống kê</h2>
         <div class="stats-cards">
             <div class="stat-card today">
                 <div class="stat-title">Hôm nay</div>
                 <div class="stat-value">0 ₫</div>
                 <div class="stat-detail">
-                    <span>Sản phẩm @hoaDons.Join(hoaDonChiTiets, x => x.HoaDonId , y => y.HoaDonId , (x , y) => new{x.NgayTao ,y.SoLuongSanPham , x.TrangThai }).Where(x => x.NgayTao == DateTime.Now).Sum(x => x.SoLuongSanPham)</span> |
-                    <span>Đơn thành công 0</span> |
+                    <span>Sản phẩm @hoaDons.Join(hoaDonChiTiets, x => x.HoaDonId , y => y.HoaDonId , (x , y) => new{x.NgayTao ,y.SoLuongSanPham , x.TrangThai ,TTHoaDonct = y.TrangThai  }).Where(x => x.NgayTao == DateTime.Now && x.TrangThai == "Đã thanh toán" && x.TTHoaDonct == true).Sum(x => x.SoLuongSanPham)</span> |
+                    <span>Đơn thành công 0</span> | 
                     <span>Đơn huỷ 0</span> |
                     <span>Đơn trả 0</span>
                 </div>
@@ -61,7 +61,7 @@
         </div>
         <div class="dashboard-table-chart">
             <div class="table-area">
-                <div class="table-title">Danh sách sản phẩm bán chạy theo tùy chỉnh</div>
+                <div class="table-title">Danh sách sản phẩm bán chạy </div>
                 <table class="product-table">
                     <thead>
                         <tr>
@@ -118,7 +118,7 @@
         </div>
         <div class="dashboard-table-chart">
             <div class="table-area">
-                <div class="table-title">Danh sách sản phẩm bán chạy theo tùy chỉnh</div>
+                <div class="table-title">Danh sách sản phẩm sắp hết hàng</div>
                 <table class="product-table">
                     <thead>
                         <tr>
@@ -240,4 +240,107 @@
         }
         hoaDonChiTiets = await chiTietHoaDonService.GetAllHDCTAsync();
 	}
+    private string activeFilter = "NGÀY";
+
+    // Dữ liệu sản phẩm cho bảng 1
+    private List<Giay> giays = new List<Giay>();
+    private List<int> PageSizes1 = new List<int> { 5, 10 };
+    private int PageSize1 = 5;
+    private int CurrentPage1 = 0;
+    private int TotalPages1 = 0;
+    private List<List<Giay>> PagedProducts1 = new List<List<Giay>>();
+
+    // Dữ liệu sản phẩm cho bảng 2
+    private List<Giay> giays2 = new List<Giay>();
+    private List<int> PageSizes2 = new List<int> { 5, 10 };
+    private int PageSize2 = 5;
+    private int CurrentPage2 = 0;
+    private int TotalPages2 = 0;
+    private List<List<Giay>> PagedProducts2 = new List<List<Giay>>();
+
+    protected override void OnInitialized()
+    {
+        // Khởi tạo dữ liệu sản phẩm tương tự từ Main.js
+        giays = new List<Giay>
+        {
+            
+        };
+
+        giays2 = new List<Giay>
+        {
+
+        };
+
+        UpdatePaging1();
+        UpdatePaging2();
+    }
+
+    // Cập nhật khi PageSize1 thay đổi
+    private void OnPageSize1Changed(ChangeEventArgs e)
+    {
+        PageSize1 = int.Parse(e.Value.ToString());
+        UpdatePaging1();
+        CurrentPage1 = 0; // Reset về trang đầu tiên
+    }
+
+    // Cập nhật khi PageSize2 thay đổi
+    private void OnPageSize2Changed(ChangeEventArgs e)
+    {
+        PageSize2 = int.Parse(e.Value.ToString());
+        UpdatePaging2();
+        CurrentPage2 = 0; // Reset về trang đầu tiên
+    }
+
+    // Logic phân trang cho bảng 1
+    private void UpdatePaging1()
+    {
+        TotalPages1 = (int)Math.Ceiling((double)giays.Count / PageSize1);
+        PagedProducts1 = new List<List<Giay>>();
+        for (int i = 0; i < TotalPages1; i++)
+        {
+            PagedProducts1.Add(giays.Skip(i * PageSize1).Take(PageSize1).ToList());
+        }
+        if (CurrentPage1 >= TotalPages1) CurrentPage1 = 0;
+    }
+
+    private void SetPage1(int page)
+    {
+        if (page >= 0 && page < TotalPages1)
+        {
+            CurrentPage1 = page;
+        }
+    }
+
+    // Logic phân trang cho bảng 2 (tương tự)
+    private void UpdatePaging2()
+    {
+        TotalPages2 = (int)Math.Ceiling((double)giays2.Count / PageSize2);
+        PagedProducts2 = new List<List<Giay>>();
+        for (int i = 0; i < TotalPages2; i++)
+        {
+            PagedProducts2.Add(giays.Skip(i * PageSize2).Take(PageSize2).ToList());
+        }
+        if (CurrentPage2 >= TotalPages2) CurrentPage2 = 0;
+    }
+
+    private void SetPage2(int page)
+    {
+        if (page >= 0 && page < TotalPages2)
+        {
+            CurrentPage2 = page;
+        }
+    }
+
+    // Logic cho các nút filter
+    private void SetActiveFilter(string filter)
+    {
+        activeFilter = filter;
+        // Thêm logic để lọc dữ liệu ở đây nếu cần
+    }
+
+    // Lưu ý: Các phần xử lý DOM trực tiếp như sidebar, dropdownAvatar, dropdownBell
+    // trong Main.js không được chuyển đổi ở đây. Bạn nên cân nhắc:
+    // 1. Sử dụng các tính năng Blazor để quản lý trạng thái hiển thị của chúng (ví dụ: dùng @bind-class, @if, @onclick).
+    // 2. Nếu cần tương tác DOM phức tạp, hãy tạo các hàm JavaScript trong một file .js riêng
+    //    và gọi chúng từ C# bằng IJSRuntime.
 }
