@@ -1,4 +1,5 @@
-﻿using Data.Models;
+﻿using API.Models;
+using Data.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.IRepository.Repository

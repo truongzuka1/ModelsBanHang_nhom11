@@ -22,6 +22,28 @@ namespace API.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("API.Models.Anh", b =>
+                {
+                    b.Property<Guid>("AnhId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("DuongDan")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TenAnh")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TrangThai")
+                        .HasColumnType("bit");
+
+                    b.HasKey("AnhId");
+
+                    b.ToTable("Anhs");
+                });
+
             modelBuilder.Entity("API.Models.NhanVien", b =>
                 {
                     b.Property<Guid>("NhanVienId")
@@ -63,28 +85,6 @@ namespace API.Migrations
                     b.HasIndex("TaikhoanId");
 
                     b.ToTable("NhanViens");
-                });
-
-            modelBuilder.Entity("Data.Models.Anh", b =>
-                {
-                    b.Property<Guid>("AnhId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("DuongDan")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TenAnh")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("TrangThai")
-                        .HasColumnType("bit");
-
-                    b.HasKey("AnhId");
-
-                    b.ToTable("Anhs");
                 });
 
             modelBuilder.Entity("Data.Models.ChatLieu", b =>
@@ -392,6 +392,9 @@ namespace API.Migrations
                     b.Property<Guid>("GiayChiTietId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("GiaysGiayId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("GioHangId")
                         .HasColumnType("uniqueidentifier");
 
@@ -409,7 +412,7 @@ namespace API.Migrations
 
                     b.HasKey("GioHangChiTietId");
 
-                    b.HasIndex("GiayChiTietId");
+                    b.HasIndex("GiaysGiayId");
 
                     b.HasIndex("GioHangId");
 
@@ -511,6 +514,9 @@ namespace API.Migrations
                     b.Property<Guid>("GiayChiTietId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("GiaysGiayId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("HoaDonId")
                         .HasColumnType("uniqueidentifier");
 
@@ -519,7 +525,7 @@ namespace API.Migrations
 
                     b.HasKey("HoaDonChiTietId");
 
-                    b.HasIndex("GiayChiTietId");
+                    b.HasIndex("GiaysGiayId");
 
                     b.HasIndex("HoaDonId");
 
@@ -786,7 +792,7 @@ namespace API.Migrations
 
             modelBuilder.Entity("Data.Models.GiayChiTiet", b =>
                 {
-                    b.HasOne("Data.Models.Anh", "Anh")
+                    b.HasOne("API.Models.Anh", "Anh")
                         .WithMany("GiayChiTiets")
                         .HasForeignKey("AnhId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -873,9 +879,9 @@ namespace API.Migrations
 
             modelBuilder.Entity("Data.Models.GioHangChiTiet", b =>
                 {
-                    b.HasOne("Data.Models.GiayChiTiet", "GiayChiTiet")
+                    b.HasOne("Data.Models.Giay", "Giays")
                         .WithMany("GioHangChiTiets")
-                        .HasForeignKey("GiayChiTietId")
+                        .HasForeignKey("GiaysGiayId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -885,7 +891,7 @@ namespace API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("GiayChiTiet");
+                    b.Navigation("Giays");
 
                     b.Navigation("GioHang");
                 });
@@ -925,9 +931,9 @@ namespace API.Migrations
 
             modelBuilder.Entity("Data.Models.HoaDonChiTiet", b =>
                 {
-                    b.HasOne("Data.Models.GiayChiTiet", "GiayChiTiets")
+                    b.HasOne("Data.Models.Giay", "Giays")
                         .WithMany("HoaDonChiTiets")
-                        .HasForeignKey("GiayChiTietId")
+                        .HasForeignKey("GiaysGiayId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -937,7 +943,7 @@ namespace API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("GiayChiTiets");
+                    b.Navigation("Giays");
 
                     b.Navigation("HoaDons");
                 });
@@ -964,7 +970,7 @@ namespace API.Migrations
                     b.Navigation("TaiKhoan");
                 });
 
-            modelBuilder.Entity("Data.Models.Anh", b =>
+            modelBuilder.Entity("API.Models.Anh", b =>
                 {
                     b.Navigation("GiayChiTiets");
                 });
@@ -994,10 +1000,7 @@ namespace API.Migrations
                     b.Navigation("GiayChiTiets");
 
                     b.Navigation("GiayDotGiamGias");
-                });
 
-            modelBuilder.Entity("Data.Models.GiayChiTiet", b =>
-                {
                     b.Navigation("GioHangChiTiets");
 
                     b.Navigation("HoaDonChiTiets");
