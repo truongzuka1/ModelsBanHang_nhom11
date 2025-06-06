@@ -33,7 +33,7 @@ builder.Services.AddScoped<INhanVienRepository, NhanVienRepository>();
 builder.Services.AddScoped<IThuongHieuRepository, ThuongHieuRepository>();
 builder.Services.AddScoped<IVoucherRepo, VoucherRepo>();
 builder.Services.AddScoped<ITheLoaiGiayRepository, TheLoaiGiayRepository>();
-
+builder.Services.AddScoped<ITaiKhoanRepository, TaiKhoanRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
