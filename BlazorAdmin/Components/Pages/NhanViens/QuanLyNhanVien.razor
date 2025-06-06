@@ -39,7 +39,7 @@
 				<td>@item.NgayCapNhatCuoiCung</td>
 				<td>
 					<button class="btn btn-sm @(item.TrangThai ? "btn-danger" : "btn-success") me-2"
-							@onclick="() => ToggleTrangThai(item.NhanVienId)">
+					@onclick="() => ToggleTrangThai(item.NhanVienId)">
 						🔄
 					</button>
 					<span>@(item.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")</span>
@@ -49,7 +49,7 @@
 
 
 
-				
+
 				<td>
 					<button class="btn btn-primary" @onclick="() => NavigateToEdit(item.NhanVienId)">Edit</button>
 					<button class="btn btn-danger" @onclick="() => DeleteAsyncNhanVien(item.NhanVienId)">Delete</button>
@@ -98,6 +98,7 @@
 		{
 
 			nhanVien.TrangThai = !nhanVien.TrangThai;
+			nhanVien.NgayCapNhatCuoiCung = DateTime.Now;
 
 	
 			await service.UpdateNhanVienAsync(nhanVien);
