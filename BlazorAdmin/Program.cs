@@ -25,7 +25,10 @@ builder.Services.AddHttpClient("voucher", client =>
 {
     client.BaseAddress = new Uri("https://localhost:7246/");
 });
-
+builder.Services.AddHttpClient<IKhachHangService, KhachHangService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:5001/");
+});
 
 
 // Đăng ký Service
@@ -44,6 +47,7 @@ builder.Services.AddScoped<ITheLoaiGiayService, TheLoaiGiayService>();
 builder.Services.AddScoped<IThuongHieuService, ThuongHieuService>();
 builder.Services.AddScoped<IVoucherService, VoucherService>();
 builder.Services.AddScoped<ITaiKhoanService, TaiKhoanService>();
+builder.Services.AddScoped<KhachHangService, KhachHangService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

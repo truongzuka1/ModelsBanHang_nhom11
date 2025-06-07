@@ -1,0 +1,15 @@
+﻿using Data.Models;
+using API.Models;
+namespace BlazorAdmin.Service.IService
+{
+    public interface IKhachHangService
+    {
+        Task<List<KhachHang>> GetAll();
+        Task<KhachHang?> GetById(Guid id);
+        Task Create(KhachHang khachHang);
+        Task Update(KhachHang khachHang);
+        Task Delete(Guid id);
+
+
+    }
+}

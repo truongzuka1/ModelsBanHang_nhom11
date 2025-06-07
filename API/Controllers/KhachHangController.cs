@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-
+using API.Models;
 namespace API.Controllers
 {
     [Route("api/[controller]")]
