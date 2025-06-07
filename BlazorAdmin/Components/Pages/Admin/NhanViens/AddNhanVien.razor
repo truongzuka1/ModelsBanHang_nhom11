@@ -7,7 +7,7 @@
 
 <h3 class="mb-4">Thêm nhân viên</h3>
 
-<ditForm Model="std" OnValidSubmit="SubmitFormCreate">
+<EditForm Model="std" OnValidSubmit="SubmitFormCreate">
     <DataAnnotationsValidator />
     <ValidationSummary />
 
@@ -52,7 +52,7 @@
     }
 
     <button type="submit" class="btn btn-primary">Thêm</button>
-</ditForm>
+</EditForm>
 
 @code {
     private NhanVien std = new NhanVien

@@ -23,6 +23,7 @@ namespace Data.Models
         public DateTime Ngaytaotaikhoan { get; set; }
 
         public virtual ICollection<HoaDon> hoaDons { get; set; } = new List<HoaDon>();
+        public virtual NhanVien? NhanVien { get; set; }
 
     }
 

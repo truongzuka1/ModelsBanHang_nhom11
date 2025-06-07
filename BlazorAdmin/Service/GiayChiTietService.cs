@@ -1,5 +1,6 @@
 ﻿using BlazorAdmin.Service.IService;
 using Data.Models;
+using System.Net.Http;
 using System.Net.Http.Json;
 
 namespace BlazorAdmin.Service
@@ -8,15 +9,14 @@ namespace BlazorAdmin.Service
     {
         private readonly HttpClient _httpClient;
 
-        public GiayChiTietService(IHttpClientFactory httpClientFactory)
+        public GiayChiTietService(HttpClient httpClient)
         {
-            _httpClient = httpClientFactory.CreateClient("giaychitiet");
+            _httpClient = httpClient;
         }
 
-        public async Task<IEnumerable<GiayChiTiet>> GetAllAsync()
+        public async Task<List<GiayChiTiet>> GetAllAsync()
         {
-            return await _httpClient.GetFromJsonAsync<IEnumerable<GiayChiTiet>>("api/GiayChiTiet")
-                   ?? new List<GiayChiTiet>();
+            return await _httpClient.GetFromJsonAsync<List<GiayChiTiet>>("api/GiayChiTiet");
         }
 
         public async Task<GiayChiTiet> GetByIdAsync(Guid id)

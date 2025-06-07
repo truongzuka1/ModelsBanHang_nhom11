@@ -8,6 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using Data.Models;
 using API.IRepository;
 using NuGet.Protocol.Core.Types;
+using API.IRepository.Repository;
+using Microsoft.AspNetCore.Identity.Data;
+using API.Models.DTO;
+
 
 namespace API.Controllers
 {
@@ -16,17 +20,23 @@ namespace API.Controllers
     public class TaiKhoansController : ControllerBase
     {
         private readonly ITaiKhoanRepository _context;
+        private readonly INhanVienRepository _nhanVienRepository;
+        private readonly IChucVuRepository _chucVuRepository;
 
-        public TaiKhoansController(ITaiKhoanRepository context)
+        public TaiKhoansController(ITaiKhoanRepository context, INhanVienRepository nhanVienRepository, IChucVuRepository chucVuRepository)
         {
             _context = context;
+            _nhanVienRepository = nhanVienRepository;
+            _chucVuRepository = chucVuRepository;
         }
+
+
 
         // GET: api/TaiKhoans
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TaiKhoan>>> GetTaiKhoans()
         {
-           return Ok( await _context.GetAllTaiKhoanAsync() );
+            return Ok(await _context.GetAllTaiKhoanAsync());
         }
 
         // GET: api/TaiKhoans/5
@@ -41,7 +51,7 @@ namespace API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTaiKhoan(Guid id, TaiKhoan taiKhoan)
         {
-           await _context.UpdateTaiKhoanAsync(taiKhoan);
+            await _context.UpdateTaiKhoanAsync(taiKhoan);
             return Ok();
         }
 
@@ -58,7 +68,7 @@ namespace API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTaiKhoan(Guid id)
         {
-           await _context.DeleteTaiKhoanAsync(id);  
+            await _context.DeleteTaiKhoanAsync(id);
             return Ok();
         }
 
@@ -72,8 +82,50 @@ namespace API.Controllers
             }
             return Ok(taiKhoan);
         }
+        [HttpGet("login")]
+        public async Task<ActionResult<LoginResponseDto>> Login(string username, string pass)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                                       .SelectMany(v => v.Errors)
+                                       .Select(e => e.ErrorMessage)
+                                       .ToList();
+                return BadRequest(new LoginResponseDto
+                {
+                    IsSuccess = false,
+                    Message = "Dữ liệu đăng nhập không hợp lệ: " + string.Join("; ", errors)
+                });
+            }
 
 
+            var userChucVu = await _context.GetByIdChucVuAsync(username,pass);
 
+            if (userChucVu != null)
+            {
+
+                string role = _chucVuRepository.GetByIdChucVuAsync(_nhanVienRepository.GetIdNhanVienTaiKhoan(userChucVu.TaikhoanId).Result.ChucVuId.Value).Result.TenChucVu; 
+
+
+                return Ok(new LoginResponseDto
+                {
+                    IsSuccess = true,
+                    Username = username,
+                    Role = role, 
+                    Message = "Đăng nhập thành công!"
+                });
+            }
+            else
+            {
+
+                return Unauthorized(new LoginResponseDto
+                {
+                    IsSuccess = false,
+                    Username = username, 
+                    Role = null,
+                    Message = "Tên đăng nhập hoặc mật khẩu không đúng."
+                });
+            }
+        }
     }
 }

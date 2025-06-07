@@ -1,37 +1,48 @@
 ﻿@inherits LayoutComponentBase
 
+
+<link href="css/Sidebar.css" rel="stylesheet" />
+<link href="css/AdminLayout.css" rel="stylesheet" /> 
+
 <div class="page">
     <div class="sidebar">
-        <NavAdmin />
+        <NavAdmin /> 
     </div>
 
-    <main>
-        <div class="main">
-            <div class="header">
-                <div class="user-area">
-                    <div class="bell" id="bell">
-                        🔔<span class="badge">2</span>
-                        <div class="dropdown-bell" id="dropdownBell" style="display:none;">
+    <div class="main">
+        <div class="header">
+            <div class="user-area">
+                
+                <span class="bell" @onclick="ToggleBellDropdown">
+                    🔔<span class="badge">2</span>
+                    @if (showBellDropdown)
+                    {
+                        <div class="dropdown-bell">
+                            
                             <div class="bell-title">Thông báo mới</div>
                             <hr>
                             <div class="dropdown-item">Thông báo 1</div>
                             <div class="dropdown-item">Thông báo 2</div>
                         </div>
-                    </div>
-                    <img class="avatar" id="avatar" src="https://randomuser.me/api/portraits/women/44.jpg" alt="user" />
-                    <div class="dropdown-avatar" id="dropdownAvatar" style="display:none;">
+                    }
+                </span>
+                <img class="avatar" @onclick="ToggleAvatarDropdown" src="https://randomuser.me/api/portraits/women/44.jpg" alt="user" />
+                @if (showAvatarDropdown)
+                {
+                    <div class="dropdown-avatar">
+                        
                         <div class="dropdown-item">Thông tin tài khoản</div>
-                        <div class="dropdown-item">Đăng xuất</div>
+                        <div class="dropdown-item">Đăng xuất</div> 
                     </div>
-                </div>
+                }
             </div>
         </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
+        <div class="dashboard-content">
+            @Body 
+        </div>
+    </div>
 </div>
+
 
 <div id="blazor-error-ui">
     An unhandled error has occurred.
@@ -40,5 +51,24 @@
 </div>
 
 @code {
+    private bool showBellDropdown = false;
+    private bool showAvatarDropdown = false;
+
+    private void ToggleBellDropdown()
+    {
+        showBellDropdown = !showBellDropdown;
+        
+        if (showBellDropdown) showAvatarDropdown = false;
+        StateHasChanged();
+    }
+
+    private void ToggleAvatarDropdown()
+    {
+        showAvatarDropdown = !showAvatarDropdown;
+        
+        if (showAvatarDropdown) showBellDropdown = false;
+        StateHasChanged(); 
+    }
+
 
 }
