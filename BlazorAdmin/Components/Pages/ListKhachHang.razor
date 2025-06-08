@@ -1,137 +1,129 @@
-﻿@page "/khachhang"
+@page "/AddKhachHang"
+@using Data.Models
+@using BlazorAdmin.Service.IService
+@inject IKhachHangService khachHangService
+@inject ITaiKhoanService taiKhoanService
+@inject NavigationManager manager
 
-@using System.Globalization
-@inject NavigationManager NavigationManager
+<h3 class="mb-4">Thêm khách hàng</h3>
 
-<link href="/css/KhachHang.css" rel="stylesheet" />
+<EditForm Model="khachHang" OnValidSubmit="SubmitFormCreate" FormName="formCreateKhachHang">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
 
-<div class="card">
-    <div class="top-controls">
-        <div>
-            <input type="text" placeholder="🔍 Tìm kiếm tên hoặc sđt hoặc email" @bind="SearchTerm" @bind:event="oninput" />
-            <button class="btn" @onclick="ExportExcel">Xuất Excel</button>
-        </div>
-        <button class="btn" @onclick="NavigateToCreate">+ Tạo khách hàng</button>
+    <div class="mb-3">
+        <label for="hoTen" class="form-label">Họ tên:</label>
+        <InputText id="hoTen" class="form-control" @bind-Value="khachHang.HoTen" />
+        <ValidationMessage For="@(() => khachHang.HoTen)" />
     </div>
 
-    <div class="filters">
-        <label>
-            Giới tính:
-            <select @bind="SelectedGender">
-                <option value="">Tất cả</option>
-                <option value="Nam">Nam</option>
-                <option value="Nữ">Nữ</option>
-            </select>
-        </label>
-        <label>
-            Trạng thái:
-            <select @bind="SelectedStatus">
-                <option value="">Tất cả</option>
-                <option value="Hoạt động">Hoạt động</option>
-                <option value="Ngưng hoạt động">Ngưng hoạt động</option>
-            </select>
-        </label>
+    <div class="mb-3">
+        <label for="soDienThoai" class="form-label">Số điện thoại:</label>
+        <InputText id="soDienThoai" class="form-control" @bind-Value="khachHang.SoDienThoai" />
+        <ValidationMessage For="@(() => khachHang.SoDienThoai)" />
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>STT</th>
-                <th>Code</th>
-                <th>Email</th>
-                <th>Họ tên</th>
-                <th>Ngày sinh</th>
-                <th>Số điện thoại</th>
-                <th>Giới tính</th>
-                <th>Trạng thái</th>
-                <th>Thao tác</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var (c, index) in FilteredCustomers.Select((c, i) => (c, i)))
-            {
-                <tr>
-                    <td>@(index + 1)</td>
-                    <td>@c.Code</td>
-                    <td>@c.Email</td>
-                    <td>@c.Name</td>
-                    <td>@FormatDate(c.DOB)</td>
-                    <td>@c.Phone</td>
-                    <td>@c.Gender</td>
-                    <td><span class="status">@c.Status</span></td>
-                    <td>
-                        <button class="btn-action" @onclick="() => ViewCustomer(c.Code)">👁️ Xem</button>
-                        <button class="btn-action" @onclick="() => EditCustomer(c.Code)">✏️ Sửa</button>
-                        <button class="btn-action" @onclick="() => DeleteCustomer(c.Code)">🗑️ Xóa</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
+    <div class="mb-3">
+        <label for="email" class="form-label">Email:</label>
+        <InputText id="email" class="form-control" @bind-Value="khachHang.Email" />
+        <ValidationMessage For="@(() => khachHang.Email)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="ngaySinh" class="form-label">Ngày sinh:</label>
+        <InputDate id="ngaySinh" class="form-control" @bind-Value="khachHang.NgaySinh" />
+    </div>
+
+
+    <div class="mb-3">
+        <label for="Tk" class="form-label fw-bold">Tên tài khoản</label>
+        <InputText id="Tk" class="form-control" @bind-Value="username" placeholder="Nhập tên tài khoản" />
+    </div>
+
+    <div class="mb-3">
+        <label for="MK1" class="form-label fw-bold">Mật khẩu</label>
+        <InputText id="MK1" class="form-control" type="password" @bind-Value="password" placeholder="Nhập mật khẩu" />
+    </div>
+
+    <div class="mb-3">
+        <label for="MK2" class="form-label fw-bold">Xác nhận mật khẩu</label>
+        <InputText id="MK2" class="form-control" type="password" @bind-Value="confirmPassword" placeholder="Nhập lại mật khẩu" />
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+
+    <button type="submit" class="btn btn-primary">Thêm</button>
+</EditForm>
 
 @code {
-    private List<Customer> Customers = new()
+    private KhachHang khachHang = new KhachHang
+        {
+            TrangThai = true,
+            NgayTao = DateTime.Now,
+            NgayCapNhatCuoiCung = DateTime.Now
+
+        };
+
+
+
+    private string username = "";
+    private string password = "";
+    private string confirmPassword = "";
+    private string errorMessage = "";
+
+    private async Task SubmitFormCreate()
     {
-        new() { Code = "KH7", Email = "nhatnguyendzpro@gmail.com", Name = "Nguyễn Văn Nhật", DOB = DateTime.Parse("1990-01-01"), Phone = "0261748212", Gender = "Nam", Status = "Hoạt động" },
-        new() { Code = "KH6", Email = "anhle@gmail.com", Name = "Anh Lê", DOB = DateTime.Parse("2001-12-20"), Phone = "0562718362", Gender = "Nam", Status = "Hoạt động" },
-        new() { Code = "KH5", Email = "tuongtrieu@gmail.com", Name = "Tường Triệu", DOB = DateTime.Parse("2000-12-20"), Phone = "0253718362", Gender = "Nam", Status = "Hoạt động" },
-        new() { Code = "KH4", Email = "quynhtrang123@gmail.com", Name = "Quỳnh Trang", DOB = DateTime.Parse("2001-12-20"), Phone = "0452716382", Gender = "Nữ", Status = "Hoạt động" },
-        new() { Code = "KH3", Email = "nguyenthithuyduong948@gmail.com", Name = "Nguyễn Thị Thùy Dương", DOB = DateTime.Parse("2023-12-20"), Phone = "0647536475", Gender = "Nam", Status = "Hoạt động" }
-    };
+        errorMessage = "";
 
-    private string SearchTerm = string.Empty;
-    private string SelectedGender = string.Empty;
-    private string SelectedStatus = string.Empty;
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            errorMessage = "Tên tài khoản không được để trống.";
+            return;
+        }
 
-    private IEnumerable<Customer> FilteredCustomers => Customers.Where(c =>
-        (string.IsNullOrWhiteSpace(SearchTerm) ||
-         c.Name.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase) ||
-         c.Email.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase) ||
-         c.Phone.Contains(SearchTerm)) &&
-        (string.IsNullOrWhiteSpace(SelectedGender) || c.Gender == SelectedGender) &&
-        (string.IsNullOrWhiteSpace(SelectedStatus) || c.Status == SelectedStatus)
-    );
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            errorMessage = "Mật khẩu không được để trống.";
+            return;
+        }
 
-    private string FormatDate(DateTime d) => d.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+        try
+        {
+            var existing = await taiKhoanService.GetByUsernameAsync(username);
+            if (existing != null)
+            {
+                errorMessage = "Tên tài khoản đã tồn tại.";
+                return;
+            }
 
-    private void NavigateToCreate()
-    {
-        NavigationManager.NavigateTo("/AddKhachHang");
-    }
+            var taiKhoan = new Data.Models.TaiKhoan
+                {
+                    TaikhoanId = Guid.NewGuid(),
+                    Username = username,
+                    Password = password, // Có thể mã hóa ở đây
+                    Ngaytaotaikhoan = DateTime.Now
+                };
 
-    private void ExportExcel()
-    {
-        // TODO: Implement export function
-        Console.WriteLine("Export Excel clicked");
-    }
+            await taiKhoanService.CreateTaiKhoanAsync(taiKhoan);
 
-    private void ViewCustomer(string code)
-    {
-        // TODO: Implement view customer logic
-        Console.WriteLine($"View customer with code: {code}");
-    }
+            khachHang.TaiKhoanId = taiKhoan.TaikhoanId;
+            khachHang.NgayCapNhatCuoiCung = DateTime.Now;
 
-    private void EditCustomer(string code)
-    {
-        // TODO: Implement edit customer logic
-        Console.WriteLine($"Edit customer with code: {code}");
-    }
+            await khachHangService.Create(khachHang);
 
-    private void DeleteCustomer(string code)
-    {
-        // TODO: Implement delete customer logic
-        Console.WriteLine($"Delete customer with code: {code}");
-    }
+            manager.NavigateTo("/khachhang");
+        }
+        catch (HttpRequestException httpEx)
+        {
+            errorMessage = "Lỗi mạng hoặc API không phản hồi: " + httpEx.Message;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Đã xảy ra lỗi: " + ex.Message;
+        }
 
-    private class Customer
-    {
-        public string Code { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Name { get; set; } = string.Empty;
-        public DateTime DOB { get; set; }
-        public string Phone { get; set; } = string.Empty;
-        public string Gender { get; set; } = string.Empty;
-        public string Status { get; set; } = string.Empty;
     }
 }

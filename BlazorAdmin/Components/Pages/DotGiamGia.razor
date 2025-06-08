@@ -1,146 +1,140 @@
-﻿@page "/dotgiamgia"  
-@using System.Globalization  
+﻿@page "/dotgiamgia"
+@using System.Globalization
+@using Data.Models
+@inject VoucherService VoucherService
+<link href="/css/DotGiamGia.css" rel="stylesheet" />
 
-<div class="container py-4">  
-    <div class="d-flex justify-content-between align-items-center mb-3">  
-        <h4>Đợt giảm giá</h4>  
-        <div>  
-            <button class="btn btn-warning" @onclick="ExportExcel">EXPORT EXCEL</button>  
-            <button class="btn btn-primary" @onclick="CreateNew">+ Thêm mới</button>  
-        </div>  
-    </div>  
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4>Đợt giảm giá</h4>
+        <div>
+            <button class="btn btn-warning" @onclick="ExportExcel">EXPORT EXCEL</button>
+            <button class="btn btn-primary" @onclick="CreateNew">+ Thêm mới</button>
+        </div>
+    </div>
 
-    <div class="row filter-section mb-3">  
-        <div class="col-md-3">  
-            <input type="text" class="form-control" placeholder="Tìm kiếm theo tên đợt giảm giá" @bind="SearchTerm" @bind:event="oninput" />  
-        </div>  
-        <div class="col-md-2">  
-            <input type="date" class="form-control" @bind="FromDate" />  
-        </div>  
-        <div class="col-md-2">  
-            <input type="date" class="form-control" @bind="ToDate" />  
-        </div>  
-        <div class="col-md-2">  
-            <select class="form-select" @bind="SelectedStatus">  
-                <option value="">Trạng thái</option>  
-                <option value="Đang diễn ra">Đang diễn ra</option>  
-                <option value="Đã kết thúc">Đã kết thúc</option>  
-            </select>  
-        </div>  
-        <div class="col-md-2">  
-            <select class="form-select" @bind="SelectedValue">  
-                <option value="">Giá trị</option>  
-                <option value="10%">10%</option>  
-                <option value="25%">25%</option>  
-                <option value="45%">45%</option>  
-            </select>  
-        </div>  
-    </div>  
+    <div class="row filter-section mb-3">
+        <div class="col-md-3">
+            <input type="text" class="form-control" placeholder="Tìm kiếm theo tên đợt giảm giá" @bind="SearchTerm" @bind:event="oninput" />
+        </div>
+        <div class="col-md-2">
+            <input type="date" class="form-control" @bind="FromDate" />
+        </div>
+        <div class="col-md-2">
+            <input type="date" class="form-control" @bind="ToDate" />
+        </div>
+        <div class="col-md-2">
+            <select class="form-select" @bind="SelectedStatus">
+                <option value="">Trạng thái</option>
+                <option value="true">Đang diễn ra</option>
+                <option value="false">Đã kết thúc</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select class="form-select" @bind="SelectedValue">
+                <option value="">Giá trị</option>
+                <option value="10">10%</option>
+                <option value="25">25%</option>
+                <option value="45">45%</option>
+            </select>
+        </div>
+    </div>
 
-    <table class="table table-bordered bg-white">  
-        <thead>  
-            <tr>  
-                <th>STT</th>  
-                <th>Tên Đợt giảm giá</th>  
-                <th>Giá trị</th>  
-                <th>Trạng thái</th>  
-                <th>Thời gian bắt đầu</th>  
-                <th>Thời gian kết thúc</th>  
-                <th>Hoạt động</th>  
-            </tr>  
-        </thead>  
-        <tbody>  
-            @if (FilteredData.Any())  
-            {  
-                @foreach (var (item, index) in FilteredData.Select((x, i) => (x, i)))  
-                {  
-                    <tr>  
-                        <td>@(index + 1)</td>  
-                        <td>@item.Name</td>  
-                        <td>@item.Value</td>  
-                        <td><span class="badge-green">@item.Status</span></td>  
-                        <td>@item.Start.ToString("dd/MM/yyyy HH:mm")</td>  
-                        <td>@item.End.ToString("dd/MM/yyyy HH:mm")</td>  
-                        <td class="text-center"><span class="action-icon" @onclick="() => ViewDetails(item)">👁️</span></td>  
-                    </tr>  
-                }  
-            }  
-            else  
-            {  
-                <tr>  
-                    <td colspan="7" class="text-center">Không có dữ liệu</td>  
-                </tr>  
-            }  
-        </tbody>  
-    </table>  
+    <table class="table table-bordered bg-white">
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>Tên Đợt giảm giá</th>
+                <th>Giá trị</th>
+                <th>Trạng thái</th>
+                <th>Thời gian bắt đầu</th>
+                <th>Thời gian kết thúc</th>
+                <th>Hoạt động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (FilteredData.Any())
+            {
+                @foreach (var (item, index) in FilteredData.Select((x, i) => (x, i)))
+                {
+                    <tr>
+                        <td>@(index + 1)</td>
+                        <td>@item.TenVoucher</td>
+                        <td>@item.PhanTram %</td>
+                        <td><span class="badge-green">@(item.TrangThai ? "Đang diễn ra" : "Đã kết thúc")</span></td>
+                        <td>@item.NgayBatDau.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@item.NgayKetThuc.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td class="text-center"><span class="action-icon" @onclick="() => ViewDetails(item)">👁️</span></td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="7" class="text-center">Không có dữ liệu</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 
-    <div class="d-flex justify-content-between align-items-center">  
-        <div>  
-            Xem  
-            <select class="form-select d-inline-block w-auto">  
-                <option>5</option>  
-                <option>10</option>  
-            </select>  
-            sản phẩm  
-        </div>  
-        <div>  
-            <nav>  
-                <ul class="pagination mb-0">  
-                    <li class="page-item disabled"><a class="page-link">&laquo;</a></li>  
-                    <li class="page-item active"><a class="page-link">1</a></li>  
-                    <li class="page-item disabled"><a class="page-link">&raquo;</a></li>  
-                </ul>  
-            </nav>  
-        </div>  
-    </div>  
-</div>  
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            Xem
+            <select class="form-select d-inline-block w-auto">
+                <option>5</option>
+                <option>10</option>
+            </select>
+            sản phẩm
+        </div>
+        <div>
+            <nav>
+                <ul class="pagination mb-0">
+                    <li class="page-item disabled"><a class="page-link">&laquo;</a></li>
+                    <li class="page-item active"><a class="page-link">1</a></li>
+                    <li class="page-item disabled"><a class="page-link">&raquo;</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
 
-<style>  
-    .badge-green {  
-        background-color: #d1f5d3;  
-        color: #198754;  
-        padding: 5px 10px;  
-        border-radius: 10px;  
-    }  
+<style>
+    .badge-green {
+        background-color: #d1f5d3;
+        color: #198754;
+        padding: 5px 10px;
+        border-radius: 10px;
+    }
 
-    .action-icon {  
-        color: orange;  
-        cursor: pointer;  
-    }  
-</style>  
+    .action-icon {
+        color: orange;
+        cursor: pointer;
+    }
+</style>
 
-@code {  
-    private string SearchTerm = string.Empty;  
-    private string SelectedStatus = string.Empty;  
-    private string SelectedValue = string.Empty;  
-    private DateTime? FromDate;  
-    private DateTime? ToDate;  
+@code {
+    private string SearchTerm = string.Empty;
+    private string SelectedStatus = string.Empty;
+    private string SelectedValue = string.Empty;
+    private DateTime? FromDate;
+    private DateTime? ToDate;
 
-    private List<DiscountBatch> Data = new()  
-    {  
-        new() { Name = "Giảm giá", Value = "10%", Status = "Đang diễn ra", Start = DateTime.Parse("2023-12-21"), End = DateTime.Parse("2023-12-30") },  
-        new() { Name = "Chào mừng Noel", Value = "45%", Status = "Đang diễn ra", Start = DateTime.Parse("2023-12-19"), End = DateTime.Parse("2023-12-26") },  
-        new() { Name = "Black Friday", Value = "25%", Status = "Đang diễn ra", Start = DateTime.Parse("2023-12-13"), End = DateTime.Parse("2023-12-30") },  
-    };  
+    private List<Voucher> Data = new();
 
-    private IEnumerable<DiscountBatch> FilteredData => Data.Where(d =>  
-        (string.IsNullOrWhiteSpace(SearchTerm) || d.Name.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase)) &&  
-        (string.IsNullOrWhiteSpace(SelectedStatus) || d.Status == SelectedStatus) &&  
-        (string.IsNullOrWhiteSpace(SelectedValue) || d.Value == SelectedValue) &&  
-        (!FromDate.HasValue || d.Start >= FromDate) &&  
-        (!ToDate.HasValue || d.Start <= ToDate)  
-    );  
+    protected override async Task OnInitializedAsync()
+    {
+        Data = await VoucherService.GetAll();
+    }
 
-    private void ExportExcel() => Console.WriteLine("Exporting...");  
-    private void CreateNew() => Console.WriteLine("Creating new discount batch...");  
-    private void ViewDetails(DiscountBatch item) => Console.WriteLine($"Viewing details for: {item.Name}");  
+    private IEnumerable<Voucher> FilteredData => Data.Where(d =>
+        (string.IsNullOrWhiteSpace(SearchTerm) || d.TenVoucher.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase)) &&
+        (string.IsNullOrWhiteSpace(SelectedStatus) || d.TrangThai.ToString().ToLower() == SelectedStatus.ToLower()) &&
+        (string.IsNullOrWhiteSpace(SelectedValue) || d.PhanTram.ToString() == SelectedValue) &&
+        (!FromDate.HasValue || d.NgayBatDau >= FromDate) &&
+        (!ToDate.HasValue || d.NgayBatDau <= ToDate)
+    );
 
-    public class DiscountBatch  
-    {  
-        public string Name { get; set; } = string.Empty;  
-        public string Value { get; set; } = string.Empty;  
-        public string Status { get; set; } = string.Empty;  
-        public DateTime Start { get; set; }  
-        public DateTime End { get; set; }  
-    }  
+    private void ExportExcel() => Console.WriteLine("Exporting...");
+    private void CreateNew() => Console.WriteLine("Creating new discount batch...");
+    private void ViewDetails(Voucher item) => Console.WriteLine($"Viewing details for: {item.TenVoucher}");
 }

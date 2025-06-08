@@ -1,4 +1,4 @@
-﻿using API.Models;
+﻿using Data.Models;
 using Microsoft.AspNetCore.Components.Forms;
 
 namespace BlazorAdmin.Service.IService

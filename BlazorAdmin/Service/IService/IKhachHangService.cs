@@ -1,5 +1,4 @@
 ﻿using Data.Models;
-using API.Models;
 namespace BlazorAdmin.Service.IService
 {
     public interface IKhachHangService
@@ -9,7 +8,6 @@ namespace BlazorAdmin.Service.IService
         Task Create(KhachHang khachHang);
         Task Update(KhachHang khachHang);
         Task Delete(Guid id);
-
 
     }
 }

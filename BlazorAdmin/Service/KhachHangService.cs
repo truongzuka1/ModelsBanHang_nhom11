@@ -1,16 +1,13 @@
 ﻿using BlazorAdmin.Service.IService;
-using API.Models;
-using System.Net.Http;
-using System.Net.Http.Json;
 using Data.Models;
+using System.Net.Http.Json;
 
 public class KhachHangService : IKhachHangService
 {
     private readonly HttpClient _httpClient;
-
-    public KhachHangService(HttpClient httpClient)
+    public KhachHangService(IHttpClientFactory httpClientFactory)
     {
-        _httpClient = httpClient;
+        _httpClient = httpClientFactory.CreateClient("api");
     }
 
     public async Task<List<KhachHang>> GetAll() =>
@@ -37,8 +34,4 @@ public class KhachHangService : IKhachHangService
         response.EnsureSuccessStatusCode();
     }
 
-    public Task<TaiKhoan?> GetByUsername(string username)
-    {
-        throw new NotImplementedException();
-    }
 }

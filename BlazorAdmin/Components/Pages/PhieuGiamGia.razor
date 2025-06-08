@@ -1,129 +1,99 @@
-﻿@page "/phieugiamgia"  
-@using System.Globalization  
+﻿@page "/phieugiamgia"
+@using System.Globalization
+@using Data.Models
+@inject VoucherService VoucherService
 
-<div class="card">  
-    <h2>Phiếu giảm giá</h2>  
+<link href="/css/PhieuGiamGia.css" rel="stylesheet" />
 
-    <div class="top-bar">  
-        <input type="text" placeholder="🔍 Tìm phiếu giảm giá theo mã hoặc tên" @bind="SearchTerm" @bind:event="oninput" />  
-        <div style="display: flex; gap: 10px;">  
-            <button class="btn" @onclick="CreateVoucher">+ Tạo mới</button>  
-            <button class="btn" @onclick="ExportExcel">Xuất Excel</button>  
-        </div>  
-    </div>  
+<div class="card">
+    <h2>Phiếu giảm giá</h2>
 
-    <div class="filters">  
-        <input type="date" @bind="FromDate" />  
-        <input type="date" @bind="ToDate" />  
+    <div class="top-bar">
+        <input type="text" placeholder="🔍 Tìm phiếu giảm giá theo mã hoặc tên" @bind="SearchTerm" @bind:event="oninput" />
+        <div style="display: flex; gap: 10px;">
+            <button class="btn" @onclick="CreateVoucher">+ Tạo mới</button>
+            <button class="btn" @onclick="ExportExcel">Xuất Excel</button>
+        </div>
+    </div>
 
-        <select @bind="SelectedType">  
-            <option value="">Kiểu</option>  
-            <option value="Cá nhân">Cá nhân</option>  
-            <option value="Công khai">Công khai</option>  
-        </select>  
+    <div class="filters">
+        <input type="date" @bind="FromDate" />
+        <input type="date" @bind="ToDate" />
 
-        <select @bind="SelectedDiscountType">  
-            <option value="">Loại</option>  
-            <option value="Phần trăm">Phần trăm</option>  
-            <option value="Số tiền">Số tiền</option>  
-        </select>  
+        <select @bind="SelectedStatus">
+            <option value="">Trạng thái</option>
+            <option value="true">Đang diễn ra</option>
+            <option value="false">Đã kết thúc</option>
+        </select>
+    </div>
 
-        <select @bind="SelectedStatus">  
-            <option value="">Trạng thái</option>  
-            <option value="Đang diễn ra">Đang diễn ra</option>  
-            <option value="Đã kết thúc">Đã kết thúc</option>  
-        </select>  
-    </div>  
+    <table>
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>Tên</th>
+                <th>Phần trăm</th>
+                <th>Số lượng</th>
+                <th>Ngày bắt đầu</th>
+                <th>Ngày kết thúc</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (FilteredData is not null)
+            {
+                @foreach (var (v, index) in FilteredData.Select((item, i) => (item, i)))
+                {
+                    <tr>
+                        <td>@(index + 1)</td>
+                        <td>@v.TenVoucher</td>
+                        <td>@v.PhanTram %</td>
+                        <td>@v.SoLuong</td>
+                        <td>@v.NgayBatDau.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)</td>
+                        <td>@v.NgayKetThuc.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)</td>
+                        <td><span class="status">@(v.TrangThai ? "Đang diễn ra" : "Đã kết thúc")</span></td>
+                        <td><button class="btn btn-sm" @onclick="() => ViewVoucher(v)">👁️ Xem</button></td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
 
-    <table>  
-        <thead>  
-            <tr>  
-                <th>STT</th>  
-                <th>Mã</th>  
-                <th>Tên</th>  
-                <th>Kiểu</th>  
-                <th>Loại</th>  
-                <th>Số lượng</th>  
-                <th>Ngày bắt đầu</th>  
-                <th>Ngày kết thúc</th>  
-                <th>Trạng thái</th>  
-                <th>Hành động</th>  
-            </tr>  
-        </thead>  
-        <tbody>  
-            @foreach (var (v, index) in FilteredData.Select((item, i) => (item, i)))  
-            {  
-                <tr>  
-                    <td>@(index + 1)</td>  
-                    <td>@v.Code</td>  
-                    <td>@v.Name</td>  
-                    <td><span class="badge @(v.Type == "Công khai" ? "badge-pink" : "badge-blue")">@v.Type</span></td>  
-                    <td>@v.Kind</td>  
-                    <td>@v.Amount</td>  
-                    <td>@v.Start.ToString("dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture)</td>  
-                    <td>@v.End.ToString("dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture)</td>  
-                    <td><span class="status">@v.Status</span></td>  
-                    <td><button class="btn btn-sm" @onclick="() => ViewVoucher(v)">👁️ Xem</button></td>  
-                </tr>  
-            }  
-        </tbody>  
-    </table>  
-</div>  
+@code {
+    private string SearchTerm = string.Empty;
+    private string SelectedStatus = string.Empty;
+    private DateTime? FromDate;
+    private DateTime? ToDate;
 
-@code {  
-    private string SearchTerm = string.Empty;  
-    private string SelectedType = string.Empty;  
-    private string SelectedDiscountType = string.Empty;  
-    private string SelectedStatus = string.Empty;  
-    private DateTime? FromDate;  
-    private DateTime? ToDate;  
+    private List<Voucher> Data = new();
 
-    private List<Voucher> Data = new()  
-    {  
-        new() { Code = "kkkjkk", Name = "kkkkkkk", Type = "Cá nhân", Kind = "10%", Amount = 20, Start = DateTime.Parse("2023-12-21T13:36"), End = DateTime.Parse("2023-12-30"), Status = "Đang diễn ra" },  
-        new() { Code = "PGGTT", Name = "tri an kh", Type = "Cá nhân", Kind = "100%", Amount = 0, Start = DateTime.Parse("2023-12-20T10:29"), End = DateTime.Parse("2023-12-23"), Status = "Đang diễn ra" },  
-        new() { Code = "PGG2023", Name = "Thi bảo vệ", Type = "Công khai", Kind = "10%", Amount = 97, Start = DateTime.Parse("2023-12-20T10:05"), End = DateTime.Parse("2023-12-30"), Status = "Đang diễn ra" },  
-        new() { Code = "PGG7653", Name = "Tri ân khách hàng", Type = "Cá nhân", Kind = "10%", Amount = 20, Start = DateTime.Parse("2023-12-18"), End = DateTime.Parse("2023-12-29"), Status = "Đang diễn ra" },  
-        new() { Code = "PGG12", Name = "Lập đông", Type = "Công khai", Kind = "250,000 ₫", Amount = 30, Start = DateTime.Parse("2023-12-01"), End = DateTime.Parse("2023-12-12"), Status = "Đang diễn ra" }  
-    };  
+    protected override async Task OnInitializedAsync()
+    {
+        Data = await VoucherService.GetAll();
+    }
 
-    private IEnumerable<Voucher> FilteredData => Data.Where(v =>  
-        (string.IsNullOrWhiteSpace(SearchTerm) ||  
-            v.Code.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase) ||  
-            v.Name.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase)) &&  
-        (string.IsNullOrWhiteSpace(SelectedType) || v.Type == SelectedType) &&  
-        (string.IsNullOrWhiteSpace(SelectedDiscountType) ||  
-            (SelectedDiscountType == "Phần trăm" && v.Kind.Contains("%")) ||  
-            (SelectedDiscountType == "Số tiền" && v.Kind.Contains("₫"))) &&  
-        (string.IsNullOrWhiteSpace(SelectedStatus) || v.Status == SelectedStatus) &&  
-        (!FromDate.HasValue || v.Start >= FromDate.Value) &&  
-        (!ToDate.HasValue || v.Start <= ToDate.Value)  
-    );  
+    private IEnumerable<Voucher> FilteredData => Data.Where(v =>
+        (string.IsNullOrWhiteSpace(SearchTerm) ||
+            v.TenVoucher.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase)) &&
+        (string.IsNullOrWhiteSpace(SelectedStatus) || v.TrangThai.ToString().ToLower() == SelectedStatus.ToLower()) &&
+        (!FromDate.HasValue || v.NgayBatDau >= FromDate.Value) &&
+        (!ToDate.HasValue || v.NgayBatDau <= ToDate.Value)
+    );
 
-    private void ExportExcel()  
-    {  
-        Console.WriteLine("📤 Chức năng Xuất Excel đang được phát triển!");  
-    }  
+    private void ExportExcel()
+    {
+        Console.WriteLine("📤 Chức năng Xuất Excel đang được phát triển!");
+    }
 
-    private void CreateVoucher()  
-    {  
-        Console.WriteLine("📝 Chức năng Tạo phiếu giảm giá sẽ được mở form!");  
-    }  
+    private void CreateVoucher()
+    {
+        Console.WriteLine("📝 Chức năng Tạo phiếu giảm giá sẽ được mở form!");
+    }
 
-    private void ViewVoucher(Voucher voucher)  
-    {  
-        Console.WriteLine($"👁️ Xem chi tiết phiếu giảm giá: {voucher.Code} - {voucher.Name}");  
-    }  
-
-    public class Voucher  
-    {  
-        public string Code { get; set; } = string.Empty;  
-        public string Name { get; set; } = string.Empty;  
-        public string Type { get; set; } = string.Empty;  
-        public string Kind { get; set; } = string.Empty;  
-        public int Amount { get; set; }  
-        public DateTime Start { get; set; }  
-        public DateTime End { get; set; }  
-        public string Status { get; set; } = string.Empty;  
-    }  
+    private void ViewVoucher(Voucher voucher)
+    {
+        Console.WriteLine($"👁️ Xem chi tiết phiếu giảm giá: {voucher.TenVoucher}");
+    }
 }

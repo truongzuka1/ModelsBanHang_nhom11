@@ -13,14 +13,14 @@ namespace BlazorAdmin.Service
             _httpClient = httpClient;
         }
 
-        public async Task<IEnumerable<HoaDonChiTiet>> GetAllHDCTAsync()
+        public async Task<List<HoaDonChiTiet>> GetAllHDCTAsync()
         {
             return await _httpClient.GetFromJsonAsync<List<HoaDonChiTiet>>("/api/HoaDonChiTiets");
         }
 
-        public async Task<IEnumerable<HoaDonChiTiet>> GetByHoaDonChiTietIdAsync(Guid hdctID)
+        public async Task<HoaDonChiTiet> GetByHoaDonChiTietIdAsync(Guid hdctID)
         {
-            return await _httpClient.GetFromJsonAsync<List<HoaDonChiTiet>>($"/api/HoaDonChiTiets/{hdctID}");
+            return await _httpClient.GetFromJsonAsync<HoaDonChiTiet>($"/api/HoaDonChiTiets/{hdctID}");
         }
 
         public async Task<HoaDonChiTiet> GetByHoaDonChiTietvaGiayAsync(Guid hoaDonId, Guid giayId)

@@ -1,4 +1,4 @@
-﻿using API.Models;
+﻿using Data.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -23,7 +23,7 @@ namespace Data.Models
         {
     
 
-            optionsBuilder.UseSqlServer(@"Data Source=MINH\SQLEXPRESS;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
+            optionsBuilder.UseSqlServer(@"Data Source=DELL\SQLEXPRESS;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
 
 
 
@@ -153,7 +153,9 @@ namespace Data.Models
             modelBuilder.Entity<HoaDonChiTiet>()
     .Property(x => x.Gia)
     .HasColumnType("decimal(18,2)");
+
         }
+
         public DbSet<KhachHang> KhachHangs { get; set; }
 
         public DbSet<TaiKhoan> TaiKhoans { get; set; }

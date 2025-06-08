@@ -1,0 +1,384 @@
+﻿@page "/Admin/Thongke"
+@using BlazorAdmin.Service
+@using BlazorAdmin.Service.IService
+@using Data.Models // Đảm bảo đã import namespace chứa các model của bạn
+@inject IChiTietHoaDonService chiTietHoaDonService
+@inject IHoaDonService hoaDonService
+@inject NavigationManager manager
+@inject IJSRuntime JS;
+
+<h2>Thống kê</h2>
+
+<div class="stats-cards">
+	<div class="stat-card today">
+		<div class="stat-title">Hôm nay</div>
+		<div class="stat-value">0 ₫</div>
+		<div class="stat-detail">
+			<span>Sản phẩm @(SoLuongSanPhamHomNay)</span> |
+			<span>Đơn thành công </span> | 
+			<span>Đơn huỷ @(DonHangHuy)</span> |
+			<span>Đơn trả 0</span>
+		</div>
+	</div>
+	<div class="stat-card week">
+		<div class="stat-title">Tuần này</div>
+		<div class="stat-value">2,794,651 ₫</div>
+		<div class="stat-detail">
+			<span>Sản phẩm 16</span> |
+			<span>Đơn thành công 4</span> |
+			<span>Đơn huỷ 1</span> |
+			<span>Đơn trả 1</span>
+		</div>
+	</div>
+	<div class="stat-card month">
+		<div class="stat-title">Tháng này</div>
+		<div class="stat-value">2,794,651 ₫</div>
+		<div class="stat-detail">
+			<span>Sản phẩm 16</span> |
+			<span>Đơn thành công 4</span> |
+			<span>Đơn huỷ 1</span> |
+			<span>Đơn trả 1</span>
+		</div>
+	</div>
+	<div class="stat-card year">
+		<div class="stat-title">Năm nay</div>
+		<div class="stat-value">2,794,651 ₫</div>
+		<div class="stat-detail">
+			<span>Sản phẩm 16</span> |
+			<span>Đơn thành công 4</span> |
+			<span>Đơn huỷ 1</span> |
+			<span>Đơn trả 1</span>
+		</div>
+	</div>
+</div>
+<div class="filter-area">
+	<span>Bộ lọc</span>
+	<div class="filter-buttons">
+		@foreach (var filterName in filterOptions)
+		{
+			<button class="filter-btn @(activeFilter == filterName ? "active" : "")"
+					@onclick="() => SetActiveFilter(filterName)">
+				@filterName
+			</button>
+		}
+	</div>
+	<button class="export-btn">EXPORT TO EXCEL</button>
+</div>
+
+<div class="dashboard-table-chart">
+	<div class="table-area">
+		<div class="table-title">Danh sách sản phẩm bán chạy </div>
+		<table class="product-table">
+			<thead>
+				<tr>
+					<th>Ảnh</th>
+					<th>Tên sản phẩm</th>
+					<th>Số lượng</th>
+					<th>Giá tiền</th>
+					<th>Kích cỡ</th>
+				</tr>
+			</thead>
+			<tbody>
+				@if (PagedProducts1 != null && CurrentPage1 < PagedProducts1.Count)
+				{
+					@foreach (var sp in PagedProducts1[CurrentPage1])
+					{
+						<tr>
+							
+						</tr>
+					}
+				}
+			</tbody>
+		</table>
+		<div class="table-pagination">
+			<span>
+				Xem
+				<select @bind="PageSize1" @bind:event="onchange">
+					@foreach (var s in PageSizes1)
+					{
+						<option value="@s">@s</option>
+					}
+				</select>
+				sản phẩm
+			</span>
+			<div class="pagination-btns">
+				<button @onclick="() => SetPage1(CurrentPage1 - 1)" disabled="@(CurrentPage1 == 0)">&lt;</button>
+				@for (int i = 0; i < TotalPages1; i++)
+				{
+					var pageNum = i;
+					<button @onclick="() => SetPage1(pageNum)"
+										  class="@(i == CurrentPage1 ? "active" : "")">
+						@(i + 1)
+					</button>
+				}
+				<button @onclick="() => SetPage1(CurrentPage1 + 1)" disabled="@(CurrentPage1 == TotalPages1 - 1)">&gt;</button>
+			</div>
+		</div>
+	</div>
+	<div class="stats-right">
+		<div class="chart-area">
+			<div class="chart-title">Biểu đồ trạng thái tùy chỉnh</div>
+			<div class="fake-pie"></div>
+			<div class="chart-legend">
+				<div><span class="legend-color" style="background:#e74c3c"></span>Đã huỷ - 7.14%</div>
+				<div><span class="legend-color" style="background:#f1c40f"></span>Chờ xác nhận - 14.29%</div>
+				<div><span class="legend-color" style="background:#8e44ad"></span>Chờ giao hàng - 14.29%</div>
+				<div><span class="legend-color" style="background:#3498db"></span>Đang vận chuyển - 0%</div>
+				<div><span class="legend-color" style="background:#1abc9c"></span>Đã giao hàng - 0%</div>
+				<div><span class="legend-color" style="background:#2ecc71"></span>Đã thanh toán - 7.14%</div>
+				<div><span class="legend-color" style="background:#95a5a6"></span>Chờ thanh toán - 0%</div>
+				<div><span class="legend-color" style="background:#27ae60"></span>Hoàn thành - 42.86%</div>
+				<div><span class="legend-color" style="background:#16a085"></span>Trả hàng - 14.29%</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="dashboard-table-chart">
+	<div class="table-area">
+		<div class="table-title">Danh sách sản phẩm sắp hết hàng</div>
+		<table class="product-table">
+			<thead>
+				<tr>
+					<th>Ảnh</th>
+					<th>Tên sản phẩm</th>
+					<th>Số lượng</th>
+					<th>Giá tiền</th>
+					<th>Kích cỡ</th>
+				</tr>
+			</thead>
+			<tbody>
+				@if (PagedProducts2 != null && CurrentPage2 < PagedProducts2.Count)
+				{
+					@foreach (var sp in PagedProducts2[CurrentPage2])
+					{
+						<tr>
+							
+						</tr>
+					}
+				}
+			</tbody>
+		</table>
+		<div class="table-pagination">
+			<span>
+				Xem
+				<select @bind="PageSize2" @bind:event="onchange">
+					@foreach (var s in PageSizes2)
+					{
+						<option value="@s">@s</option>
+					}
+				</select>
+				sản phẩm
+			</span>
+			<div class="pagination-btns">
+				<button @onclick="() => SetPage2(CurrentPage2 - 1)" disabled="@(CurrentPage2 == 0)">&lt;</button>
+				@for (int i = 0; i < TotalPages2; i++)
+				{
+					var pageNum = i;
+					<button @onclick="() => SetPage2(pageNum)"
+										  class="@(i == CurrentPage2 ? "active" : "")">
+						@(i + 1)
+					</button>
+				}
+				<button @onclick="() => SetPage2(CurrentPage2 + 1)" disabled="@(CurrentPage2 == TotalPages2 - 1)">&gt;</button>
+			</div>
+		</div>
+	</div>
+	<div class="stats-right">
+		<div class="stats-card">
+			<span class="stats-icon">📊</span> Doanh thu ngày
+			<span class="stats-value">6,040,253 ₫</span>
+			<span class="stats-percent up">+53.73%</span>
+		</div>
+		<div class="stats-card">
+			<span class="stats-icon">📊</span> Doanh thu Tuần
+			<span class="stats-value">8,834,904 ₫</span>
+			<span class="stats-percent up">+100%</span>
+		</div>
+		<div class="stats-card">
+			<span class="stats-icon">📊</span> Doanh thu Tháng
+			<span class="stats-value">8,834,904 ₫</span>
+			<span class="stats-percent up">+100%</span>
+		</div>
+		<div class="stats-card">
+			<span class="stats-icon">📊</span> Doanh thu năm
+			<span class="stats-value">8,834,904 ₫</span>
+			<span class="stats-percent up">+100%</span>
+		</div>
+		<div class="stats-card">
+			<span class="stats-icon">📦</span> Đơn hàng ngày
+			<span class="stats-value">2</span>
+			<span class="stats-percent down">-81.82%</span>
+		</div>
+		<div class="stats-card">
+			<span class="stats-icon">📦</span> Đơn hàng tuần
+			<span class="stats-value">6</span>
+			<span class="stats-percent up">+100%</span>
+		</div>
+		<div class="stats-card">
+			<span class="stats-icon">📦</span> Đơn hàng tháng
+			<span class="stats-value">6</span>
+			<span class="stats-percent up">+100%</span>
+		</div>
+		<div class="stats-card">
+			<span class="stats-icon">📦</span> Đơn hàng năm
+			<span class="stats-value">6</span>
+			<span class="stats-percent up">+100%</span>
+		</div>
+		<div class="stats-card">
+			<span class="stats-icon">👟</span> Sản phẩm ngày
+			<span class="stats-value">21</span>
+			<span class="stats-percent up">+23.81%</span>
+		</div>
+		<div class="stats-card">
+			<span class="stats-icon">👟</span> Sản phẩm tuần
+			<span class="stats-value">37</span>
+			<span class="stats-percent up">+100%</span>
+		</div>
+		<div class="stats-card">
+			<span class="stats-icon">👟</span> Sản phẩm tháng
+			<span class="stats-value">37</span>
+			<span class="stats-percent up">+100%</span>
+		</div>
+		<div class="stats-card">
+			<span class="stats-icon">👟</span> Sản phẩm năm
+			<span class="stats-value">37</span>
+			<span class="stats-percent up">+100%</span>
+		</div>
+	</div>
+</div>
+
+@code {
+	// Các model dữ liệu chính
+	private List<HoaDon> hoaDons = new List<HoaDon>();
+	private List<Giay> giays = new List<Giay>();
+	private int SoLuongSanPhamHomNay { get; set; } = 0; 
+	private long DonHangHuy { get; set; } = 0;
+	
+	private string activeFilter = "NGÀY"; 
+	
+	private List<string> filterOptions = new List<string> { "NGÀY", "TUẦN", "THÁNG", "NĂM", "TÙY CHỈNH" };
+
+
+	
+
+	// Dữ liệu sản phẩm cho bảng 1 (Giay)
+	private List<HoaDonChiTiet> hoaDonChiTiets = new List<HoaDonChiTiet>();
+	private List<int> PageSizes1 = new List<int> { 5, 10 };
+	private int _pageSize1 = 5;
+	private int PageSize1
+	{
+		get => _pageSize1;
+		set
+		{
+			if (_pageSize1 != value)
+			{
+				_pageSize1 = value;
+				UpdatePaging1();
+				CurrentPage1 = 0; 
+			}
+		}
+	}
+	private int CurrentPage1 = 0;
+	private int TotalPages1 = 0;
+	private List<List<Giay>> PagedProducts1 = new List<List<Giay>>();
+
+	// Dữ liệu sản phẩm cho bảng 2 (Giay)
+	private List<Giay> giays2 = new List<Giay>();
+	private List<int> PageSizes2 = new List<int> { 5, 10 };
+	private int _pageSize2 = 5;
+	private int PageSize2
+	{
+		get => _pageSize2;
+		set
+		{
+			if (_pageSize2 != value)
+			{
+				_pageSize2 = value;
+				UpdatePaging2();
+				CurrentPage2 = 0; // Reset về trang đầu tiên
+			}
+		}
+	}
+	private int CurrentPage2 = 0;
+	private int TotalPages2 = 0;
+	private List<List<Giay>> PagedProducts2 = new List<List<Giay>>();
+
+	protected override async Task OnInitializedAsync()
+	{
+		// Khởi tạo các list nếu chúng có thể là null (mặc định đã khởi tạo ở khai báo)
+		// if (hoaDons == null) hoaDons = new List<HoaDon>();
+		// if (hoaDonChiTiets == null) hoaDonChiTiets = new List<HoaDonChiTiet>();
+
+		// Load dữ liệu từ service
+		hoaDons = await hoaDonService.GetAll();
+		hoaDonChiTiets = await chiTietHoaDonService.GetAllHDCTAsync();
+
+		// Tính toán số lượng sản phẩm hôm nay sau khi dữ liệu đã được tải
+		SoLuongSanPhamHomNay = hoaDons
+			.Join(hoaDonChiTiets,
+			hoaDon => hoaDon.HoaDonId,
+			hoaDonChiTiet => hoaDonChiTiet.HoaDonId,
+			(hoaDon, hoaDonChiTiet) => new
+			{
+				hoaDon.NgayTao,
+				hoaDonChiTiet.SoLuongSanPham,
+				hoaDon.TrangThai,
+				TTHoaDonct = hoaDonChiTiet.TrangThai
+			})
+			.Where(x => x.NgayTao.Date == DateTime.Now.Date && x.TrangThai == "Đã thanh toán" && x.TTHoaDonct == true)
+			.Sum(x => (int?)x.SoLuongSanPham) ?? 0;
+
+		// Khởi tạo dữ liệu Giay (dummy data hoặc từ service nếu có)
+		giays = new List<Giay>
+	{
+	 
+	};
+
+		giays2 = new List<Giay>
+	{
+	
+	};
+
+		UpdatePaging1();
+		UpdatePaging2();
+	}
+
+
+	private void UpdatePaging1()
+	{
+		
+	}
+
+	private void SetPage1(int page)
+	{
+		if (page >= 0 && page < TotalPages1)
+		{
+			CurrentPage1 = page;
+		}
+	}
+
+	private void UpdatePaging2()
+	{
+		TotalPages2 = (int)Math.Ceiling((double)giays2.Count / PageSize2);
+		PagedProducts2 = new List<List<Giay>>();
+		for (int i = 0; i < TotalPages2; i++)
+		{
+			PagedProducts2.Add(giays2.Skip(i * PageSize2).Take(PageSize2).ToList());
+		}
+		if (CurrentPage2 >= TotalPages2) CurrentPage2 = 0;
+	}
+
+	private void SetPage2(int page)
+	{
+		if (page >= 0 && page < TotalPages2)
+		{
+			CurrentPage2 = page;
+		}
+	}
+
+	private void SetActiveFilter(string filter)
+	{
+		activeFilter = filter;
+		UpdatePaging1();
+	}
+}

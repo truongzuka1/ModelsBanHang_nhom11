@@ -1,6 +1,5 @@
-@page "/AddNhanVien"
-@using API.Models
-@using BlazorAdmin.Service.IService
+@page "/admin/AddNhanVien"
+
 @inject INhanVienService NhanVienservice
 
 @inject ITaiKhoanService taiKhoanService
@@ -8,7 +7,7 @@
 
 <h3 class="mb-4">Thêm nhân viên</h3>
 
-<EditForm Model="std" OnValidSubmit="SubmitFormCreate">
+<ditForm Model="std" OnValidSubmit="SubmitFormCreate">
     <DataAnnotationsValidator />
     <ValidationSummary />
 
@@ -53,7 +52,7 @@
     }
 
     <button type="submit" class="btn btn-primary">Thêm</button>
-</EditForm>
+</ditForm>
 
 @code {
     private NhanVien std = new NhanVien
