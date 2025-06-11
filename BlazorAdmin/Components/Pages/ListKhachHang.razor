@@ -1,0 +1,129 @@
+@page "/AddKhachHang"
+@using Data.Models
+@using BlazorAdmin.Service.IService
+@inject IKhachHangService khachHangService
+@inject ITaiKhoanService taiKhoanService
+@inject NavigationManager manager
+
+<h3 class="mb-4">Thêm khách hàng</h3>
+
+<EditForm Model="khachHang" OnValidSubmit="SubmitFormCreate" FormName="formCreateKhachHang">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="hoTen" class="form-label">Họ tên:</label>
+        <InputText id="hoTen" class="form-control" @bind-Value="khachHang.HoTen" />
+        <ValidationMessage For="@(() => khachHang.HoTen)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="soDienThoai" class="form-label">Số điện thoại:</label>
+        <InputText id="soDienThoai" class="form-control" @bind-Value="khachHang.SoDienThoai" />
+        <ValidationMessage For="@(() => khachHang.SoDienThoai)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="email" class="form-label">Email:</label>
+        <InputText id="email" class="form-control" @bind-Value="khachHang.Email" />
+        <ValidationMessage For="@(() => khachHang.Email)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="ngaySinh" class="form-label">Ngày sinh:</label>
+        <InputDate id="ngaySinh" class="form-control" @bind-Value="khachHang.NgaySinh" />
+    </div>
+
+
+    <div class="mb-3">
+        <label for="Tk" class="form-label fw-bold">Tên tài khoản</label>
+        <InputText id="Tk" class="form-control" @bind-Value="username" placeholder="Nhập tên tài khoản" />
+    </div>
+
+    <div class="mb-3">
+        <label for="MK1" class="form-label fw-bold">Mật khẩu</label>
+        <InputText id="MK1" class="form-control" type="password" @bind-Value="password" placeholder="Nhập mật khẩu" />
+    </div>
+
+    <div class="mb-3">
+        <label for="MK2" class="form-label fw-bold">Xác nhận mật khẩu</label>
+        <InputText id="MK2" class="form-control" type="password" @bind-Value="confirmPassword" placeholder="Nhập lại mật khẩu" />
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+
+    <button type="submit" class="btn btn-primary">Thêm</button>
+</EditForm>
+
+@code {
+    private KhachHang khachHang = new KhachHang
+        {
+            TrangThai = true,
+            NgayTao = DateTime.Now,
+            NgayCapNhatCuoiCung = DateTime.Now
+
+        };
+
+
+
+    private string username = "";
+    private string password = "";
+    private string confirmPassword = "";
+    private string errorMessage = "";
+
+    private async Task SubmitFormCreate()
+    {
+        errorMessage = "";
+
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            errorMessage = "Tên tài khoản không được để trống.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            errorMessage = "Mật khẩu không được để trống.";
+            return;
+        }
+
+        try
+        {
+            var existing = await taiKhoanService.GetByUsernameAsync(username);
+            if (existing != null)
+            {
+                errorMessage = "Tên tài khoản đã tồn tại.";
+                return;
+            }
+
+            var taiKhoan = new Data.Models.TaiKhoan
+                {
+                    TaikhoanId = Guid.NewGuid(),
+                    Username = username,
+                    Password = password, // Có thể mã hóa ở đây
+                    Ngaytaotaikhoan = DateTime.Now
+                };
+
+            await taiKhoanService.CreateTaiKhoanAsync(taiKhoan);
+
+            khachHang.TaiKhoanId = taiKhoan.TaikhoanId;
+            khachHang.NgayCapNhatCuoiCung = DateTime.Now;
+
+            await khachHangService.Create(khachHang);
+
+            manager.NavigateTo("/khachhang");
+        }
+        catch (HttpRequestException httpEx)
+        {
+            errorMessage = "Lỗi mạng hoặc API không phản hồi: " + httpEx.Message;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Đã xảy ra lỗi: " + ex.Message;
+        }
+
+    }
+}

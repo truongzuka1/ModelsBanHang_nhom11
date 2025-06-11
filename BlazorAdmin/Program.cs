@@ -53,7 +53,10 @@ builder.Services.AddHttpClient("voucher", client =>
 {
     client.BaseAddress = new Uri("https://localhost:7246/");
 });
-
+builder.Services.AddHttpClient<IKhachHangService, KhachHangService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:5001/");
+});
 
 builder.Services.AddScoped<INhanVienService, NhanVienService>();
 builder.Services.AddScoped<IAnhService, AnhService>();
@@ -68,7 +71,8 @@ builder.Services.AddScoped<IKichCoService, KichCoService>();
 builder.Services.AddScoped<ITheLoaiGiayService, TheLoaiGiayService>();
 builder.Services.AddScoped<IThuongHieuService, ThuongHieuService>();
 builder.Services.AddScoped<IVoucherService, VoucherService>();
-builder.Services.AddScoped<ITaiKhoanService, TaiKhoanService>(); 
+builder.Services.AddScoped<ITaiKhoanService, TaiKhoanService>();
+builder.Services.AddScoped<IKhachHangService, KhachHangService>();
 
 var app = builder.Build();
 

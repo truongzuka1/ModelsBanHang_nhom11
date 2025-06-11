@@ -5,7 +5,6 @@ using System.Net.Http.Json;
 public class KhachHangService : IKhachHangService
 {
     private readonly HttpClient _httpClient;
-
     public KhachHangService(IHttpClientFactory httpClientFactory)
     {
         _httpClient = httpClientFactory.CreateClient("api");
@@ -34,4 +33,5 @@ public class KhachHangService : IKhachHangService
         var response = await _httpClient.DeleteAsync($"api/KhachHang/{id}");
         response.EnsureSuccessStatusCode();
     }
+
 }

@@ -1,0 +1,26 @@
+﻿@page "/"
+@inject IJSRuntime JS
+<link href="/css/Login.css" rel="stylesheet" /> 
+<div class="signup-container">
+    <form class="signup-form" id="loginForm">
+        <h2>LOGIN</h2>
+        <input type="email" placeholder="Email" id="loginEmail" required autofocus />
+        <input type="password" placeholder="Password" id="loginPassword" required />
+        <label class="checkbox-container">
+            <input type="checkbox" id="rememberMe" />
+            <span>Remember me</span>
+        </label>
+
+        <button type="submit">LOGIN</button>
+    </form>
+</div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("LoginFrom");
+        }
+    }
+}

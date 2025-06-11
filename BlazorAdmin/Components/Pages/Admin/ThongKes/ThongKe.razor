@@ -394,16 +394,20 @@
 			Console.WriteLine($"Loaded {giayChiTiets.Count} GiayChiTiet records.");
 
 			giays2 = giayChiTiets
-				.GroupBy(x => x.GiayId)
-				.Select(group => new DanhSachSanPhamBanChay
-					{
-						Anh = group.First().Anh.DuongDan,
-						Kichco = string.Join(", ", group.Select(x => x.KichCo.TenKichCo).Distinct().OrderBy(kc => kc)),
-						TenSanPham = group.First().Giay.TenGiay,
-						SoLuong = group.Sum(x => x.SoLuongCon),
-						GiaTien = (decimal)group.Min(x => x.Gia)
-					})
-				.ToList();
+		.GroupBy(x => x.GiayId)
+		.Select(group =>
+		{
+			var first = group.First();
+			return new DanhSachSanPhamBanChay
+				{
+					Anh = first.Anhs.FirstOrDefault()?.DuongDan ?? "",
+					Kichco = string.Join(", ", group.Select(x => x.KichCo.TenKichCo).Distinct().OrderBy(kc => kc)),
+					TenSanPham = first.Giay.TenGiay,
+					SoLuong = group.Sum(x => x.SoLuongCon),
+					GiaTien = (decimal)group.Min(x => x.Gia)
+				};
+		})
+		.ToList();
 
 
 			CalculateStatsForPeriod(DateTime.Now.Date, DateTime.Now.Date,
@@ -583,30 +587,31 @@
 
 		sanPhamBanChays = (from hd in hoaDons
 									join hdct in hoaDonChiTiets on hd.HoaDonId equals hdct.HoaDonId
-									join gct in giayChiTiets on hdct.GiayId equals gct.GiayChiTietId 
+									join gct in giayChiTiets on hdct.GiayId equals gct.GiayChiTietId
 									where hd.NgayTao.Date >= startDateFilter &&
 									hd.NgayTao.Date <= endDateFilter &&
-									(hd.TrangThai == "Hoàn thành" && hdct.TrangThai == true) &&
+									hd.TrangThai == "Hoàn thành" &&
 									hdct.TrangThai == true
 									select new
 									{
 										TenGiay = gct.Giay.TenGiay,
-										DuongDanAnh = gct.Anh.DuongDan,
+										DuongDanAnh = gct.Anhs.FirstOrDefault()?.DuongDan ?? "",
 										Gia = hdct.Gia,
 										kc = gct.KichCo.TenKichCo,
 										SoLuong = hdct.SoLuongSanPham
 									})
-							.GroupBy(x => x.TenGiay)
-							.Select(g => new DanhSachSanPhamBanChay
-								{
-									TenSanPham = g.Key,
-									Anh = g.First().DuongDanAnh,
-									GiaTien = g.Sum(x => x.Gia * x.SoLuong), 
-									Kichco = string.Join(", ", g.Select(x => x.kc).Distinct()),
-									SoLuong = g.Sum(x => x.SoLuong)
-								})
-							.OrderByDescending(x => x.SoLuong)
-							.ToList();
+									.GroupBy(x => x.TenGiay)
+									.Select(g => new DanhSachSanPhamBanChay
+							   {
+								   TenSanPham = g.Key,
+								   Anh = g.First().DuongDanAnh,
+								   GiaTien = g.Sum(x => x.Gia * x.SoLuong),
+								   Kichco = string.Join(", ", g.Select(x => x.kc).Distinct()),
+								   SoLuong = g.Sum(x => x.SoLuong)
+							   })
+									.OrderByDescending(x => x.SoLuong)
+									.ToList();
+
 
 		UpdatePaging1(); 
 	}

@@ -1,5 +1,7 @@
 ﻿using Data.Models;
 using BlazorAdmin.Service.IService;
+using BlazorAdmin.Service.IService;
+using Data.Models;
 
 namespace BlazorAdmin.Service
 {
@@ -18,7 +20,7 @@ namespace BlazorAdmin.Service
 
         public async Task DeleteNhanVienAsync(Guid NhanVienId)
         {
-           await _httpClient.DeleteAsync("/api/NhanViens/" +  NhanVienId);
+            await _httpClient.DeleteAsync("/api/NhanViens/" + NhanVienId);
         }
 
         public async Task<List<NhanVien>> GetAllNhanVienAsync()
@@ -31,13 +33,10 @@ namespace BlazorAdmin.Service
             return await _httpClient.GetFromJsonAsync<NhanVien>("/api/NhanViens/" + NhanVienId);
         }
 
-            public async Task UpdateNhanVienAsync(NhanVien nhanVien)
-            {
-                var response = await _httpClient.PutAsJsonAsync($"/api/NhanViens/{nhanVien.NhanVienId}", nhanVien);
-                response.EnsureSuccessStatusCode(); 
-            }
-      
-
-
+        public async Task UpdateNhanVienAsync(NhanVien nhanVien)
+        {
+            var response = await _httpClient.PutAsJsonAsync($"/api/NhanViens/{nhanVien.NhanVienId}", nhanVien);
+            response.EnsureSuccessStatusCode();
+        }
     }
 }
