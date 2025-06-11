@@ -1,53 +1,53 @@
-﻿@page "/Admin/Thongke"
-@using BlazorAdmin.Service
-@using BlazorAdmin.Service.IService
-@using Data.Models // Đảm bảo đã import namespace chứa các model của bạn
+﻿@page "/admin"
+@layout AdminLayout
 @inject IChiTietHoaDonService chiTietHoaDonService
 @inject IHoaDonService hoaDonService
+@inject IGiayChiTietService giayChiTietService
 @inject NavigationManager manager
-@inject IJSRuntime JS;
-
+@inject IJSRuntime JS
+@using API.Models
+<link href="css/Thongke.css" rel="stylesheet" />
 <h2>Thống kê</h2>
 
 <div class="stats-cards">
 	<div class="stat-card today">
 		<div class="stat-title">Hôm nay</div>
-		<div class="stat-value">0 ₫</div>
+		<div class="stat-value">@TongSoTienHomNay.ToString("N0") ₫</div>
 		<div class="stat-detail">
 			<span>Sản phẩm @(SoLuongSanPhamHomNay)</span> |
-			<span>Đơn thành công </span> | 
-			<span>Đơn huỷ @(DonHangHuy)</span> |
-			<span>Đơn trả 0</span>
+			<span>Đơn thành công @(DonThanhCongHomNay)</span> |
+			<span>Đơn huỷ @(DonHangHuyHomNay)</span> |
+			<span>Đơn trả @(DonTraHomNay)</span>
 		</div>
 	</div>
 	<div class="stat-card week">
 		<div class="stat-title">Tuần này</div>
-		<div class="stat-value">2,794,651 ₫</div>
+		<div class="stat-value">@TongSoTienTuanNay.ToString("N0") ₫</div>
 		<div class="stat-detail">
-			<span>Sản phẩm 16</span> |
-			<span>Đơn thành công 4</span> |
-			<span>Đơn huỷ 1</span> |
-			<span>Đơn trả 1</span>
+			<span>Sản phẩm @(SoLuongSanPhamTuanNay)</span> |
+			<span>Đơn thành công @(DonThanhCongTuanNay)</span> |
+			<span>Đơn huỷ @(DonHangHuyTuanNay)</span> |
+			<span>Đơn trả @(DonTraTuanNay)</span>
 		</div>
 	</div>
 	<div class="stat-card month">
 		<div class="stat-title">Tháng này</div>
-		<div class="stat-value">2,794,651 ₫</div>
+		<div class="stat-value">@TongSoTienThangNay.ToString("N0") ₫</div>
 		<div class="stat-detail">
-			<span>Sản phẩm 16</span> |
-			<span>Đơn thành công 4</span> |
-			<span>Đơn huỷ 1</span> |
-			<span>Đơn trả 1</span>
+			<span>Sản phẩm @(SoLuongSanPhamThangNay)</span> |
+			<span>Đơn thành công @(DonThanhCongThangNay)</span> |
+			<span>Đơn huỷ @(DonHangHuyThangNay)</span> |
+			<span>Đơn trả @(DonTraThangNay)</span>
 		</div>
 	</div>
 	<div class="stat-card year">
 		<div class="stat-title">Năm nay</div>
-		<div class="stat-value">2,794,651 ₫</div>
+		<div class="stat-value">@TongSoTienNamNay.ToString("N0") ₫</div>
 		<div class="stat-detail">
-			<span>Sản phẩm 16</span> |
-			<span>Đơn thành công 4</span> |
-			<span>Đơn huỷ 1</span> |
-			<span>Đơn trả 1</span>
+			<span>Sản phẩm @(SoLuongSanPhamNamNay)</span> |
+			<span>Đơn thành công @(DonThanhCongNamNay)</span> |
+			<span>Đơn huỷ @(DonHangHuyNamNay)</span> |
+			<span>Đơn trả @(DonTraNamNay)</span>
 		</div>
 	</div>
 </div>
@@ -57,11 +57,22 @@
 		@foreach (var filterName in filterOptions)
 		{
 			<button class="filter-btn @(activeFilter == filterName ? "active" : "")"
-					@onclick="() => SetActiveFilter(filterName)">
+			@onclick="() => SetActiveFilter(filterName)">
 				@filterName
 			</button>
 		}
 	</div>
+
+	@if (activeFilter == "TÙY CHỈNH")
+	{
+		<div class="custom-date-filter">
+			<label>Từ ngày:</label>
+			<input type="date" @bind="StartDate" @bind:format="yyyy-MM-dd" />
+			<label>Đến ngày:</label>
+			<input type="date" @bind="EndDate" @bind:format="yyyy-MM-dd" />
+			<button @onclick="ApplyCustomFilter">Áp dụng</button>
+		</div>
+	}
 	<button class="export-btn">EXPORT TO EXCEL</button>
 </div>
 
@@ -84,7 +95,11 @@
 					@foreach (var sp in PagedProducts1[CurrentPage1])
 					{
 						<tr>
-							
+							<td><img src="@sp.Anh" alt="@sp.TenSanPham" style="width: 50px; height: 50px; object-fit: cover;" /></td>
+							<td>@sp.TenSanPham</td>
+							<td>@sp.SoLuong</td>
+							<td>@sp.GiaTien.ToString("N0") ₫</td>
+							<td>@sp.Kichco</td>
 						</tr>
 					}
 				}
@@ -107,7 +122,7 @@
 				{
 					var pageNum = i;
 					<button @onclick="() => SetPage1(pageNum)"
-										  class="@(i == CurrentPage1 ? "active" : "")">
+					class="@(i == CurrentPage1 ? "active" : "")">
 						@(i + 1)
 					</button>
 				}
@@ -120,15 +135,17 @@
 			<div class="chart-title">Biểu đồ trạng thái tùy chỉnh</div>
 			<div class="fake-pie"></div>
 			<div class="chart-legend">
-				<div><span class="legend-color" style="background:#e74c3c"></span>Đã huỷ - 7.14%</div>
-				<div><span class="legend-color" style="background:#f1c40f"></span>Chờ xác nhận - 14.29%</div>
-				<div><span class="legend-color" style="background:#8e44ad"></span>Chờ giao hàng - 14.29%</div>
-				<div><span class="legend-color" style="background:#3498db"></span>Đang vận chuyển - 0%</div>
-				<div><span class="legend-color" style="background:#1abc9c"></span>Đã giao hàng - 0%</div>
-				<div><span class="legend-color" style="background:#2ecc71"></span>Đã thanh toán - 7.14%</div>
-				<div><span class="legend-color" style="background:#95a5a6"></span>Chờ thanh toán - 0%</div>
-				<div><span class="legend-color" style="background:#27ae60"></span>Hoàn thành - 42.86%</div>
-				<div><span class="legend-color" style="background:#16a085"></span>Trả hàng - 14.29%</div>
+				<div class="chart-legend">
+					<div><span class="legend-color" style="background:#e74c3c"></span>Đã huỷ - @PercentDaHuy</div>
+					<div><span class="legend-color" style="background:#f1c40f"></span>Chờ xác nhận - @PercentChoXacNhan</div>
+					<div><span class="legend-color" style="background:#8e44ad"></span>Chờ giao hàng - @PercentChoGiaoHang</div>
+					<div><span class="legend-color" style="background:#3498db"></span>Đang vận chuyển - @PercentDangVanChuyen</div>
+					<div><span class="legend-color" style="background:#1abc9c"></span>Đã giao hàng - @PercentDaGiaoHang</div>
+					<div><span class="legend-color" style="background:#2ecc71"></span>Đã thanh toán - @PercentDaThanhToan</div>
+					<div><span class="legend-color" style="background:#95a5a6"></span>Chờ thanh toán - @PercentChoThanhToan</div>
+					<div><span class="legend-color" style="background:#27ae60"></span>Hoàn thành - @PercentHoanThanh</div>
+					<div><span class="legend-color" style="background:#16a085"></span>Trả hàng - @PercentTraHang</div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -152,7 +169,11 @@
 					@foreach (var sp in PagedProducts2[CurrentPage2])
 					{
 						<tr>
-							
+							<td><img src="@sp.Anh" alt="@sp.TenSanPham" style="width: 50px; height: 50px; object-fit: cover;" /></td>
+							<td>@sp.TenSanPham</td>
+							<td>@sp.SoLuong</td>
+							<td>@sp.GiaTien.ToString("N0") ₫</td>
+							<td>@sp.Kichco</td>
 						</tr>
 					}
 				}
@@ -175,7 +196,7 @@
 				{
 					var pageNum = i;
 					<button @onclick="() => SetPage2(pageNum)"
-										  class="@(i == CurrentPage2 ? "active" : "")">
+					class="@(i == CurrentPage2 ? "active" : "")">
 						@(i + 1)
 					</button>
 				}
@@ -186,85 +207,141 @@
 	<div class="stats-right">
 		<div class="stats-card">
 			<span class="stats-icon">📊</span> Doanh thu ngày
-			<span class="stats-value">6,040,253 ₫</span>
-			<span class="stats-percent up">+53.73%</span>
+			<span class="stats-value">@TongSoTienHomNay.ToString("N0") ₫</span>
+			<span class="stats-percent @GetPercentageCssClass(PercentDoanhThuHomNay)">@PercentDoanhThuHomNay</span>
 		</div>
 		<div class="stats-card">
 			<span class="stats-icon">📊</span> Doanh thu Tuần
-			<span class="stats-value">8,834,904 ₫</span>
-			<span class="stats-percent up">+100%</span>
+			<span class="stats-value">@TongSoTienTuanNay.ToString("N0") ₫</span>
+			<span class="stats-percent @GetPercentageCssClass(PercentDoanhThuTuanNay)">@PercentDoanhThuTuanNay</span>
 		</div>
 		<div class="stats-card">
 			<span class="stats-icon">📊</span> Doanh thu Tháng
-			<span class="stats-value">8,834,904 ₫</span>
-			<span class="stats-percent up">+100%</span>
+			<span class="stats-value">@TongSoTienThangNay.ToString("N0") ₫</span>
+			<span class="stats-percent @GetPercentageCssClass(PercentDoanhThuThangNay)">@PercentDoanhThuThangNay</span>
 		</div>
 		<div class="stats-card">
 			<span class="stats-icon">📊</span> Doanh thu năm
-			<span class="stats-value">8,834,904 ₫</span>
-			<span class="stats-percent up">+100%</span>
+			<span class="stats-value">@TongSoTienNamNay.ToString("N0") ₫</span>
+			<span class="stats-percent @GetPercentageCssClass(PercentDoanhThuNamNay)">@PercentDoanhThuNamNay</span>
 		</div>
 		<div class="stats-card">
 			<span class="stats-icon">📦</span> Đơn hàng ngày
-			<span class="stats-value">2</span>
-			<span class="stats-percent down">-81.82%</span>
+			<span class="stats-value">@DonThanhCongHomNay</span>
+			<span class="stats-percent @GetPercentageCssClass(PercentDonHangHomNay)">@PercentDonHangHomNay</span>
 		</div>
 		<div class="stats-card">
 			<span class="stats-icon">📦</span> Đơn hàng tuần
-			<span class="stats-value">6</span>
-			<span class="stats-percent up">+100%</span>
+			<span class="stats-value">@DonThanhCongTuanNay</span>
+			<span class="stats-percent @GetPercentageCssClass(PercentDonHangTuanNay)">@PercentDonHangTuanNay</span>
 		</div>
 		<div class="stats-card">
 			<span class="stats-icon">📦</span> Đơn hàng tháng
-			<span class="stats-value">6</span>
-			<span class="stats-percent up">+100%</span>
+			<span class="stats-value">@DonThanhCongThangNay</span>
+			<span class="stats-percent @GetPercentageCssClass(PercentDonHangThangNay)">@PercentDonHangThangNay</span>
 		</div>
 		<div class="stats-card">
 			<span class="stats-icon">📦</span> Đơn hàng năm
-			<span class="stats-value">6</span>
-			<span class="stats-percent up">+100%</span>
+			<span class="stats-value">@DonThanhCongNamNay</span>
+			<span class="stats-percent @GetPercentageCssClass(PercentDonHangNamNay)">@PercentDonHangNamNay</span>
 		</div>
 		<div class="stats-card">
 			<span class="stats-icon">👟</span> Sản phẩm ngày
-			<span class="stats-value">21</span>
-			<span class="stats-percent up">+23.81%</span>
+			<span class="stats-value">@SoLuongSanPhamHomNay</span>
+			<span class="stats-percent @GetPercentageCssClass(PercentSanPhamHomNay)">@PercentSanPhamHomNay</span>
 		</div>
 		<div class="stats-card">
 			<span class="stats-icon">👟</span> Sản phẩm tuần
-			<span class="stats-value">37</span>
-			<span class="stats-percent up">+100%</span>
+			<span class="stats-value">@SoLuongSanPhamTuanNay</span>
+			<span class="stats-percent @GetPercentageCssClass(PercentSanPhamTuanNay)">@PercentSanPhamTuanNay</span>
 		</div>
 		<div class="stats-card">
 			<span class="stats-icon">👟</span> Sản phẩm tháng
-			<span class="stats-value">37</span>
-			<span class="stats-percent up">+100%</span>
+			<span class="stats-value">@SoLuongSanPhamThangNay</span>
+			<span class="stats-percent @GetPercentageCssClass(PercentSanPhamThangNay)">@PercentSanPhamThangNay</span>
 		</div>
 		<div class="stats-card">
 			<span class="stats-icon">👟</span> Sản phẩm năm
-			<span class="stats-value">37</span>
-			<span class="stats-percent up">+100%</span>
+			<span class="stats-value">@SoLuongSanPhamNamNay</span>
+			<span class="stats-percent @GetPercentageCssClass(PercentSanPhamNamNay)">@PercentSanPhamNamNay</span>
 		</div>
 	</div>
 </div>
 
 @code {
-	// Các model dữ liệu chính
+
+
 	private List<HoaDon> hoaDons = new List<HoaDon>();
-	private List<Giay> giays = new List<Giay>();
-	private int SoLuongSanPhamHomNay { get; set; } = 0; 
-	private long DonHangHuy { get; set; } = 0;
-	
-	private string activeFilter = "NGÀY"; 
-	
+	private List<HoaDonChiTiet> hoaDonChiTiets = new List<HoaDonChiTiet>();
+	private List<GiayChiTiet> giayChiTiets = new List<GiayChiTiet>();
+
+
+	private decimal TongSoTienHomNay ;
+	private int SoLuongSanPhamHomNay ;
+	private int DonThanhCongHomNay ;
+	private int DonHangHuyHomNay ;
+	private int DonTraHomNay;
+
+
+	private decimal TongSoTienTuanNay ;
+	private int SoLuongSanPhamTuanNay;
+	private int DonThanhCongTuanNay ;
+	private int DonHangHuyTuanNay ;
+	private int DonTraTuanNay;
+
+	private decimal TongSoTienThangNay;
+	private int SoLuongSanPhamThangNay ;
+	private int DonThanhCongThangNay ;
+	private int DonHangHuyThangNay ;
+	private int DonTraThangNay;
+
+
+	private decimal TongSoTienNamNay ;
+	private int SoLuongSanPhamNamNay ;
+	private int DonThanhCongNamNay ;
+	private int DonHangHuyNamNay;
+	private int DonTraNamNay;
+
+	private string PercentDoanhThuHomNay { get; set; } = "0%";
+	private string PercentDonHangHomNay { get; set; } = "0%";
+	private string PercentSanPhamHomNay { get; set; } = "0%";
+
+	private string PercentDoanhThuTuanNay { get; set; } = "0%";
+	private string PercentDonHangTuanNay { get; set; } = "0%";
+	private string PercentSanPhamTuanNay { get; set; } = "0%";
+
+	private string PercentDoanhThuThangNay { get; set; } = "0%";
+	private string PercentDonHangThangNay { get; set; } = "0%";
+	private string PercentSanPhamThangNay { get; set; } = "0%";
+
+	private string PercentDoanhThuNamNay { get; set; } = "0%";
+	private string PercentDonHangNamNay { get; set; } = "0%";
+	private string PercentSanPhamNamNay { get; set; } = "0%";
+
+	private string PercentDaHuy { get; set; } = "0.00%";
+	private string PercentChoXacNhan { get; set; } = "0.00%";
+	private string PercentChoGiaoHang { get; set; } = "0.00%";
+	private string PercentDangVanChuyen { get; set; } = "0.00%";
+	private string PercentDaGiaoHang { get; set; } = "0.00%";
+	private string PercentDaThanhToan { get; set; } = "0.00%";
+	private string PercentChoThanhToan { get; set; } = "0.00%";
+	private string PercentHoanThanh { get; set; } = "0.00%";
+	private string PercentTraHang { get; set; } = "0.00%";
+
+	public List<DanhSachSanPhamBanChay> sanPhamBanChays { get; set; } = new List<DanhSachSanPhamBanChay>();
+	private string activeFilter = "NGÀY";
+
 	private List<string> filterOptions = new List<string> { "NGÀY", "TUẦN", "THÁNG", "NĂM", "TÙY CHỈNH" };
 
 
-	
+	private DateTime StartDate { get; set; } = DateTime.Now.AddDays(-7);
+	private DateTime EndDate { get; set; } = DateTime.Now;
 
-	// Dữ liệu sản phẩm cho bảng 1 (Giay)
-	private List<HoaDonChiTiet> hoaDonChiTiets = new List<HoaDonChiTiet>();
+
+
 	private List<int> PageSizes1 = new List<int> { 5, 10 };
 	private int _pageSize1 = 5;
+	private List<List<DanhSachSanPhamBanChay>> PagedProducts1 = new List<List<DanhSachSanPhamBanChay>>();
 	private int PageSize1
 	{
 		get => _pageSize1;
@@ -274,16 +351,15 @@
 			{
 				_pageSize1 = value;
 				UpdatePaging1();
-				CurrentPage1 = 0; 
+				CurrentPage1 = 0;
 			}
 		}
 	}
 	private int CurrentPage1 = 0;
 	private int TotalPages1 = 0;
-	private List<List<Giay>> PagedProducts1 = new List<List<Giay>>();
 
-	// Dữ liệu sản phẩm cho bảng 2 (Giay)
-	private List<Giay> giays2 = new List<Giay>();
+
+	private List<DanhSachSanPhamBanChay> giays2 = new List<DanhSachSanPhamBanChay>();
 	private List<int> PageSizes2 = new List<int> { 5, 10 };
 	private int _pageSize2 = 5;
 	private int PageSize2
@@ -295,58 +371,364 @@
 			{
 				_pageSize2 = value;
 				UpdatePaging2();
-				CurrentPage2 = 0; // Reset về trang đầu tiên
+				CurrentPage2 = 0;
 			}
 		}
 	}
 	private int CurrentPage2 = 0;
 	private int TotalPages2 = 0;
-	private List<List<Giay>> PagedProducts2 = new List<List<Giay>>();
+	private List<List<DanhSachSanPhamBanChay>> PagedProducts2 = new List<List<DanhSachSanPhamBanChay>>();
+
+
 
 	protected override async Task OnInitializedAsync()
 	{
-		// Khởi tạo các list nếu chúng có thể là null (mặc định đã khởi tạo ở khai báo)
-		// if (hoaDons == null) hoaDons = new List<HoaDon>();
-		// if (hoaDonChiTiets == null) hoaDonChiTiets = new List<HoaDonChiTiet>();
+		try
+		{
 
-		// Load dữ liệu từ service
-		hoaDons = await hoaDonService.GetAll();
-		hoaDonChiTiets = await chiTietHoaDonService.GetAllHDCTAsync();
+			hoaDons = await hoaDonService.GetAll();
+			hoaDonChiTiets = await chiTietHoaDonService.GetAllHDCTAsync();
+			giayChiTiets = await giayChiTietService.GetAllAsync();
+			Console.WriteLine($"Loaded {hoaDons.Count} HoaDon records.");
+			Console.WriteLine($"Loaded {hoaDonChiTiets.Count} HoaDonChiTiet records.");
+			Console.WriteLine($"Loaded {giayChiTiets.Count} GiayChiTiet records.");
 
-		// Tính toán số lượng sản phẩm hôm nay sau khi dữ liệu đã được tải
-		SoLuongSanPhamHomNay = hoaDons
-			.Join(hoaDonChiTiets,
-			hoaDon => hoaDon.HoaDonId,
-			hoaDonChiTiet => hoaDonChiTiet.HoaDonId,
-			(hoaDon, hoaDonChiTiet) => new
-			{
-				hoaDon.NgayTao,
-				hoaDonChiTiet.SoLuongSanPham,
-				hoaDon.TrangThai,
-				TTHoaDonct = hoaDonChiTiet.TrangThai
-			})
-			.Where(x => x.NgayTao.Date == DateTime.Now.Date && x.TrangThai == "Đã thanh toán" && x.TTHoaDonct == true)
-			.Sum(x => (int?)x.SoLuongSanPham) ?? 0;
+			giays2 = giayChiTiets
+		.GroupBy(x => x.GiayId)
+		.Select(group =>
+		{
+			var first = group.First();
+			return new DanhSachSanPhamBanChay
+				{
+					Anh = first.Anhs.FirstOrDefault()?.DuongDan ?? "",
+					Kichco = string.Join(", ", group.Select(x => x.KichCo.TenKichCo).Distinct().OrderBy(kc => kc)),
+					TenSanPham = first.Giay.TenGiay,
+					SoLuong = group.Sum(x => x.SoLuongCon),
+					GiaTien = (decimal)group.Min(x => x.Gia)
+				};
+		})
+		.ToList();
 
-		// Khởi tạo dữ liệu Giay (dummy data hoặc từ service nếu có)
-		giays = new List<Giay>
-	{
-	 
-	};
 
-		giays2 = new List<Giay>
-	{
-	
-	};
+			CalculateStatsForPeriod(DateTime.Now.Date, DateTime.Now.Date,
+				out TongSoTienHomNay, out SoLuongSanPhamHomNay, out DonThanhCongHomNay, out DonHangHuyHomNay, out DonTraHomNay);
 
-		UpdatePaging1();
-		UpdatePaging2();
+
+			DateTime startOfWeek = GetStartOfWeek(DateTime.Now);
+			DateTime endOfWeek = startOfWeek.AddDays(6);
+			CalculateStatsForPeriod(startOfWeek, endOfWeek,
+				out TongSoTienTuanNay, out SoLuongSanPhamTuanNay, out DonThanhCongTuanNay, out DonHangHuyTuanNay, out DonTraTuanNay);
+
+
+			DateTime startOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).Date;
+			DateTime endOfMonth = startOfMonth.AddMonths(1).AddDays(-1).Date;
+			CalculateStatsForPeriod(startOfMonth, endOfMonth,
+				out TongSoTienThangNay, out SoLuongSanPhamThangNay, out DonThanhCongThangNay, out DonHangHuyThangNay, out DonTraThangNay);
+
+			DateTime startOfYear = new DateTime(DateTime.Now.Year, 1, 1).Date;
+			DateTime endOfYear = new DateTime(DateTime.Now.Year, 12, 31).Date;
+			CalculateStatsForPeriod(startOfYear, endOfYear,
+				out TongSoTienNamNay, out SoLuongSanPhamNamNay, out DonThanhCongNamNay, out DonHangHuyNamNay, out DonTraNamNay);
+
+			decimal prevTongSoTien, currentTongSoTien;
+			int prevSoLuongSanPham, currentSoLuongSanPham;
+			int prevDonThanhCong, currentDonThanhCong;
+			int prevDonHangHuy, currentDonHangHuy;
+			int prevDonTra, currentDonTra;
+
+
+			DateTime prevDay = DateTime.Now.Date.AddDays(-1);
+			CalculateStatsForPeriod(prevDay, prevDay,
+				out prevTongSoTien, out prevSoLuongSanPham, out prevDonThanhCong, out prevDonHangHuy, out prevDonTra);
+			currentTongSoTien = TongSoTienHomNay;
+			currentSoLuongSanPham = SoLuongSanPhamHomNay;
+			currentDonThanhCong = DonThanhCongHomNay;
+			PercentDoanhThuHomNay = CalculatePercentageChange(currentTongSoTien, prevTongSoTien);
+			PercentDonHangHomNay = CalculatePercentageChange(currentDonThanhCong, prevDonThanhCong);
+			PercentSanPhamHomNay = CalculatePercentageChange(currentSoLuongSanPham, prevSoLuongSanPham);
+
+
+			DateTime prevStartOfWeek = GetStartOfWeek(DateTime.Now.AddDays(-7));
+			DateTime prevEndOfWeek = prevStartOfWeek.AddDays(6);
+			CalculateStatsForPeriod(prevStartOfWeek, prevEndOfWeek,
+				out prevTongSoTien, out prevSoLuongSanPham, out prevDonThanhCong, out prevDonHangHuy, out prevDonTra);
+			currentTongSoTien = TongSoTienTuanNay;
+			currentSoLuongSanPham = SoLuongSanPhamTuanNay;
+			currentDonThanhCong = DonThanhCongTuanNay;
+			PercentDoanhThuTuanNay = CalculatePercentageChange(currentTongSoTien, prevTongSoTien);
+			PercentDonHangTuanNay = CalculatePercentageChange(currentDonThanhCong, prevDonThanhCong);
+			PercentSanPhamTuanNay = CalculatePercentageChange(currentSoLuongSanPham, prevSoLuongSanPham);
+
+			DateTime prevStartOfMonth = startOfMonth.AddMonths(-1);
+			DateTime prevEndOfMonth = prevStartOfMonth.AddMonths(1).AddDays(-1);
+			CalculateStatsForPeriod(prevStartOfMonth, prevEndOfMonth,
+				out prevTongSoTien, out prevSoLuongSanPham, out prevDonThanhCong, out prevDonHangHuy, out prevDonTra);
+			currentTongSoTien = TongSoTienThangNay;
+			currentSoLuongSanPham = SoLuongSanPhamThangNay;
+			currentDonThanhCong = DonThanhCongThangNay;
+			PercentDoanhThuThangNay = CalculatePercentageChange(currentTongSoTien, prevTongSoTien);
+			PercentDonHangThangNay = CalculatePercentageChange(currentDonThanhCong, prevDonThanhCong);
+			PercentSanPhamThangNay = CalculatePercentageChange(currentSoLuongSanPham, prevSoLuongSanPham);
+
+
+			DateTime prevStartOfYear = startOfYear.AddYears(-1);
+			DateTime prevEndOfYear = endOfYear.AddYears(-1);
+			CalculateStatsForPeriod(prevStartOfYear, prevEndOfYear,
+				out prevTongSoTien, out prevSoLuongSanPham, out prevDonThanhCong, out prevDonHangHuy, out prevDonTra);
+			currentTongSoTien = TongSoTienNamNay;
+			currentSoLuongSanPham = SoLuongSanPhamNamNay;
+			currentDonThanhCong = DonThanhCongNamNay;
+			PercentDoanhThuNamNay = CalculatePercentageChange(currentTongSoTien, prevTongSoTien);
+			PercentDonHangNamNay = CalculatePercentageChange(currentDonThanhCong, prevDonThanhCong);
+			PercentSanPhamNamNay = CalculatePercentageChange(currentSoLuongSanPham, prevSoLuongSanPham);
+
+			CalculateOrderStatusPercentages(DateTime.Now.Date, DateTime.Now.Date);
+			await FilterData();
+
+			UpdatePaging1();
+			UpdatePaging2();
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"An error occurred during component initialization: {ex.Message}");
+			throw;
+		}
+		
 	}
 
 
+	private void CalculateStatsForPeriod(DateTime startDate, DateTime endDate,
+		out decimal totalMoney, out int totalProducts, out int successfulOrders, out int cancelledOrders, out int returnedOrders) // totalMoney giờ là decimal
+	{
+		totalMoney = hoaDons.Where(hd => hd.NgayTao.Date >= startDate && hd.NgayTao.Date <= endDate && (hd.TrangThai == "Đã giao" || hd.TrangThai == "Đã thanh toán"))
+							.Sum(hd => (decimal)hd.TongTienSauKhiGiam); 
+
+
+		totalProducts = hoaDons
+			.Join(hoaDonChiTiets,
+				hoaDon => hoaDon.HoaDonId,
+				hoaDonChiTiet => hoaDonChiTiet.HoaDonId,
+				(hoaDon, hoaDonChiTiet) => new
+				{
+					hoaDon.NgayTao,
+					hoaDonChiTiet.SoLuongSanPham,
+					hoaDon.TrangThai,
+					TTHoaDonct = hoaDonChiTiet.TrangThai
+				})
+			.Where(x => x.NgayTao.Date >= startDate &&
+						x.NgayTao.Date <= endDate &&
+						x.TrangThai == "Hoàn thành" &&
+						x.TTHoaDonct == true)
+			.Sum(x => (int?)x.SoLuongSanPham) ?? 0;
+
+
+		successfulOrders = hoaDons.Count(hd => hd.NgayTao.Date >= startDate &&
+												hd.NgayTao.Date <= endDate &&
+												hd.TrangThai == "Hoàn thành");
+
+
+		cancelledOrders = hoaDons.Count(hd => hd.NgayTao.Date >= startDate &&
+												hd.NgayTao.Date <= endDate &&
+												hd.TrangThai == "Đã Hủy");
+
+
+		returnedOrders = hoaDons
+			.Join(hoaDonChiTiets,
+				hoaDon => hoaDon.HoaDonId,
+				hoaDonChiTiet => hoaDonChiTiet.HoaDonId,
+				(hoaDon, hoaDonChiTiet) => new
+				{
+					hoaDon.NgayTao,
+					hoaDon.TrangThai,
+					TTHoaDonct = hoaDonChiTiet.TrangThai
+				})
+			.Where(x => x.NgayTao.Date >= startDate &&
+						x.NgayTao.Date <= endDate &&
+						x.TrangThai == "Hoàn thành" &&
+						x.TTHoaDonct == false)
+			.Count();
+	}
+
+	private async Task FilterData()
+	{
+		DateTime startDateFilter;
+		DateTime endDateFilter;
+
+
+		switch (activeFilter)
+		{
+			case "NGÀY":
+				startDateFilter = DateTime.Now.Date;
+				endDateFilter = DateTime.Now.Date;
+				break;
+			case "TUẦN":
+				startDateFilter = GetStartOfWeek(DateTime.Now);
+				endDateFilter = startDateFilter.AddDays(6);
+				break;
+			case "THÁNG":
+				startDateFilter = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).Date;
+				endDateFilter = startDateFilter.AddMonths(1).AddDays(-1).Date;
+				break;
+			case "NĂM":
+				startDateFilter = new DateTime(DateTime.Now.Year, 1, 1).Date;
+				endDateFilter = new DateTime(DateTime.Now.Year, 12, 31).Date;
+				break;
+			case "TÙY CHỈNH":
+
+				startDateFilter = StartDate.Date;
+				endDateFilter = EndDate.Date;
+				break;
+			default:
+				startDateFilter = DateTime.Now.Date;
+				endDateFilter = DateTime.Now.Date;
+				break;
+		}
+
+		sanPhamBanChays = (from hd in hoaDons
+									join hdct in hoaDonChiTiets on hd.HoaDonId equals hdct.HoaDonId
+									join gct in giayChiTiets on hdct.GiayId equals gct.GiayChiTietId
+									where hd.NgayTao.Date >= startDateFilter &&
+									hd.NgayTao.Date <= endDateFilter &&
+									hd.TrangThai == "Hoàn thành" &&
+									hdct.TrangThai == true
+									select new
+									{
+										TenGiay = gct.Giay.TenGiay,
+										DuongDanAnh = gct.Anhs.FirstOrDefault()?.DuongDan ?? "",
+										Gia = hdct.Gia,
+										kc = gct.KichCo.TenKichCo,
+										SoLuong = hdct.SoLuongSanPham
+									})
+									.GroupBy(x => x.TenGiay)
+									.Select(g => new DanhSachSanPhamBanChay
+							   {
+								   TenSanPham = g.Key,
+								   Anh = g.First().DuongDanAnh,
+								   GiaTien = g.Sum(x => x.Gia * x.SoLuong),
+								   Kichco = string.Join(", ", g.Select(x => x.kc).Distinct()),
+								   SoLuong = g.Sum(x => x.SoLuong)
+							   })
+									.OrderByDescending(x => x.SoLuong)
+									.ToList();
+
+
+		UpdatePaging1(); 
+	}
+
+
+	private async Task SetActiveFilter(string filter)
+	{
+		activeFilter = filter;
+		await FilterData(); 
+		Console.WriteLine(activeFilter);
+		StateHasChanged(); 
+	}
+
+
+	private async Task ApplyCustomFilter()
+	{
+		await FilterData();
+		StateHasChanged();
+	}
+
+
+	private DateTime GetStartOfWeek(DateTime date)
+	{
+		int diff = (7 + (date.DayOfWeek - DayOfWeek.Monday)) % 7;
+		return date.AddDays(-1 * diff).Date;
+	}
+
+	private string CalculatePercentageChange(decimal currentValue, decimal previousValue)
+	{
+		if (previousValue == 0)
+		{
+			if (currentValue > 0)
+			{
+				return "+100%"; 
+			}
+			return "0%"; 
+		}
+
+		decimal percentage = ((currentValue - previousValue) / previousValue) * 100m;
+
+		return $"{percentage:+#.##;-#.##;0}%";
+	}
+
+
+	private string CalculatePercentageChange(int currentValue, int previousValue)
+	{
+		return CalculatePercentageChange((decimal)currentValue, (decimal)previousValue);
+	}
+
+
+	private string GetPercentageCssClass(string percentage)
+	{
+		if (percentage.StartsWith("+")) return "up";
+		if (percentage.StartsWith("-")) return "down";
+		return ""; 
+	}
+
+	private void CalculateOrderStatusPercentages(DateTime startDate, DateTime endDate)
+	{
+		// Lọc hóa đơn trong khoảng thời gian đã chọn
+		var filteredOrders = hoaDons.Where(hd => hd.NgayTao.Date >= startDate && hd.NgayTao.Date <= endDate).ToList();
+		int totalOrdersInPeriod = filteredOrders.Count;
+
+		if (totalOrdersInPeriod == 0)
+		{
+
+			PercentDaHuy = "0.00%";
+			PercentChoXacNhan = "0.00%";
+			PercentChoGiaoHang = "0.00%";
+			PercentDangVanChuyen = "0.00%";
+			PercentDaGiaoHang = "0.00%";
+			PercentDaThanhToan = "0.00%";
+			PercentChoThanhToan = "0.00%";
+			PercentHoanThanh = "0.00%";
+			PercentTraHang = "0.00%";
+			return;
+		}
+
+
+		int countDaHuy = filteredOrders.Count(hd => hd.TrangThai == "Đã Hủy");
+		int countChoXacNhan = filteredOrders.Count(hd => hd.TrangThai == "Chờ xác nhận");
+		int countChoGiaoHang = filteredOrders.Count(hd => hd.TrangThai == "Chờ giao hàng");
+		int countDangVanChuyen = filteredOrders.Count(hd => hd.TrangThai == "Đang vận chuyển");
+		int countDaGiaoHang = filteredOrders.Count(hd => hd.TrangThai == "Đã giao");
+		int countDaThanhToan = filteredOrders.Count(hd => hd.TrangThai == "Đã thanh toán");
+		int countChoThanhToan = filteredOrders.Count(hd => hd.TrangThai == "Chờ thanh toán");
+		int countHoanThanh = filteredOrders.Count(hd => hd.TrangThai == "Hoàn thành");
+
+		
+		int countTraHang = filteredOrders
+			.Where(hd => hd.TrangThai == "Đã thanh toán" &&
+							hoaDonChiTiets.Any(hdct => hdct.HoaDonId == hd.HoaDonId && hdct.TrangThai == false))
+			.Count();
+
+
+		PercentDaHuy = ((decimal)countDaHuy / totalOrdersInPeriod * 100m).ToString("F2") + "%";
+		PercentChoXacNhan = ((decimal)countChoXacNhan / totalOrdersInPeriod * 100m).ToString("F2") + "%";
+		PercentChoGiaoHang = ((decimal)countChoGiaoHang / totalOrdersInPeriod * 100m).ToString("F2") + "%";
+		PercentDangVanChuyen = ((decimal)countDangVanChuyen / totalOrdersInPeriod * 100m).ToString("F2") + "%";
+		PercentDaGiaoHang = ((decimal)countDaGiaoHang / totalOrdersInPeriod * 100m).ToString("F2") + "%";
+		PercentDaThanhToan = ((decimal)countDaThanhToan / totalOrdersInPeriod * 100m).ToString("F2") + "%";
+		PercentChoThanhToan = ((decimal)countChoThanhToan / totalOrdersInPeriod * 100m).ToString("F2") + "%";
+		PercentHoanThanh = ((decimal)countHoanThanh / totalOrdersInPeriod * 100m).ToString("F2") + "%";
+		PercentTraHang = ((decimal)countTraHang / totalOrdersInPeriod * 100m).ToString("F2") + "%";
+	}
+
 	private void UpdatePaging1()
 	{
-		
+		TotalPages1 = (int)Math.Ceiling((double)sanPhamBanChays.Count / PageSize1);
+		PagedProducts1 = new List<List<DanhSachSanPhamBanChay>>();
+		for (int i = 0; i < TotalPages1; i++)
+		{
+			PagedProducts1.Add(sanPhamBanChays.Skip(i * PageSize1).Take(PageSize1).ToList());
+		}
+
+		if (CurrentPage1 >= TotalPages1 && TotalPages1 > 0) CurrentPage1 = TotalPages1 - 1;
+		else if (TotalPages1 == 0) CurrentPage1 = 0;
 	}
 
 	private void SetPage1(int page)
@@ -360,12 +742,14 @@
 	private void UpdatePaging2()
 	{
 		TotalPages2 = (int)Math.Ceiling((double)giays2.Count / PageSize2);
-		PagedProducts2 = new List<List<Giay>>();
+		PagedProducts2 = new List<List<DanhSachSanPhamBanChay>>();
 		for (int i = 0; i < TotalPages2; i++)
 		{
 			PagedProducts2.Add(giays2.Skip(i * PageSize2).Take(PageSize2).ToList());
 		}
-		if (CurrentPage2 >= TotalPages2) CurrentPage2 = 0;
+
+		if (CurrentPage2 >= TotalPages2 && TotalPages2 > 0) CurrentPage2 = TotalPages2 - 1;
+		else if (TotalPages2 == 0) CurrentPage2 = 0;
 	}
 
 	private void SetPage2(int page)
@@ -376,9 +760,4 @@
 		}
 	}
 
-	private void SetActiveFilter(string filter)
-	{
-		activeFilter = filter;
-		UpdatePaging1();
-	}
 }

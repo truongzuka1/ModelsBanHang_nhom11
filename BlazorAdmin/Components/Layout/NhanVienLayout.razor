@@ -1,4 +1,7 @@
-﻿@inherits LayoutComponentBase
+﻿@page "/nhanvien"
+@attribute [Authorize(Roles = "NhanVien")]
+@layout NhanVienLayout
+@inherits LayoutComponentBase
 <div class="page">
     <div class="sidebar">
         <NavNhanVien />

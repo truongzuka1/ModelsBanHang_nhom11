@@ -1,4 +1,6 @@
-﻿using Data.Models;
+﻿
+using API.Models.DTO;
+using Data.Models;
 
 namespace BlazorAdmin.Service.IService
 {
@@ -9,7 +11,7 @@ namespace BlazorAdmin.Service.IService
         Task CreateTaiKhoanAsync(TaiKhoan tk);
         Task UpdateTaiKhoanAsync(TaiKhoan tk);
         Task DeleteTaiKhoanAsync(Guid id);
-        Task<TaiKhoan> GetByIdChucVuAsync(string username, string password);
+        Task<LoginResponseDto> GetByIdChucVuAsync(string username, string password );
         Task<TaiKhoan> GetByUsernameAsync(string username);
     }
 }

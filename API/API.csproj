@@ -25,4 +25,8 @@
     <Folder Include="Views\NewFolder\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="Controllers\DeGiayController.cs" />
+  </ItemGroup>
+
 </Project>

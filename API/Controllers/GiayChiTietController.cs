@@ -9,70 +9,42 @@ namespace API.Controllers
     public class GiayChiTietController : Controller
     {
         private readonly IGiayChiTietRepository _giayChitiet;
-        private readonly IDeGiayRepository _degiay;
-        private readonly IAnhRepository _anhRepository;
 
-        public GiayChiTietController(IGiayChiTietRepository giayChitiet, IDeGiayRepository degiay, IAnhRepository anhRepository)
+
+        public GiayChiTietController(IGiayChiTietRepository giayChitiet)
         {
             _giayChitiet = giayChitiet;
-            _degiay = degiay;
-            _anhRepository = anhRepository;
 
         }
-        [HttpGet("giaychitiet")]
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<GiayChiTiet>>> GetGiayChiTiets()
         {
             return Ok(await _giayChitiet.getAllGiayChiTiet());
         }
-        [HttpGet("degiay")]
-        public async Task<ActionResult<IEnumerable<DeGiay>>> GetDeGiayAll()
-        {
-            return Ok(await _degiay.GetAllDegiay());
-        }
-        [HttpGet("giaychitiet/{id}")]
+
+        [HttpGet("{id}")]
         public async Task<ActionResult<GiayChiTiet>> GetGiayChiTietById(Guid id)
         {
             return Ok(await _giayChitiet.getGiayChiTietbyID(id));
         }
-        [HttpGet("degiay/{id}")]
-        public async Task<ActionResult<DeGiay>> GetDeGiayById(Guid id)
-        {
-            return Ok(await _degiay.GetDeGiay(id));
-        }
-        [HttpPost("giaychitiet")]
+
+        [HttpPost]
         public async Task<ActionResult<GiayChiTiet>> CreateGiayChitiet(GiayChiTiet gct ,Guid? iddegiay)
         {
             await _giayChitiet.CreateGiayChiTiet(gct, iddegiay);
             return Ok();
         }
-        [HttpPost("degiay")]
-        public async Task<ActionResult<DeGiay>> CreateDeGiay(DeGiay dg)
-        {
-            await _degiay.CreateDeGiay(dg);
-            return Ok();
-        }
-        [HttpPut("giaychitiet")]
+
+        [HttpPut]
         public async Task<ActionResult> UpdateGiayChiTiet(GiayChiTiet gct, Guid? dg)
         {
             await _giayChitiet.UpdateGiayChiTiet(gct , dg);
             return Ok();
         }
-        [HttpDelete("giaychitiet/{id}")]
+        [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteGiayChiTiet(Guid id)
         {
             await _giayChitiet.DeleteGiayChiTiet(id);
-            return Ok();
-        }
-        [HttpPut("degiay")]
-        public async Task<ActionResult> UpdateDeGiay(DeGiay dg)
-        {
-            await _degiay.UpdateDeGiay(dg);
-            return Ok();
-        }
-        [HttpDelete("degiay/{id}")]
-        public async Task<ActionResult> DeleteDeGiay(Guid id)
-        {
-            await _degiay.DeleteDeGiay(id);
             return Ok();
         }
        

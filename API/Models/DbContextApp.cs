@@ -23,7 +23,7 @@ namespace Data.Models
         {
     
 
-            optionsBuilder.UseSqlServer(@"Data Source=DELL\SQLEXPRESS;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
+            optionsBuilder.UseSqlServer(@"Data Source=.;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
 
 
 
@@ -34,8 +34,10 @@ namespace Data.Models
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<GiayDotGiamGia>()
       .HasKey(gdg => gdg.GiayDotGiamGiaId);
+            modelBuilder.Entity<GioHangChiTiet>()
+        .Property(ghct => ghct.Gia)
+        .HasColumnType("decimal(18, 2)");
 
-            // Quan hệ GiayDotGiamGia - Giay (N-1)
             modelBuilder.Entity<GiayDotGiamGia>()
                 .HasOne(gdg => gdg.Giay)
                 .WithMany(g => g.GiayDotGiamGias)
