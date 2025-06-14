@@ -19,9 +19,10 @@ namespace API.IRepository.Repository
                 .Include(h => h.taiKhoan)
                 .Include(h => h.hinhThucThanhToan)
                 .Include(h => h.khachHang)
-                .Include(h => h.HoaDonChiTietsId)
+                .Include(h => h.HoaDonChiTietsId) 
                 .ToListAsync();
         }
+
 
         public async Task<HoaDon> GetById(Guid id)
         {
