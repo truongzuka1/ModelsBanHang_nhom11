@@ -1,111 +1,88 @@
 ﻿using Data.Models;
+using Data.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using Data.Models;
+
 namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class KhachHangController : ControllerBase
     {
-        private readonly DbContextApp _context;
+        private readonly IKhachHangRepository _khachHangRepository;
 
-        public KhachHangController(DbContextApp context)
+        public KhachHangController(IKhachHangRepository khachHangRepository)
         {
-            _context = context;
+            _khachHangRepository = khachHangRepository;
         }
 
         // GET: api/KhachHang
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<KhachHang>>> GetAllKhachHang()
+        public async Task<IActionResult> GetAll()
         {
-            return await _context.Set<KhachHang>()
-                .Include(k => k.TaiKhoan)
-                .Include(k => k.HoaDons)
-                .Include(k => k.GioHangs)
-                .Include(k => k.DiaChiKhachHangs)
-                .ToListAsync();
+            var khachHangs = await _khachHangRepository.GetAllAsync();
+            return Ok(khachHangs);
         }
 
         // GET: api/KhachHang/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<KhachHang>> GetKhachHang(Guid id)
+        public async Task<IActionResult> GetById(Guid id)
         {
-            var khachHang = await _context.Set<KhachHang>()
-                .Include(k => k.TaiKhoan)
-                .Include(k => k.HoaDons)
-                .Include(k => k.GioHangs)
-                .Include(k => k.DiaChiKhachHangs)
-                .FirstOrDefaultAsync(k => k.KhachHangId == id);
-
-            if (khachHang == null)
-            {
-                return NotFound();
-            }
-
-            return khachHang;
+            var kh = await _khachHangRepository.GetByIdAsync(id);
+            if (kh == null) return NotFound();
+            return Ok(kh);
         }
 
         // POST: api/KhachHang
         [HttpPost]
-        public async Task<ActionResult<KhachHang>> CreateKhachHang(KhachHang khachHang)
+        public async Task<IActionResult> Create([FromBody] KhachHang khachHang)
         {
-            khachHang.KhachHangId = Guid.NewGuid();
-            khachHang.NgayTao = DateTime.UtcNow;
-            khachHang.NgayCapNhatCuoiCung = DateTime.UtcNow;
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            _context.KhachHangs.Add(khachHang);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetKhachHang), new { id = khachHang.KhachHangId }, khachHang);
+            await _khachHangRepository.AddAsync(khachHang);
+            return CreatedAtAction(nameof(GetById), new { id = khachHang.KhachHangId }, khachHang);
         }
 
         // PUT: api/KhachHang/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateKhachHang(Guid id, KhachHang khachHang)
+        public async Task<IActionResult> Update(Guid id, [FromBody] KhachHang khachHang)
         {
-            if (id != khachHang.KhachHangId)
-            {
-                return BadRequest("ID không trùng khớp.");
-            }
+            if (id != khachHang.KhachHangId) return BadRequest("ID không khớp");
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var khachHangExist = await _context.KhachHangs.FindAsync(id);
-            if (khachHangExist == null)
-            {
-                return NotFound();
-            }
+            var exists = await _khachHangRepository.ExistsAsync(id);
+            if (!exists) return NotFound();
 
-            // Update thủ công các field
-            khachHangExist.HoTen = khachHang.HoTen;
-            khachHangExist.Email = khachHang.Email;
-            khachHangExist.SoDienThoai = khachHang.SoDienThoai;
-            khachHangExist.NgaySinh = khachHang.NgaySinh;
-            khachHangExist.TrangThai = khachHang.TrangThai;
-            khachHangExist.TaiKhoanId = khachHang.TaiKhoanId;
-            khachHangExist.NgayCapNhatCuoiCung = DateTime.UtcNow;
-
-            await _context.SaveChangesAsync();
+            await _khachHangRepository.UpdateAsync(khachHang);
             return NoContent();
         }
 
         // DELETE: api/KhachHang/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteKhachHang(Guid id)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            var khachHang = await _context.KhachHangs.FindAsync(id);
-            if (khachHang == null)
-            {
-                return NotFound();
-            }
+            var exists = await _khachHangRepository.ExistsAsync(id);
+            if (!exists) return NotFound();
 
-            _context.KhachHangs.Remove(khachHang);
-            await _context.SaveChangesAsync();
-
+            await _khachHangRepository.DeleteAsync(id);
             return NoContent();
+        }
+
+        // GET: api/KhachHang/email/{email}
+        [HttpGet("email/{email}")]
+        public async Task<IActionResult> GetByEmail(string email)
+        {
+            var kh = await _khachHangRepository.GetByEmailAsync(email);
+            if (kh == null) return NotFound();
+            return Ok(kh);
+        }
+
+        // GET: api/KhachHang/phone/{soDienThoai}
+        [HttpGet("phone/{soDienThoai}")]
+        public async Task<IActionResult> GetBySoDienThoai(string soDienThoai)
+        {
+            var kh = await _khachHangRepository.GetBySoDienThoaiAsync(soDienThoai);
+            if (kh == null) return NotFound();
+            return Ok(kh);
         }
     }
 }
-

@@ -1,0 +1,43 @@
+﻿@page "/return-search"
+@using Data.Models
+@inject HttpClient HttpClient
+@inject NavigationManager Navigation
+
+<h2 class="mb-4 text-primary">Tìm kiếm hóa đơn trả hàng</h2>
+<div class="card shadow-sm p-4 mb-4" style="max-width: 500px; margin: 0 auto;">
+    <EditForm Model="@searchModel" OnValidSubmit="@HandleSearch">
+        <div class="mb-3">
+            <label for="maHoaDon" class="form-label">Nhập mã hóa đơn</label>
+            <InputText id="maHoaDon" class="form-control" @bind-Value="searchModel.MaHoaDon" required />
+        </div>
+        <button type="submit" class="btn btn-success">Tìm kiếm</button>
+    </EditForm>
+</div>
+
+@code {
+    private SearchModel searchModel = new SearchModel();
+
+    private class SearchModel
+    {
+        public string MaHoaDon { get; set; }
+    }
+
+    private async Task HandleSearch()
+    {
+        if (Guid.TryParse(searchModel.MaHoaDon, out Guid hoaDonId))
+        {
+            var response = await HttpClient.GetAsync($"/api/Return/hoa-don/{hoaDonId}");
+            if (response.IsSuccessStatusCode)
+            {
+                Navigation.NavigateTo($"/return-detail/{hoaDonId}");
+            }
+            else
+            {
+                // Hiển thị thông báo lỗi
+                Console.WriteLine("Hóa đơn không tồn tại.");
+            }
+        }
+    }
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />

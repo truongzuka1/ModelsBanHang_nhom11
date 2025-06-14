@@ -7,9 +7,13 @@ namespace Data.Repositories
 {
 	public interface IKhachHangRepository
 	{
-		Task<List<KhachHang>> GetAllAsync(); 
-		Task AddAsync(KhachHang khachhang);
-		Task UpdateAsync(KhachHang khachhang);
-		Task DeleteAsync(Guid id);
-	}
+        Task<IEnumerable<KhachHang>> GetAllAsync();
+        Task<KhachHang?> GetByIdAsync(Guid id);
+        Task<KhachHang?> GetByEmailAsync(string email);
+        Task<KhachHang?> GetBySoDienThoaiAsync(string soDienThoai);
+        Task AddAsync(KhachHang khachHang);
+        Task UpdateAsync(KhachHang khachHang);
+        Task DeleteAsync(Guid id);
+        Task<bool> ExistsAsync(Guid id);
+    }
 }
