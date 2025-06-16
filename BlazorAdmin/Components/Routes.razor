@@ -1,5 +1,4 @@
 ﻿
-
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(Program).Assembly">
         <Found Context="routeData">
@@ -29,7 +28,6 @@
     private Type ResolveLayout(RouteData routeData)
     {
         var path = routeData.PageType?.FullName ?? "";
-
 
         if (path.Contains(".Admin."))
             return typeof(AdminLayout); 

@@ -104,7 +104,7 @@ namespace API.Controllers
             if (userChucVu != null)
             {
 
-                string role = _chucVuRepository.GetByIdChucVuAsync(_nhanVienRepository.GetIdNhanVienTaiKhoan(userChucVu.TaikhoanId).Result.ChucVuId.Value).Result.TenChucVu; 
+                    string role = _chucVuRepository.GetByIdChucVuAsync(_nhanVienRepository.GetIdNhanVienTaiKhoan(userChucVu.TaikhoanId).Result.ChucVuId.Value).Result.TenChucVu; 
 
 
                 return Ok(new LoginResponseDto
