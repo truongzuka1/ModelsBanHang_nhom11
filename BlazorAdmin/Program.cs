@@ -1,7 +1,14 @@
-﻿using API.IService;
+﻿
+
+using API.IService;
 using BlazorAdmin.Components;
 using BlazorAdmin.Service;
 using BlazorAdmin.Service.IService;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Identity; 
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http; 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,22 +21,43 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
 });
 
-builder.Services.AddEndpointsApiExplorer();   
-builder.Services.AddSwaggerGen();             
+builder.Services.AddHttpContextAccessor(); 
+
+builder.Services.AddAuthentication(options =>
+{
+
+    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+})
+.AddCookie(options =>
+{
+    options.LoginPath = "/";
+    
+    options.AccessDeniedPath = "/AccessDenied"; 
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+    options.SlidingExpiration = true;
+});
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
+});
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped(sp => new HttpClient
 {
-    BaseAddress = new Uri("https://localhost:7246/") 
+    BaseAddress = new Uri("https://localhost:7246/")
 });
 builder.Services.AddHttpClient("voucher", client =>
 {
     client.BaseAddress = new Uri("https://localhost:7246/");
 });
+builder.Services.AddHttpClient<IKhachHangService, KhachHangService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:5001/");
+});
 
-
-
-// Đăng ký Service
-// Đăng ký các service vào DI container trong Program.cs
 builder.Services.AddScoped<INhanVienService, NhanVienService>();
 builder.Services.AddScoped<IAnhService, AnhService>();
 builder.Services.AddScoped<IChatLieuService, ChatLieuService>();
@@ -44,24 +72,30 @@ builder.Services.AddScoped<ITheLoaiGiayService, TheLoaiGiayService>();
 builder.Services.AddScoped<IThuongHieuService, ThuongHieuService>();
 builder.Services.AddScoped<IVoucherService, VoucherService>();
 builder.Services.AddScoped<ITaiKhoanService, TaiKhoanService>();
+builder.Services.AddScoped<IKhachHangService, KhachHangService>();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
-    app.UseSwagger();                          // D�ng Swagger
+    app.UseSwagger();                         // Dùng Swagger
     app.UseSwaggerUI();
 }
+
 
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
-app.UseAntiforgery();
-
-app.MapRazorComponents<App>()
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapBlazorHub(); 
+app.UseAntiforgery(); 
+app.MapRazorComponents<App>() 
     .AddInteractiveServerRenderMode();
 
 app.Run();

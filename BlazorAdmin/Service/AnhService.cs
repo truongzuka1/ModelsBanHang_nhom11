@@ -1,5 +1,5 @@
 ﻿using BlazorAdmin.Service.IService;
-using API.Models;
+using Data.Models;
 using Microsoft.AspNetCore.Components.Forms;
 using System.Net.Http.Json;
 using API.IService;

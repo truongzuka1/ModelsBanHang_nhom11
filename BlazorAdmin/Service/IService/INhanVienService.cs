@@ -1,4 +1,4 @@
-﻿using API.Models;
+﻿using Data.Models;
 namespace BlazorAdmin.Service.IService
 {
     public interface INhanVienService

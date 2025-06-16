@@ -12,14 +12,15 @@ namespace Data.Models
         [Key]
         public Guid HoaDonChiTietId { get; set; } = Guid.NewGuid();
 
-        public Guid GiayChiTietId { get; set; }
+		public Guid GiayId { get; set; }
 
-        public Guid HoaDonId { get; set; }
+		public Guid HoaDonId { get; set; }
 
         [Range(1, int.MaxValue)]
         public int SoLuongSanPham { get; set; }
         public decimal Gia { get; set; }
-        public virtual HoaDon HoaDons { get; set; }
+        public bool TrangThai { get; set; } 
+		public virtual HoaDon HoaDons { get; set; }
         public virtual Giay Giays { get; set; }
     }
 

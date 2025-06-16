@@ -1,6 +1,8 @@
-﻿using API.Models;
+﻿using Data.Models;
 using BlazorAdmin.Service.IService;
-using Data.Models;
+using API.Models.DTO;
+
+
 
 namespace BlazorAdmin.Service
 {
@@ -39,12 +41,19 @@ namespace BlazorAdmin.Service
         }
 
 
-        public async Task<TaiKhoan> GetByIdChucVuAsync(string username, string password)
+        public async Task<LoginResponseDto> GetByIdChucVuAsync(string username , string password )
         {
-            var loginData = new { username, password };
-            var response = await _httpClient.PostAsJsonAsync("/api/TaiKhoans/login", loginData);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<TaiKhoan>();
+            try
+            {
+                var response = await _httpClient.GetAsync($"/api/TaiKhoans/login?username={username}&pass={password}");
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadFromJsonAsync<LoginResponseDto>();
+            }
+            catch (Exception)
+            {
+                return new LoginResponseDto() { IsSuccess = false , Message = "Tài khoản không tồn tại" };
+            }
+            
         }
         public async Task<TaiKhoan> GetByUsernameAsync(string username)
         {

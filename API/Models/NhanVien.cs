@@ -1,7 +1,7 @@
 ﻿using Data.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace API.Models
+namespace Data.Models
 {
     public class NhanVien
     {

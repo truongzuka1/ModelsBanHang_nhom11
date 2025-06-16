@@ -38,7 +38,7 @@ namespace API.Controllers
             if (model.SoLuongSanPham <= 0)
                 return BadRequest("Số lượng sản phẩm phải lớn hơn 0");
 
-            var existingItem = await _repository.GetByGioHangVaGiayChiTietAsync(model.GioHangId, model.GiayChiTietId);
+            var existingItem = await _repository.GetByGioHangVaGiayChiTietAsync(model.GioHangId, model.GiayId);
             if (existingItem != null)
             {
                 existingItem.SoLuongSanPham += model.SoLuongSanPham;

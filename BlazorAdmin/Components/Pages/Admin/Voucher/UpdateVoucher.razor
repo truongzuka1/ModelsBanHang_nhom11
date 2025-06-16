@@ -1,0 +1,51 @@
+﻿@page "/Adim/updatevoucher/{Id:guid}"
+@using Data.Models
+@using BlazorAdmin.Service
+@using BlazorAdmin.Service.IService
+@inject IVoucherService service
+@inject NavigationManager manager
+<h3>UpdateVoucher</h3>
+<EditForm Model="voucher" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="mb-3">
+        <label for="TenVoucher" class="form-label">Họ tên:</label>
+        <InputText id="tenvoucher" class="form-control" @bind-Value="voucher.TenVoucher" />
+    </div>
+    <div class="mb-3">
+        <label for="ngaybatdau" class="form-label">Ngày bắt đầu:</label>
+        <InputDate id="ngaybatdau" class="form-control" @bind-Value="voucher.NgayBatDau" />
+    </div>
+    <div class="mb-3">
+        <label for="ngayketthuc" class="form-label">Ngày kết thúc:</label>
+        <InputDate id="ngayketthuc" class="form-control" @bind-Value="voucher.NgayKetThuc" />
+    </div>
+    <div class="mb-3">
+        <label for="phantramgiam" class="form-label">Phần trăm giảm:</label>
+        <InputNumber id="phantramgiam" class="form-control" @bind-Value="voucher.PhanTram" />
+    </div>
+
+    <div class="mb-3">
+        <label for="soluong" class="form-label">Số lượng:</label>
+        <InputNumber id="soluong" class="form-control" @bind-Value="voucher.SoLuong" />
+    </div>
+
+
+</EditForm>
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private Voucher voucher = new Voucher();
+    protected override async Task OnInitializedAsync()
+    {
+        voucher = await service.GetById(Id);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+       
+        await service.Update(voucher);
+        manager.NavigateTo("/Admin/voucher");
+    }
+}

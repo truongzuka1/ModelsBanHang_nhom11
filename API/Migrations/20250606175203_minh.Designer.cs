@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(DbContextApp))]
-    [Migration("20250606073926_minh")]
+    [Migration("20250606175203_minh")]
     partial class minh
     {
         /// <inheritdoc />
@@ -96,7 +96,7 @@ namespace API.Migrations
                             ChucVuId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Email = "admin@shop.com",
                             HoTen = "Nguyễn Văn Quản Trị",
-                            NgayCapNhatCuoiCung = new DateTime(2025, 6, 6, 14, 39, 25, 363, DateTimeKind.Local).AddTicks(5316),
+                            NgayCapNhatCuoiCung = new DateTime(2025, 6, 7, 0, 52, 1, 977, DateTimeKind.Local).AddTicks(7606),
                             NgaySinh = new DateTime(1995, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             SoDienThoai = "0987654321",
                             TaikhoanId = new Guid("99999999-9999-9999-9999-999999999999"),
@@ -500,8 +500,9 @@ namespace API.Migrations
                     b.Property<float>("TongTienSauKhiGiam")
                         .HasColumnType("real");
 
-                    b.Property<bool>("TrangThai")
-                        .HasColumnType("bit");
+                    b.Property<string>("TrangThai")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("VoucherId")
                         .HasColumnType("uniqueidentifier");
@@ -539,6 +540,9 @@ namespace API.Migrations
 
                     b.Property<int>("SoLuongSanPham")
                         .HasColumnType("int");
+
+                    b.Property<bool>("TrangThai")
+                        .HasColumnType("bit");
 
                     b.HasKey("HoaDonChiTietId");
 
@@ -684,9 +688,9 @@ namespace API.Migrations
                         new
                         {
                             TaikhoanId = new Guid("99999999-9999-9999-9999-999999999999"),
-                            Ngaytaotaikhoan = new DateTime(2025, 6, 6, 14, 39, 25, 363, DateTimeKind.Local).AddTicks(5246),
-                            Password = "123",
-                            Username = "Admin"
+                            Ngaytaotaikhoan = new DateTime(2025, 6, 7, 0, 52, 1, 977, DateTimeKind.Local).AddTicks(7512),
+                            Password = "admin123",
+                            Username = "admin"
                         });
                 });
 

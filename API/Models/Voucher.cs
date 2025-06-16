@@ -30,7 +30,7 @@ namespace Data.Models
 
         public int SoLuong { get; set; }
 
-        public string MaTaiKhoan { get; set; }
+        public Guid? IdTaiKhoan { get; set; }
 
         public void Validate()
         {

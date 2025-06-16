@@ -435,7 +435,7 @@ namespace API.Migrations
                     NgayTao = table.Column<DateTime>(type: "datetime2", nullable: false),
                     NgayNhanHang = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TongTienSauKhiGiam = table.Column<float>(type: "real", nullable: false),
-                    TrangThai = table.Column<bool>(type: "bit", nullable: false),
+                    TrangThai = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     GhiChu = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
                 },
                 constraints: table =>
@@ -507,6 +507,7 @@ namespace API.Migrations
                     HoaDonId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SoLuongSanPham = table.Column<int>(type: "int", nullable: false),
                     Gia = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TrangThai = table.Column<bool>(type: "bit", nullable: false),
                     GiaysGiayId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
@@ -538,12 +539,12 @@ namespace API.Migrations
             migrationBuilder.InsertData(
                 table: "TaiKhoans",
                 columns: new[] { "TaikhoanId", "Ngaytaotaikhoan", "Password", "Username" },
-                values: new object[] { new Guid("99999999-9999-9999-9999-999999999999"), new DateTime(2025, 6, 6, 14, 39, 25, 363, DateTimeKind.Local).AddTicks(5246), "123", "Admin" });
+                values: new object[] { new Guid("99999999-9999-9999-9999-999999999999"), new DateTime(2025, 6, 7, 0, 52, 1, 977, DateTimeKind.Local).AddTicks(7512), "admin123", "admin" });
 
             migrationBuilder.InsertData(
                 table: "NhanViens",
                 columns: new[] { "NhanVienId", "ChucVuId", "Email", "HoTen", "NgayCapNhatCuoiCung", "NgaySinh", "SoDienThoai", "TaikhoanId", "TrangThai" },
-                values: new object[] { new Guid("88888888-8888-8888-8888-888888888888"), new Guid("11111111-1111-1111-1111-111111111111"), "admin@shop.com", "Nguyễn Văn Quản Trị", new DateTime(2025, 6, 6, 14, 39, 25, 363, DateTimeKind.Local).AddTicks(5316), new DateTime(1995, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "0987654321", new Guid("99999999-9999-9999-9999-999999999999"), true });
+                values: new object[] { new Guid("88888888-8888-8888-8888-888888888888"), new Guid("11111111-1111-1111-1111-111111111111"), "admin@shop.com", "Nguyễn Văn Quản Trị", new DateTime(2025, 6, 7, 0, 52, 1, 977, DateTimeKind.Local).AddTicks(7606), new DateTime(1995, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "0987654321", new Guid("99999999-9999-9999-9999-999999999999"), true });
 
             migrationBuilder.CreateIndex(
                 name: "IX_diaChiKhachHangs_khachHangId",

@@ -1,4 +1,4 @@
-﻿using API.Models;
+﻿
 using Data.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -52,9 +52,10 @@ namespace API.IRepository.Repository
 
         public async Task<TaiKhoan> GetByIdChucVuAsync(string username, string password)
         {
-
-            return await _contextApp.TaiKhoans.FirstOrDefaultAsync(x => x.Username == username && x.Password == password);
-
+            return await _contextApp.TaiKhoans
+                .Include(tk => tk.NhanVien)
+                .ThenInclude(nv => nv.ChucVu)
+                                    .FirstOrDefaultAsync(x => x.Username == username && x.Password == password);
         }
 
 

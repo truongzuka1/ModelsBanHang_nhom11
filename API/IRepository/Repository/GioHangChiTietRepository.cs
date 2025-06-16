@@ -40,7 +40,7 @@ namespace API.IRepository.Repository
         public async Task<GioHangChiTiet> GetByGioHangVaGiayChiTietAsync(Guid gioHangId, Guid giayChiTietId)
         {
             return await _context.GioHangChiTiets
-                .FirstOrDefaultAsync(x => x.GioHangId == gioHangId && x.GiayChiTietId == giayChiTietId);
+                .FirstOrDefaultAsync(x => x.GioHangId == gioHangId && x.GiayId == giayChiTietId);
         }
 
         public async Task AddAsync(GioHangChiTiet entity)

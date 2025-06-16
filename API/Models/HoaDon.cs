@@ -34,7 +34,7 @@ namespace Data.Models
 
         public float TongTienSauKhiGiam { get; set; }
 
-        public bool TrangThai { get; set; }
+        public string TrangThai { get; set; }
 
         [MaxLength(200)]
         public string GhiChu { get; set; }

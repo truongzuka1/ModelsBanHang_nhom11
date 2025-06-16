@@ -1,0 +1,70 @@
+﻿@page "/Admin/AddVoucher"
+
+@inject IVoucherService service
+
+@inject ITaiKhoanService taiKhoanService
+@inject NavigationManager manager
+<h3>AddVoucher</h3>
+<EditForm Model="std" OnValidSubmit="SubmitFormCreate">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="mb-3">
+        <label for="TenVoucher" class="form-label">Họ tên:</label>
+        <InputText id="tenvoucher" class="form-control" @bind-Value="std.TenVoucher" />
+    </div>
+    <div class="mb-3">
+        <label for="ngaybatdau" class="form-label">Ngày bắt đầu:</label>
+        <InputDate id="ngaybatdau" class="form-control" @bind-Value="std.NgayBatDau" />
+    </div>
+    <div class="mb-3">
+        <label for="ngayketthuc" class="form-label">Ngày kết thúc:</label>
+        <InputDate id="ngayketthuc" class="form-control" @bind-Value="std.NgayKetThuc" />
+    </div>
+    <div class="mb-3">
+        <label for="phantramgiam" class="form-label">Phần trăm giảm:</label>
+        <InputNumber id="phantramgiam" class="form-control" @bind-Value="std.PhanTram" />
+    </div>
+
+    <div class="mb-3">
+        <label for="soluong" class="form-label">Số lượng:</label>
+        <InputNumber id="soluong" class="form-control" @bind-Value="std.SoLuong" />
+    </div>
+
+
+</EditForm>
+@code {
+    private Voucher std = new Voucher
+        {
+            TrangThai = true
+        };
+
+    private async Task SubmitFormCreate()
+    {
+        std.Validate();
+        await service.Add(std);
+
+        var danhSachTaiKhoan = await taiKhoanService.GetAllTaiKhoanAsync();
+
+        var loaiTruChucVuIds = new List<Guid>
+    {
+        Guid.Parse("11111111-1111-1111-1111-111111111111"), // Admin
+        Guid.Parse("22222222-2222-2222-2222-222222222222")  // Nhân viên
+    };
+
+        var taiKhoanCanApDung = danhSachTaiKhoan
+            .Where(tk => tk.NhanVien != null
+                         && tk.NhanVien.ChucVuId.HasValue
+                         && !loaiTruChucVuIds.Contains(tk.NhanVien.ChucVuId.Value))
+            .ToList();
+
+        foreach (var tk in taiKhoanCanApDung)
+        {
+          
+            Console.WriteLine($"Gán voucher cho tài khoản: {tk.Username}");   
+        }
+        manager.NavigateTo("/Admin/voucher");
+    }
+
+}
+
+

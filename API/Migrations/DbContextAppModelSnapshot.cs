@@ -22,7 +22,7 @@ namespace API.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("API.Models.Anh", b =>
+            modelBuilder.Entity("Data.Models.Anh", b =>
                 {
                     b.Property<Guid>("AnhId")
                         .ValueGeneratedOnAdd()
@@ -31,6 +31,9 @@ namespace API.Migrations
                     b.Property<string>("DuongDan")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("GiayChiTietId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("TenAnh")
                         .IsRequired()
@@ -41,64 +44,9 @@ namespace API.Migrations
 
                     b.HasKey("AnhId");
 
+                    b.HasIndex("GiayChiTietId");
+
                     b.ToTable("Anhs");
-                });
-
-            modelBuilder.Entity("API.Models.NhanVien", b =>
-                {
-                    b.Property<Guid>("NhanVienId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ChucVuId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("HoTen")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("NgayCapNhatCuoiCung")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("NgaySinh")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("SoDienThoai")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("TaikhoanId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("TrangThai")
-                        .HasColumnType("bit");
-
-                    b.HasKey("NhanVienId");
-
-                    b.HasIndex("ChucVuId");
-
-                    b.HasIndex("TaikhoanId");
-
-                    b.ToTable("NhanViens");
-
-                    b.HasData(
-                        new
-                        {
-                            NhanVienId = new Guid("88888888-8888-8888-8888-888888888888"),
-                            ChucVuId = new Guid("11111111-1111-1111-1111-111111111111"),
-                            Email = "admin@shop.com",
-                            HoTen = "Nguyễn Văn Quản Trị",
-                            NgayCapNhatCuoiCung = new DateTime(2025, 6, 6, 14, 39, 25, 363, DateTimeKind.Local).AddTicks(5316),
-                            NgaySinh = new DateTime(1995, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            SoDienThoai = "0987654321",
-                            TaikhoanId = new Guid("99999999-9999-9999-9999-999999999999"),
-                            TrangThai = true
-                        });
                 });
 
             modelBuilder.Entity("Data.Models.ChatLieu", b =>
@@ -280,9 +228,6 @@ namespace API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("AnhId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid?>("ChatLieuId")
                         .HasColumnType("uniqueidentifier");
 
@@ -326,8 +271,6 @@ namespace API.Migrations
                         .HasColumnType("bit");
 
                     b.HasKey("GiayChiTietId");
-
-                    b.HasIndex("AnhId");
 
                     b.HasIndex("ChatLieuId");
 
@@ -401,12 +344,9 @@ namespace API.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Gia")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18, 2)");
 
-                    b.Property<Guid>("GiayChiTietId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("GiaysGiayId")
+                    b.Property<Guid>("GiayId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("GioHangId")
@@ -426,7 +366,7 @@ namespace API.Migrations
 
                     b.HasKey("GioHangChiTietId");
 
-                    b.HasIndex("GiaysGiayId");
+                    b.HasIndex("GiayId");
 
                     b.HasIndex("GioHangId");
 
@@ -497,8 +437,9 @@ namespace API.Migrations
                     b.Property<float>("TongTienSauKhiGiam")
                         .HasColumnType("real");
 
-                    b.Property<bool>("TrangThai")
-                        .HasColumnType("bit");
+                    b.Property<string>("TrangThai")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("VoucherId")
                         .HasColumnType("uniqueidentifier");
@@ -525,10 +466,7 @@ namespace API.Migrations
                     b.Property<decimal>("Gia")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<Guid>("GiayChiTietId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("GiaysGiayId")
+                    b.Property<Guid>("GiayId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("HoaDonId")
@@ -537,9 +475,12 @@ namespace API.Migrations
                     b.Property<int>("SoLuongSanPham")
                         .HasColumnType("int");
 
+                    b.Property<bool>("TrangThai")
+                        .HasColumnType("bit");
+
                     b.HasKey("HoaDonChiTietId");
 
-                    b.HasIndex("GiaysGiayId");
+                    b.HasIndex("GiayId");
 
                     b.HasIndex("HoaDonId");
 
@@ -656,6 +597,70 @@ namespace API.Migrations
                     b.ToTable("MauSacs");
                 });
 
+            modelBuilder.Entity("Data.Models.NhanVien", b =>
+                {
+                    b.Property<Guid>("NhanVienId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ChucVuId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HoTen")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("NgayCapNhatCuoiCung")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("NgaySinh")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("SoDienThoai")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("TaikhoanId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("TaikhoanId1")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("TrangThai")
+                        .HasColumnType("bit");
+
+                    b.HasKey("NhanVienId");
+
+                    b.HasIndex("ChucVuId");
+
+                    b.HasIndex("TaikhoanId");
+
+                    b.HasIndex("TaikhoanId1")
+                        .IsUnique()
+                        .HasFilter("[TaikhoanId1] IS NOT NULL");
+
+                    b.ToTable("NhanViens");
+
+                    b.HasData(
+                        new
+                        {
+                            NhanVienId = new Guid("88888888-8888-8888-8888-888888888888"),
+                            ChucVuId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            Email = "admin@shop.com",
+                            HoTen = "Nguyễn Văn Quản Trị",
+                            NgayCapNhatCuoiCung = new DateTime(2025, 6, 11, 10, 9, 18, 267, DateTimeKind.Local).AddTicks(901),
+                            NgaySinh = new DateTime(1995, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            SoDienThoai = "0987654321",
+                            TaikhoanId = new Guid("99999999-9999-9999-9999-999999999999"),
+                            TrangThai = true
+                        });
+                });
+
             modelBuilder.Entity("Data.Models.TaiKhoan", b =>
                 {
                     b.Property<Guid>("TaikhoanId")
@@ -681,9 +686,9 @@ namespace API.Migrations
                         new
                         {
                             TaikhoanId = new Guid("99999999-9999-9999-9999-999999999999"),
-                            Ngaytaotaikhoan = new DateTime(2025, 6, 6, 14, 39, 25, 363, DateTimeKind.Local).AddTicks(5246),
-                            Password = "123",
-                            Username = "Admin"
+                            Ngaytaotaikhoan = new DateTime(2025, 6, 11, 10, 9, 18, 267, DateTimeKind.Local).AddTicks(831),
+                            Password = "admin123",
+                            Username = "admin"
                         });
                 });
 
@@ -785,21 +790,15 @@ namespace API.Migrations
                     b.ToTable("Vouchers");
                 });
 
-            modelBuilder.Entity("API.Models.NhanVien", b =>
+            modelBuilder.Entity("Data.Models.Anh", b =>
                 {
-                    b.HasOne("Data.Models.ChucVu", "ChucVu")
-                        .WithMany("nhanViens")
-                        .HasForeignKey("ChucVuId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                    b.HasOne("Data.Models.GiayChiTiet", "GiayChiTiet")
+                        .WithMany("Anhs")
+                        .HasForeignKey("GiayChiTietId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("Data.Models.TaiKhoan", "TaiKhoan")
-                        .WithMany()
-                        .HasForeignKey("TaikhoanId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("ChucVu");
-
-                    b.Navigation("TaiKhoan");
+                    b.Navigation("GiayChiTiet");
                 });
 
             modelBuilder.Entity("Data.Models.DiaChiKhachHang", b =>
@@ -815,12 +814,6 @@ namespace API.Migrations
 
             modelBuilder.Entity("Data.Models.GiayChiTiet", b =>
                 {
-                    b.HasOne("API.Models.Anh", "Anh")
-                        .WithMany("GiayChiTiets")
-                        .HasForeignKey("AnhId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Data.Models.ChatLieu", "ChatLieu")
                         .WithMany("GiayChiTiets")
                         .HasForeignKey("ChatLieuId");
@@ -854,8 +847,6 @@ namespace API.Migrations
                     b.HasOne("Data.Models.ThuongHieu", "ThuongHieu")
                         .WithMany("GiayChiTiets")
                         .HasForeignKey("ThuongHieuId");
-
-                    b.Navigation("Anh");
 
                     b.Navigation("ChatLieu");
 
@@ -904,7 +895,7 @@ namespace API.Migrations
                 {
                     b.HasOne("Data.Models.Giay", "Giays")
                         .WithMany("GioHangChiTiets")
-                        .HasForeignKey("GiaysGiayId")
+                        .HasForeignKey("GiayId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -956,7 +947,7 @@ namespace API.Migrations
                 {
                     b.HasOne("Data.Models.Giay", "Giays")
                         .WithMany("HoaDonChiTiets")
-                        .HasForeignKey("GiaysGiayId")
+                        .HasForeignKey("GiayId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -982,6 +973,27 @@ namespace API.Migrations
                     b.Navigation("TaiKhoan");
                 });
 
+            modelBuilder.Entity("Data.Models.NhanVien", b =>
+                {
+                    b.HasOne("Data.Models.ChucVu", "ChucVu")
+                        .WithMany("nhanViens")
+                        .HasForeignKey("ChucVuId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Data.Models.TaiKhoan", "TaiKhoan")
+                        .WithMany()
+                        .HasForeignKey("TaikhoanId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Data.Models.TaiKhoan", null)
+                        .WithOne("NhanVien")
+                        .HasForeignKey("Data.Models.NhanVien", "TaikhoanId1");
+
+                    b.Navigation("ChucVu");
+
+                    b.Navigation("TaiKhoan");
+                });
+
             modelBuilder.Entity("Data.Models.Voucher", b =>
                 {
                     b.HasOne("Data.Models.TaiKhoan", "TaiKhoan")
@@ -991,11 +1003,6 @@ namespace API.Migrations
                         .IsRequired();
 
                     b.Navigation("TaiKhoan");
-                });
-
-            modelBuilder.Entity("API.Models.Anh", b =>
-                {
-                    b.Navigation("GiayChiTiets");
                 });
 
             modelBuilder.Entity("Data.Models.ChatLieu", b =>
@@ -1027,6 +1034,11 @@ namespace API.Migrations
                     b.Navigation("GioHangChiTiets");
 
                     b.Navigation("HoaDonChiTiets");
+                });
+
+            modelBuilder.Entity("Data.Models.GiayChiTiet", b =>
+                {
+                    b.Navigation("Anhs");
                 });
 
             modelBuilder.Entity("Data.Models.GioHang", b =>
@@ -1070,6 +1082,8 @@ namespace API.Migrations
 
             modelBuilder.Entity("Data.Models.TaiKhoan", b =>
                 {
+                    b.Navigation("NhanVien");
+
                     b.Navigation("hoaDons");
                 });
 

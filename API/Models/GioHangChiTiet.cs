@@ -11,9 +11,9 @@ namespace Data.Models
 
         public Guid GioHangId { get; set; }
 
-        public Guid GiayChiTietId { get; set; }
+		public Guid GiayId { get; set; }
 
-        public int SoLuongSanPham { get; set; }
+		public int SoLuongSanPham { get; set; }
 
       
         public decimal Gia { get; set; }
