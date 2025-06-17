@@ -648,13 +648,14 @@ namespace API.Migrations
                             ChucVuId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Email = "admin@shop.com",
                             HoTen = "Nguyễn Văn Quản Trị",
-                            NgayCapNhatCuoiCung = new DateTime(2025, 6, 16, 13, 34, 42, 991, DateTimeKind.Local).AddTicks(2731),
+                            NgayCapNhatCuoiCung = new DateTime(2025, 6, 17, 13, 1, 40, 17, DateTimeKind.Local).AddTicks(3656),
                             NgaySinh = new DateTime(1995, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             SoDienThoai = "0987654321",
                             TaikhoanId = new Guid("99999999-9999-9999-9999-999999999999"),
                             TrangThai = true
                         });
                 });
+
             modelBuilder.Entity("Data.Models.TaiKhoan", b =>
                 {
                     b.Property<Guid>("TaikhoanId")
@@ -680,7 +681,7 @@ namespace API.Migrations
                         new
                         {
                             TaikhoanId = new Guid("99999999-9999-9999-9999-999999999999"),
-                            Ngaytaotaikhoan = new DateTime(2025, 6, 16, 13, 34, 42, 991, DateTimeKind.Local).AddTicks(2645),
+                            Ngaytaotaikhoan = new DateTime(2025, 6, 17, 13, 1, 40, 17, DateTimeKind.Local).AddTicks(3500),
                             Password = "admin123",
                             Username = "admin"
                         });
