@@ -4,6 +4,7 @@ using Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(DbContextApp))]
-    partial class DbContextAppModelSnapshot : ModelSnapshot
+    [Migration("20250616041808_huy1")]
+    partial class huy1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -628,6 +631,9 @@ namespace API.Migrations
                     b.Property<Guid?>("TaikhoanId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("TaikhoanId1")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<bool>("TrangThai")
                         .HasColumnType("bit");
 
@@ -635,9 +641,11 @@ namespace API.Migrations
 
                     b.HasIndex("ChucVuId");
 
-                    b.HasIndex("TaikhoanId")
+                    b.HasIndex("TaikhoanId");
+
+                    b.HasIndex("TaikhoanId1")
                         .IsUnique()
-                        .HasFilter("[TaikhoanId] IS NOT NULL");
+                        .HasFilter("[TaikhoanId1] IS NOT NULL");
 
                     b.ToTable("NhanViens");
 
@@ -648,11 +656,7 @@ namespace API.Migrations
                             ChucVuId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Email = "admin@shop.com",
                             HoTen = "Nguyễn Văn Quản Trị",
-<<<<<<< HEAD
                             NgayCapNhatCuoiCung = new DateTime(2025, 6, 16, 11, 18, 7, 682, DateTimeKind.Local).AddTicks(7185),
-=======
-                            NgayCapNhatCuoiCung = new DateTime(2025, 6, 17, 13, 1, 40, 17, DateTimeKind.Local).AddTicks(3656),
->>>>>>> 4168f10e50849ff8daf3c71b643e813282a1eef7
                             NgaySinh = new DateTime(1995, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             SoDienThoai = "0987654321",
                             TaikhoanId = new Guid("99999999-9999-9999-9999-999999999999"),
@@ -685,11 +689,7 @@ namespace API.Migrations
                         new
                         {
                             TaikhoanId = new Guid("99999999-9999-9999-9999-999999999999"),
-<<<<<<< HEAD
                             Ngaytaotaikhoan = new DateTime(2025, 6, 16, 11, 18, 7, 682, DateTimeKind.Local).AddTicks(7124),
-=======
-                            Ngaytaotaikhoan = new DateTime(2025, 6, 17, 13, 1, 40, 17, DateTimeKind.Local).AddTicks(3500),
->>>>>>> 4168f10e50849ff8daf3c71b643e813282a1eef7
                             Password = "admin123",
                             Username = "admin"
                         });
@@ -983,8 +983,13 @@ namespace API.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Data.Models.TaiKhoan", "TaiKhoan")
+                        .WithMany()
+                        .HasForeignKey("TaikhoanId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Data.Models.TaiKhoan", null)
                         .WithOne("NhanVien")
-                        .HasForeignKey("Data.Models.NhanVien", "TaikhoanId");
+                        .HasForeignKey("Data.Models.NhanVien", "TaikhoanId1");
 
                     b.Navigation("ChucVu");
 

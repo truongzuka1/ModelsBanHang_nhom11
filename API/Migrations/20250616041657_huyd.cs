@@ -8,25 +8,15 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace API.Migrations
 {
     /// <inheritdoc />
-    public partial class minh : Migration
+<<<<<<<< HEAD:API/Migrations/20250616041657_huyd.cs
+    public partial class huyd : Migration
+========
+    public partial class Nhom11 : Migration
+>>>>>>>> 4168f10e50849ff8daf3c71b643e813282a1eef7:API/Migrations/20250617060141_Nhom11.cs
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "Anhs",
-                columns: table => new
-                {
-                    AnhId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    DuongDan = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TenAnh = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TrangThai = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Anhs", x => x.AnhId);
-                });
-
             migrationBuilder.CreateTable(
                 name: "ChatLieus",
                 columns: table => new
@@ -260,7 +250,8 @@ namespace API.Migrations
                     TrangThai = table.Column<bool>(type: "bit", nullable: false),
                     ChucVuId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     TaikhoanId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    NgayCapNhatCuoiCung = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    NgayCapNhatCuoiCung = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    TaikhoanId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -275,8 +266,16 @@ namespace API.Migrations
                         name: "FK_NhanViens_TaiKhoans_TaikhoanId",
                         column: x => x.TaikhoanId,
                         principalTable: "TaiKhoans",
+<<<<<<<< HEAD:API/Migrations/20250616041657_huyd.cs
                         principalColumn: "TaikhoanId",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_NhanViens_TaiKhoans_TaikhoanId1",
+                        column: x => x.TaikhoanId1,
+                        principalTable: "TaiKhoans",
+========
+>>>>>>>> 4168f10e50849ff8daf3c71b643e813282a1eef7:API/Migrations/20250617060141_Nhom11.cs
+                        principalColumn: "TaikhoanId");
                 });
 
             migrationBuilder.CreateTable(
@@ -290,7 +289,7 @@ namespace API.Migrations
                     PhanTram = table.Column<float>(type: "real", nullable: false),
                     TrangThai = table.Column<bool>(type: "bit", nullable: false),
                     SoLuong = table.Column<int>(type: "int", nullable: false),
-                    MaTaiKhoan = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IdTaiKhoan = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     TaikhoanId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
@@ -317,7 +316,6 @@ namespace API.Migrations
                     KieuDangId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     DeGiayId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     TheLoaiGiayId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    AnhId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SoLuongCon = table.Column<int>(type: "int", nullable: false),
                     AnhGiay = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     NgayTao = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -329,12 +327,6 @@ namespace API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_GiayChiTiets", x => x.GiayChiTietId);
-                    table.ForeignKey(
-                        name: "FK_GiayChiTiets_Anhs_AnhId",
-                        column: x => x.AnhId,
-                        principalTable: "Anhs",
-                        principalColumn: "AnhId",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_GiayChiTiets_ChatLieus_ChatLieuId",
                         column: x => x.ChatLieuId,
@@ -468,25 +460,45 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Anhs",
+                columns: table => new
+                {
+                    AnhId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    GiayChiTietId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DuongDan = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TenAnh = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TrangThai = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Anhs", x => x.AnhId);
+                    table.ForeignKey(
+                        name: "FK_Anhs_GiayChiTiets_GiayChiTietId",
+                        column: x => x.GiayChiTietId,
+                        principalTable: "GiayChiTiets",
+                        principalColumn: "GiayChiTietId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "GioHangChiTiets",
                 columns: table => new
                 {
                     GioHangChiTietId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     GioHangId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    GiayChiTietId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    GiayId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SoLuongSanPham = table.Column<int>(type: "int", nullable: false),
                     Gia = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     NgayTao = table.Column<DateTime>(type: "datetime2", nullable: false),
                     NgayCapNhat = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TrangThai = table.Column<bool>(type: "bit", nullable: false),
-                    GiaysGiayId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    TrangThai = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_GioHangChiTiets", x => x.GioHangChiTietId);
                     table.ForeignKey(
-                        name: "FK_GioHangChiTiets_Giays_GiaysGiayId",
-                        column: x => x.GiaysGiayId,
+                        name: "FK_GioHangChiTiets_Giays_GiayId",
+                        column: x => x.GiayId,
                         principalTable: "Giays",
                         principalColumn: "GiayId",
                         onDelete: ReferentialAction.Cascade);
@@ -503,19 +515,18 @@ namespace API.Migrations
                 columns: table => new
                 {
                     HoaDonChiTietId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    GiayChiTietId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    GiayId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     HoaDonId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SoLuongSanPham = table.Column<int>(type: "int", nullable: false),
                     Gia = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    TrangThai = table.Column<bool>(type: "bit", nullable: false),
-                    GiaysGiayId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    TrangThai = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_HoaDonChiTiets", x => x.HoaDonChiTietId);
                     table.ForeignKey(
-                        name: "FK_HoaDonChiTiets_Giays_GiaysGiayId",
-                        column: x => x.GiaysGiayId,
+                        name: "FK_HoaDonChiTiets_Giays_GiayId",
+                        column: x => x.GiayId,
                         principalTable: "Giays",
                         principalColumn: "GiayId",
                         onDelete: ReferentialAction.Cascade);
@@ -539,22 +550,31 @@ namespace API.Migrations
             migrationBuilder.InsertData(
                 table: "TaiKhoans",
                 columns: new[] { "TaikhoanId", "Ngaytaotaikhoan", "Password", "Username" },
-                values: new object[] { new Guid("99999999-9999-9999-9999-999999999999"), new DateTime(2025, 6, 7, 0, 52, 1, 977, DateTimeKind.Local).AddTicks(7512), "admin123", "admin" });
+<<<<<<<< HEAD:API/Migrations/20250616041657_huyd.cs
+                values: new object[] { new Guid("99999999-9999-9999-9999-999999999999"), new DateTime(2025, 6, 16, 11, 16, 57, 101, DateTimeKind.Local).AddTicks(3352), "admin123", "admin" });
+
+            migrationBuilder.InsertData(
+                table: "NhanViens",
+                columns: new[] { "NhanVienId", "ChucVuId", "Email", "HoTen", "NgayCapNhatCuoiCung", "NgaySinh", "SoDienThoai", "TaikhoanId", "TaikhoanId1", "TrangThai" },
+                values: new object[] { new Guid("88888888-8888-8888-8888-888888888888"), new Guid("11111111-1111-1111-1111-111111111111"), "admin@shop.com", "Nguyễn Văn Quản Trị", new DateTime(2025, 6, 16, 11, 16, 57, 101, DateTimeKind.Local).AddTicks(3420), new DateTime(1995, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "0987654321", new Guid("99999999-9999-9999-9999-999999999999"), null, true });
+========
+                values: new object[] { new Guid("99999999-9999-9999-9999-999999999999"), new DateTime(2025, 6, 17, 13, 1, 40, 17, DateTimeKind.Local).AddTicks(3500), "admin123", "admin" });
 
             migrationBuilder.InsertData(
                 table: "NhanViens",
                 columns: new[] { "NhanVienId", "ChucVuId", "Email", "HoTen", "NgayCapNhatCuoiCung", "NgaySinh", "SoDienThoai", "TaikhoanId", "TrangThai" },
-                values: new object[] { new Guid("88888888-8888-8888-8888-888888888888"), new Guid("11111111-1111-1111-1111-111111111111"), "admin@shop.com", "Nguyễn Văn Quản Trị", new DateTime(2025, 6, 7, 0, 52, 1, 977, DateTimeKind.Local).AddTicks(7606), new DateTime(1995, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "0987654321", new Guid("99999999-9999-9999-9999-999999999999"), true });
+                values: new object[] { new Guid("88888888-8888-8888-8888-888888888888"), new Guid("11111111-1111-1111-1111-111111111111"), "admin@shop.com", "Nguyễn Văn Quản Trị", new DateTime(2025, 6, 17, 13, 1, 40, 17, DateTimeKind.Local).AddTicks(3656), new DateTime(1995, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "0987654321", new Guid("99999999-9999-9999-9999-999999999999"), true });
+>>>>>>>> 4168f10e50849ff8daf3c71b643e813282a1eef7:API/Migrations/20250617060141_Nhom11.cs
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Anhs_GiayChiTietId",
+                table: "Anhs",
+                column: "GiayChiTietId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_diaChiKhachHangs_khachHangId",
                 table: "diaChiKhachHangs",
                 column: "khachHangId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_GiayChiTiets_AnhId",
-                table: "GiayChiTiets",
-                column: "AnhId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_GiayChiTiets_ChatLieuId",
@@ -607,9 +627,9 @@ namespace API.Migrations
                 column: "GiayId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_GioHangChiTiets_GiaysGiayId",
+                name: "IX_GioHangChiTiets_GiayId",
                 table: "GioHangChiTiets",
-                column: "GiaysGiayId");
+                column: "GiayId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_GioHangChiTiets_GioHangId",
@@ -622,9 +642,9 @@ namespace API.Migrations
                 column: "KhachHangId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_HoaDonChiTiets_GiaysGiayId",
+                name: "IX_HoaDonChiTiets_GiayId",
                 table: "HoaDonChiTiets",
-                column: "GiaysGiayId");
+                column: "GiayId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_HoaDonChiTiets_HoaDonId",
@@ -664,7 +684,16 @@ namespace API.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_NhanViens_TaikhoanId",
                 table: "NhanViens",
-                column: "TaikhoanId");
+                column: "TaikhoanId",
+                unique: true,
+                filter: "[TaikhoanId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_NhanViens_TaikhoanId1",
+                table: "NhanViens",
+                column: "TaikhoanId1",
+                unique: true,
+                filter: "[TaikhoanId1] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Vouchers_TaikhoanId",
@@ -676,10 +705,10 @@ namespace API.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "diaChiKhachHangs");
+                name: "Anhs");
 
             migrationBuilder.DropTable(
-                name: "GiayChiTiets");
+                name: "diaChiKhachHangs");
 
             migrationBuilder.DropTable(
                 name: "GiayDotGiamGias");
@@ -694,13 +723,28 @@ namespace API.Migrations
                 name: "NhanViens");
 
             migrationBuilder.DropTable(
-                name: "Anhs");
+                name: "GiayChiTiets");
+
+            migrationBuilder.DropTable(
+                name: "GiamGias");
+
+            migrationBuilder.DropTable(
+                name: "GioHangs");
+
+            migrationBuilder.DropTable(
+                name: "HoaDons");
+
+            migrationBuilder.DropTable(
+                name: "ChucVus");
 
             migrationBuilder.DropTable(
                 name: "ChatLieus");
 
             migrationBuilder.DropTable(
                 name: "DeGiays");
+
+            migrationBuilder.DropTable(
+                name: "Giays");
 
             migrationBuilder.DropTable(
                 name: "KichCos");
@@ -716,21 +760,6 @@ namespace API.Migrations
 
             migrationBuilder.DropTable(
                 name: "ThuongHieus");
-
-            migrationBuilder.DropTable(
-                name: "GiamGias");
-
-            migrationBuilder.DropTable(
-                name: "GioHangs");
-
-            migrationBuilder.DropTable(
-                name: "Giays");
-
-            migrationBuilder.DropTable(
-                name: "HoaDons");
-
-            migrationBuilder.DropTable(
-                name: "ChucVus");
 
             migrationBuilder.DropTable(
                 name: "KhachHangs");

@@ -1,47 +1,70 @@
 ﻿<div class="sidebar">
     <div class="logo">
+
     </div>
 
     <ul>
-        <NavLink class="nav-link" href="/thongke" >
-            <li class="active" >
-                <span class="menu-label">📊 Thống kê</span> 
-            </li>
-        </NavLink>
-        
-        <NavLink class="nav-link" href="/BanHang">
-            <li >
+        <li>
+            <NavLink class="nav-link" href="/thongke">
+                <span class="menu-label">📊 Thống kê</span>
+            </NavLink>
+        </li>
+
+        <li>
+            <NavLink class="nav-link" href="/BanHang">
                 <span class="menu-label">🛒 Bán hàng tại quầy</span>
-            </li>
-        </NavLink>
-        <NavLink class="nav-link" href="/QuanLyDonHang">
-            <li>
+            </NavLink>
+        </li>
+
+        <li>
+            <NavLink class="nav-link" href="/QuanLyDonHang">
                 <span class="menu-label">📦 Quản lý đơn hàng</span>
-            </li>
-        </NavLink>
-        <NavLink class="nav-link" href="/Admin/QuanLySanPham">
-            <li>
-                <span class="menu-label">👟 Quản lý sản phẩm</span>
-                <span class="arrow">&#9660;</span>
-            </li>
-        </NavLink>
-        <NavLink class="nav-link" href="/TraHang">
-            <li>
+            </NavLink>
+        </li>
+
+        <!-- Quản lý sản phẩm -->
+        <li onclick="toggleSubMenu('submenu-sanpham')">
+            <span class="menu-label">👟 Quản lý sản phẩm</span>
+            <span class="arrow">&#9660;</span>
+        </li>
+        <ul id="submenu-sanpham" class="submenu">
+            <li><NavLink class="nav-link" href="/Admin/QuanLySanPham">📦 Sản phẩm</NavLink></li>
+            <li><NavLink class="nav-link" href="/DeGiay">🧱 Đế giày</NavLink></li>
+            <li><NavLink class="nav-link" href="/Admin/LoaiGiay">👞 Loại giày</NavLink></li>
+            <li><NavLink class="nav-link" href="/Admin/ChatLieu">🧵 Chất liệu</NavLink></li>
+            <li><NavLink class="nav-link" href="/Admin/ThuongHieu">🏷️ Thương hiệu</NavLink></li>
+        </ul>
+
+        <li>
+            <NavLink class="nav-link" href="/TraHang">
                 <span class="menu-label">↩️ Trả hàng</span>
-            </li>
-        </NavLink>
-        <NavLink class="nav-link" href="/Admin/GiamGia">
-            <li>
-                <span class="menu-label">🏷️ Giảm giá</span>
-                <span class="arrow">&#9660;</span>
-            </li>
-        </NavLink>
-        <NavLink class="nav-link" href="#">
-            <li>
-                <span class="menu-label">👤 Tài khoản</span>
-                <span class="arrow">&#9660;</span>
-            </li>
-        </NavLink>
-        
+            </NavLink>
+        </li>
+
+        <!-- Giảm giá -->
+        <li onclick="toggleSubMenu('submenu-giamgia')">
+            <span class="menu-label">🏷️ Giảm giá</span>
+            <span class="arrow">&#9660;</span>
+        </li>
+        <ul id="submenu-giamgia" class="submenu">
+            <li><NavLink class="nav-link" href="/Admin/PhieuGiamGia">🎟️ Voucher</NavLink></li>
+            <li><NavLink class="nav-link" href="/Admin/DotGiamGia">📅 Đợt giảm giá</NavLink></li>
+        </ul>
+
+        <!-- Tài khoản -->
+        <li onclick="toggleSubMenu('submenu-taikhoan')">
+            <span class="menu-label">👤 Tài khoản</span>
+            <span class="arrow">&#9660;</span>
+        </li>
+        <ul id="submenu-taikhoan" class="submenu">
+            <li><NavLink class="nav-link" href="/Admin/QuanLyNhanVien">👨‍💼 Nhân viên</NavLink></li>
+            <li><NavLink class="nav-link" href="/Admin/KhachHang">🧍‍♂️ Khách hàng</NavLink></li>
+        </ul>
     </ul>
 </div>
+
+
+
+<script src="Js/Nav.js">
+
+</script>

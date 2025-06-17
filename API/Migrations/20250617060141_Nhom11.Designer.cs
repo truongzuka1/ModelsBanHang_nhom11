@@ -12,8 +12,13 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(DbContextApp))]
-    [Migration("20250611030919_hi")]
-    partial class hi
+<<<<<<<< HEAD:API/Migrations/20250616041657_huyd.Designer.cs
+    [Migration("20250616041657_huyd")]
+    partial class huyd
+========
+    [Migration("20250617060141_Nhom11")]
+    partial class Nhom11
+>>>>>>>> 4168f10e50849ff8daf3c71b643e813282a1eef7:API/Migrations/20250617060141_Nhom11.Designer.cs
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -631,9 +636,6 @@ namespace API.Migrations
                     b.Property<Guid?>("TaikhoanId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("TaikhoanId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<bool>("TrangThai")
                         .HasColumnType("bit");
 
@@ -641,11 +643,9 @@ namespace API.Migrations
 
                     b.HasIndex("ChucVuId");
 
-                    b.HasIndex("TaikhoanId");
-
-                    b.HasIndex("TaikhoanId1")
+                    b.HasIndex("TaikhoanId")
                         .IsUnique()
-                        .HasFilter("[TaikhoanId1] IS NOT NULL");
+                        .HasFilter("[TaikhoanId] IS NOT NULL");
 
                     b.ToTable("NhanViens");
 
@@ -656,7 +656,11 @@ namespace API.Migrations
                             ChucVuId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Email = "admin@shop.com",
                             HoTen = "Nguyễn Văn Quản Trị",
-                            NgayCapNhatCuoiCung = new DateTime(2025, 6, 11, 10, 9, 18, 267, DateTimeKind.Local).AddTicks(901),
+<<<<<<<< HEAD:API/Migrations/20250616041657_huyd.Designer.cs
+                            NgayCapNhatCuoiCung = new DateTime(2025, 6, 16, 11, 16, 57, 101, DateTimeKind.Local).AddTicks(3420),
+========
+                            NgayCapNhatCuoiCung = new DateTime(2025, 6, 17, 13, 1, 40, 17, DateTimeKind.Local).AddTicks(3656),
+>>>>>>>> 4168f10e50849ff8daf3c71b643e813282a1eef7:API/Migrations/20250617060141_Nhom11.Designer.cs
                             NgaySinh = new DateTime(1995, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             SoDienThoai = "0987654321",
                             TaikhoanId = new Guid("99999999-9999-9999-9999-999999999999"),
@@ -689,7 +693,11 @@ namespace API.Migrations
                         new
                         {
                             TaikhoanId = new Guid("99999999-9999-9999-9999-999999999999"),
-                            Ngaytaotaikhoan = new DateTime(2025, 6, 11, 10, 9, 18, 267, DateTimeKind.Local).AddTicks(831),
+<<<<<<<< HEAD:API/Migrations/20250616041657_huyd.Designer.cs
+                            Ngaytaotaikhoan = new DateTime(2025, 6, 16, 11, 16, 57, 101, DateTimeKind.Local).AddTicks(3352),
+========
+                            Ngaytaotaikhoan = new DateTime(2025, 6, 17, 13, 1, 40, 17, DateTimeKind.Local).AddTicks(3500),
+>>>>>>>> 4168f10e50849ff8daf3c71b643e813282a1eef7:API/Migrations/20250617060141_Nhom11.Designer.cs
                             Password = "admin123",
                             Username = "admin"
                         });
@@ -759,9 +767,8 @@ namespace API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("MaTaiKhoan")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid?>("IdTaiKhoan")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("NgayBatDau")
                         .HasColumnType("datetime2");
@@ -984,13 +991,8 @@ namespace API.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Data.Models.TaiKhoan", "TaiKhoan")
-                        .WithMany()
-                        .HasForeignKey("TaikhoanId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Data.Models.TaiKhoan", null)
                         .WithOne("NhanVien")
-                        .HasForeignKey("Data.Models.NhanVien", "TaikhoanId1");
+                        .HasForeignKey("Data.Models.NhanVien", "TaikhoanId");
 
                     b.Navigation("ChucVu");
 
