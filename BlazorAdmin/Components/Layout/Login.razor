@@ -1,8 +1,9 @@
 ﻿@page "/"
 @using System.ComponentModel.DataAnnotations
-@inject ITaiKhoanService taiKhoanService 
+@inject ITaiKhoanService taiKhoanService
 @inject NavigationManager Navigation
-@using API.Models.DTO 
+@using API.Models.DTO
+@using BlazorAdmin.Service.IService
 <link href="css/Login.css" rel="stylesheet" />
 <PageTitle>Login</PageTitle>
 <div class="signup-container">
@@ -29,7 +30,26 @@
             <ValidationMessage For="() => Input.UserName"
                                class="text-danger" />
         </div>
-        <div class="form-floating mb-3">
+
+
+        <!-- Password với icon con mắt -->
+        <div class="form-floating mb-3 password-wrapper">
+            <InputText type="password"
+                       @bind-Value="Input.Password"
+                       id="Input.Password"
+                       class="login-text"
+                       autocomplete="current-password"
+                       aria-required="true"
+                       placeholder="Password" />
+            <span class="toggle-password" @onclick="() => TogglePasswordVisibility()">
+                @(IsPasswordVisible ? "🙈" : "👁️")
+            </span>
+            <ValidationMessage For="() => Input.Password"
+                               class="text-danger" />
+        </div>
+
+
+       @*  <div class="form-floating mb-3">
             <InputText type="password"
                        @bind-Value="Input.Password"
                        id="Input.Password"
@@ -39,7 +59,7 @@
                        placeholder="Password" />
             <ValidationMessage For="() => Input.Password"
                                class="text-danger" />
-        </div>
+        </div> *@
         <label class="checkbox-container">
             <InputCheckbox id="rememberMe" @bind-Value="Input.RememberMe" />
             <span>Remember me</span>
@@ -62,6 +82,19 @@
     private InputModel Input { get; set; } = new();
 
     private string ErrorMessage = string.Empty;
+
+
+    private bool IsPasswordVisible = false;
+
+    private string PasswordInputType => IsPasswordVisible ? "text" : "password";
+
+    private void TogglePasswordVisibility()
+    {
+        IsPasswordVisible = !IsPasswordVisible;
+        
+    }
+
+
 
     public async Task LoginUserAsync()
     {
@@ -103,3 +136,11 @@
 		public bool RememberMe { get; set; } = false;
     }
 }
+@* <script>
+    function togglePassword() {
+        const input = document.getElementById('passwordInput');
+        if (input) {
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+    }
+</script> *@
