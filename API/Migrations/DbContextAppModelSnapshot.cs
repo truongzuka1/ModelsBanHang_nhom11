@@ -628,9 +628,6 @@ namespace API.Migrations
                     b.Property<Guid?>("TaikhoanId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("TaikhoanId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<bool>("TrangThai")
                         .HasColumnType("bit");
 
@@ -638,11 +635,9 @@ namespace API.Migrations
 
                     b.HasIndex("ChucVuId");
 
-                    b.HasIndex("TaikhoanId");
-
-                    b.HasIndex("TaikhoanId1")
+                    b.HasIndex("TaikhoanId")
                         .IsUnique()
-                        .HasFilter("[TaikhoanId1] IS NOT NULL");
+                        .HasFilter("[TaikhoanId] IS NOT NULL");
 
                     b.ToTable("NhanViens");
 
@@ -653,14 +648,13 @@ namespace API.Migrations
                             ChucVuId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Email = "admin@shop.com",
                             HoTen = "Nguyễn Văn Quản Trị",
-                            NgayCapNhatCuoiCung = new DateTime(2025, 6, 11, 10, 9, 18, 267, DateTimeKind.Local).AddTicks(901),
+                            NgayCapNhatCuoiCung = new DateTime(2025, 6, 16, 11, 48, 33, 262, DateTimeKind.Local).AddTicks(1949),
                             NgaySinh = new DateTime(1995, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             SoDienThoai = "0987654321",
                             TaikhoanId = new Guid("99999999-9999-9999-9999-999999999999"),
                             TrangThai = true
                         });
                 });
-
             modelBuilder.Entity("Data.Models.TaiKhoan", b =>
                 {
                     b.Property<Guid>("TaikhoanId")
@@ -686,7 +680,7 @@ namespace API.Migrations
                         new
                         {
                             TaikhoanId = new Guid("99999999-9999-9999-9999-999999999999"),
-                            Ngaytaotaikhoan = new DateTime(2025, 6, 11, 10, 9, 18, 267, DateTimeKind.Local).AddTicks(831),
+                            Ngaytaotaikhoan = new DateTime(2025, 6, 16, 11, 48, 33, 262, DateTimeKind.Local).AddTicks(1885),
                             Password = "admin123",
                             Username = "admin"
                         });
@@ -756,9 +750,8 @@ namespace API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("MaTaiKhoan")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid?>("IdTaiKhoan")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("NgayBatDau")
                         .HasColumnType("datetime2");
@@ -981,13 +974,8 @@ namespace API.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Data.Models.TaiKhoan", "TaiKhoan")
-                        .WithMany()
-                        .HasForeignKey("TaikhoanId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Data.Models.TaiKhoan", null)
                         .WithOne("NhanVien")
-                        .HasForeignKey("Data.Models.NhanVien", "TaikhoanId1");
+                        .HasForeignKey("Data.Models.NhanVien", "TaikhoanId");
 
                     b.Navigation("ChucVu");
 
