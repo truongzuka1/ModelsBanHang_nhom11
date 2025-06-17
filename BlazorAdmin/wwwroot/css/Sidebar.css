@@ -158,3 +158,33 @@
     color :black ;
     text-decoration : none;
 }
+.sidebar ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.sidebar li {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.submenu {
+    display: none;
+    padding-left: 20px;
+}
+
+    .submenu li {
+        padding: 6px 10px;
+        margin-left: 10px;
+        font-size: 0.95rem;
+    }
+
+.nav-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.arrow {
+    float: right;
+}
