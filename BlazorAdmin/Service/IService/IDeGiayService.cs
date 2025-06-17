@@ -1,13 +1,11 @@
-﻿using Data.Models;
+﻿using API.Models.DTO;
 
-namespace BlazorAdmin.Service.IService
+public interface IDeGiayService
 {
-    public interface IDeGiayService
-    {
-        Task<IEnumerable<DeGiay>> GetAllAsync();
-        Task<DeGiay> GetByIdAsync(Guid id);
-        Task CreateAsync(DeGiay deGiay);
-        Task UpdateAsync(DeGiay deGiay);
-        Task DeleteAsync(Guid id);
-    }
+    Task<List<DeGiayDTO>> GetAllAsync();
+    Task<DeGiayDTO> GetByIdAsync(Guid id);
+    Task<bool> CreateAsync(DeGiayDTO obj);
+    Task<bool> UpdateAsync(DeGiayDTO obj);
+    Task<bool> DeleteAsync(Guid id);
 }
+

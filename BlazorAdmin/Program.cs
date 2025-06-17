@@ -6,9 +6,9 @@ using BlazorAdmin.Service;
 using BlazorAdmin.Service.IService;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Http; 
 using Microsoft.AspNetCore.Identity; 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http; 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,6 +42,9 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
 });
+builder.Services.AddAuthorizationCore();
+
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -57,6 +60,11 @@ builder.Services.AddHttpClient<IKhachHangService, KhachHangService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:5001/");
 });
+builder.Services.AddHttpClient<IDeGiayService, DeGiayService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:5001/"); // ✅ URL của API
+});
+
 
 builder.Services.AddScoped<INhanVienService, NhanVienService>();
 builder.Services.AddScoped<IAnhService, AnhService>();

@@ -4,31 +4,17 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <base href="/" />
-
+    <base href="/" /><!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <HeadOutlet @rendermode="InteractiveServer" />
 </head>
 
 <body>
-    <CascadingAuthenticationState>
-        <Router AppAssembly="@typeof(Program).Assembly">
-            <Found Context="routeData">
-                <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
-                    <NotAuthorized>
-                        <p>Bạn chưa đăng nhập hoặc không đủ quyền.</p>
-                    </NotAuthorized>
-                    <Authorizing>
-                        <p>Đang kiểm tra quyền truy cập...</p>
-                    </Authorizing>
-                </AuthorizeRouteView>
-            </Found>
-            <NotFound>
-                <LayoutView Layout="@typeof(MainLayout)">
-                    <h1>404 - Không tìm thấy trang</h1>
-                </LayoutView>
-            </NotFound>
-        </Router>
-    </CascadingAuthenticationState>
+    <Routes>
+
+    </Routes>
 </body>
 
 </html>

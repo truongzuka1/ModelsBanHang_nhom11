@@ -24,6 +24,7 @@
     <ProjectReference Include="..\API\API.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Components\Pages\Admin\SanPham\" />
     <Folder Include="wwwroot\img\" />
   </ItemGroup>
 

@@ -5,18 +5,20 @@
 @using API.Models.DTO
 @using BlazorAdmin.Service.IService
 <link href="css/Login.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
 <PageTitle>Login</PageTitle>
 <div class="signup-container">
     <EditForm Model="Input" OnValidSubmit="LoginUserAsync"
-              FormName="login" Context="editform_context">
+              FormName="login" >
         <DataAnnotationsValidator />
-        <h2 style="text-align=center;">Login</h2>
+        <h2 style="text-align:center;">Login</h2>
 
 
         @if (!string.IsNullOrEmpty(ErrorMessage))
         {
             <div class="alert alert-danger mt-3" role="alert">
-                @ErrorMessage
+                @ErrorMessage   
             </div>
         }
 
@@ -34,32 +36,21 @@
 
         <!-- Password với icon con mắt -->
         <div class="form-floating mb-3 password-wrapper">
+        <div class="form-floating mb-3 position-relative">
             <InputText type="password"
                        @bind-Value="Input.Password"
                        id="Input.Password"
-                       class="login-text"
+                       class="form-control login-text"
                        autocomplete="current-password"
-                       aria-required="true"
                        placeholder="Password" />
-            <span class="toggle-password" @onclick="() => TogglePasswordVisibility()">
-                @(IsPasswordVisible ? "🙈" : "👁️")
-            </span>
-            <ValidationMessage For="() => Input.Password"
-                               class="text-danger" />
+
+            <ValidationMessage For="() => Input.Password" class="text-danger" />
+            
+            
         </div>
 
+        <ValidationMessage For="() => Input.Password" class="text-danger" />
 
-       @*  <div class="form-floating mb-3">
-            <InputText type="password"
-                       @bind-Value="Input.Password"
-                       id="Input.Password"
-                       class="login-text"
-                       autocomplete="current-password"
-                       aria-required="true"
-                       placeholder="Password" />
-            <ValidationMessage For="() => Input.Password"
-                               class="text-danger" />
-        </div> *@
         <label class="checkbox-container">
             <InputCheckbox id="rememberMe" @bind-Value="Input.RememberMe" />
             <span>Remember me</span>
@@ -76,12 +67,18 @@
 
 
 @code {
+    private ThongBao thongBao = new();
+
     private LoginResponseDto formResult = new();
 
     [SupplyParameterFromForm]
     private InputModel Input { get; set; } = new();
 
     private string ErrorMessage = string.Empty;
+    [Inject]
+    private AuthenticationStateProvider AuthProvider { get; set; }
+
+
 
 
     private bool IsPasswordVisible = false;
@@ -107,15 +104,18 @@
 
             if (loginResponseDto.IsSuccess)
             {
-                
-                Navigation.NavigateTo(loginResponseDto.Role == "Admin" ? "/admin" :
-                                    loginResponseDto.Role == "NhanVien" ? "/nhanvien" : "/");
+                if (AuthProvider is CustomAuthenticationStateProvider customProvider)
+                {
+                    customProvider.MarkUserAsAuthenticated(Input.UserName, loginResponseDto.Role);
+                }
+
+                Navigation.NavigateTo(loginResponseDto.Role == "Admin" ? "/thongke" :
+                                      loginResponseDto.Role == "NhanVien" ? "/banhang" : "/");
+                thongBao.Thoigian = DateTime.Now;
+                thongBao.Mota = "Đăng nhập thành công";
+                thongBao.trangthai = true;
             }
-            else
-            {
-                ErrorMessage = loginResponseDto.Message;
-                Console.WriteLine($"Đăng nhập thất bại: {ErrorMessage}");
-            }
+
         }
         catch (Exception ex)
         {
@@ -123,24 +123,5 @@
         }
     }
 
-    private sealed class InputModel
-    {
-        [Required(ErrorMessage = "Chưa nhập tên đăng nhập")]
-        [Display(Name = "UserName")]
-        public string UserName { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Chưa nhập mật khẩu")]
-        [DataType(DataType.Password)]
-        [Display(Name = "Password")]
-        public string Password { get; set; } = string.Empty;
-		public bool RememberMe { get; set; } = false;
-    }
 }
-@* <script>
-    function togglePassword() {
-        const input = document.getElementById('passwordInput');
-        if (input) {
-            input.type = input.type === 'password' ? 'text' : 'password';
-        }
-    }
-</script> *@
