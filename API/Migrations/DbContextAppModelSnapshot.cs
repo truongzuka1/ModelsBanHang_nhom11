@@ -628,9 +628,6 @@ namespace API.Migrations
                     b.Property<Guid?>("TaikhoanId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("TaikhoanId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<bool>("TrangThai")
                         .HasColumnType("bit");
 
@@ -638,11 +635,9 @@ namespace API.Migrations
 
                     b.HasIndex("ChucVuId");
 
-                    b.HasIndex("TaikhoanId");
-
-                    b.HasIndex("TaikhoanId1")
+                    b.HasIndex("TaikhoanId")
                         .IsUnique()
-                        .HasFilter("[TaikhoanId1] IS NOT NULL");
+                        .HasFilter("[TaikhoanId] IS NOT NULL");
 
                     b.ToTable("NhanViens");
 
@@ -660,7 +655,6 @@ namespace API.Migrations
                             TrangThai = true
                         });
                 });
-
             modelBuilder.Entity("Data.Models.TaiKhoan", b =>
                 {
                     b.Property<Guid>("TaikhoanId")
@@ -980,13 +974,8 @@ namespace API.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Data.Models.TaiKhoan", "TaiKhoan")
-                        .WithMany()
-                        .HasForeignKey("TaikhoanId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Data.Models.TaiKhoan", null)
                         .WithOne("NhanVien")
-                        .HasForeignKey("Data.Models.NhanVien", "TaikhoanId1");
+                        .HasForeignKey("Data.Models.NhanVien", "TaikhoanId");
 
                     b.Navigation("ChucVu");
 

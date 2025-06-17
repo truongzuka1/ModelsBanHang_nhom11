@@ -1,4 +1,4 @@
-@page "/admin/AddNhanVien"
+@page "/Addnhanvien"
 
 @inject INhanVienService NhanVienservice
 
@@ -7,7 +7,7 @@
 
 <h3 class="mb-4">Thêm nhân viên</h3>
 
-<EditForm Model="std" OnValidSubmit="SubmitFormCreate">
+<EditForm Model="std" OnValidSubmit="SubmitFormCreate" FormName="Addnhanvien">
     <DataAnnotationsValidator />
     <ValidationSummary />
 

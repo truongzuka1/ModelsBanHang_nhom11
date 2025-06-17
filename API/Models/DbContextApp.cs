@@ -71,7 +71,6 @@ namespace Data.Models
                     MotaChucVu = "Nhân viên bán hàng",
                     TrangThai = 1
                 });
-
             var adminTaiKhoanId = Guid.Parse("99999999-9999-9999-9999-999999999999");
 
             modelBuilder.Entity<TaiKhoan>().HasData(new TaiKhoan
@@ -81,8 +80,11 @@ namespace Data.Models
                 Password = "admin123", 
                 Ngaytaotaikhoan = DateTime.Now
             });
+            
+                
 
-        
+
+
             modelBuilder.Entity<NhanVien>().HasData(new NhanVien
             {
                 NhanVienId = Guid.Parse("88888888-8888-8888-8888-888888888888"),
@@ -96,11 +98,6 @@ namespace Data.Models
                 ChucVuId = Guid.Parse("11111111-1111-1111-1111-111111111111") 
             });
 
-            modelBuilder.Entity<NhanVien>()
-                .HasOne(nv => nv.TaiKhoan)
-                .WithMany()
-                .HasForeignKey(nv => nv.TaikhoanId)
-                .OnDelete(DeleteBehavior.Restrict);
 
 
 
@@ -128,7 +125,6 @@ namespace Data.Models
             modelBuilder.Entity<HoaDon>()
                 .HasOne(h => h.khachHang)
                 .WithMany(t => t.HoaDons)
-
                 .HasForeignKey(h => h.KhachHangId)
                 .OnDelete(DeleteBehavior.Restrict);
 
