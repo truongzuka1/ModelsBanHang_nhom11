@@ -57,6 +57,7 @@ builder.Services.AddHttpClient<IKhachHangService, KhachHangService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:5001/");
 });
+builder.Services.AddScoped<IHoaDonChiTietService, HoaDonChiTietService>();
 
 builder.Services.AddScoped<INhanVienService, NhanVienService>();
 builder.Services.AddScoped<IAnhService, AnhService>();
