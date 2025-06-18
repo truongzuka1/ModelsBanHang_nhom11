@@ -5,6 +5,7 @@
 @inject NavigationManager manager
 @inject IJSRuntime JS
 @using API.Models
+@rendermode InteractiveServer
 <link href="css/Thongke.css" rel="stylesheet" />
 <h2>Thống kê</h2>
 
@@ -61,7 +62,7 @@
 			</button>
 		}
 	</div>
-
+	@count
 	@if (activeFilter == "TÙY CHỈNH")
 	{
 		<div class="custom-date-filter">
@@ -493,7 +494,7 @@
 			Console.WriteLine($"An error occurred during component initialization: {ex.Message}");
 			throw;
 		}
-		
+
 	}
 
 
@@ -614,10 +615,11 @@
 
 		UpdatePaging1(); 
 	}
-
+	private int count = 0;
 
 	private async Task SetActiveFilter(string filter)
 	{
+		count++;
 		activeFilter = filter;
 		await FilterData(); 
 		Console.WriteLine(activeFilter);

@@ -15,6 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
@@ -95,15 +96,15 @@ if (!app.Environment.IsDevelopment())
 }
 
 
-app.UseHttpsRedirection();
+
 
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapBlazorHub(); 
 app.UseAntiforgery(); 
 app.MapRazorComponents<App>() 
     .AddInteractiveServerRenderMode();
+app.UseHttpsRedirection();
 
 app.Run();
