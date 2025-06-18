@@ -32,8 +32,4 @@
     <None Include="Controllers\DeGiayController.cs" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Migrations\" />
-  </ItemGroup>
-
 </Project>
