@@ -65,7 +65,7 @@ builder.Services.AddHttpClient<IDeGiayService, DeGiayService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:5001/"); // ✅ URL của API
 });
-
+builder.Services.AddScoped<IHoaDonChiTietService, HoaDonChiTietService>();
 builder.Services.AddScoped<INhanVienService, NhanVienService>();
 builder.Services.AddScoped<IAnhService, AnhService>();
 builder.Services.AddScoped<IChatLieuService, ChatLieuService>();
