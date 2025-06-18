@@ -1,6 +1,7 @@
-﻿using Data.Models;
+﻿using API.Models.DTO;
 using BlazorAdmin.Service.IService;
-using API.Models.DTO;
+using Data.Models;
+using System.Text.Json;
 
 
 
@@ -32,7 +33,26 @@ namespace BlazorAdmin.Service
 
         public async Task<TaiKhoan> GetByIdTaiKhoanAsync(Guid id)
         {
-            return await _httpClient.GetFromJsonAsync<TaiKhoan>($"/api/TaiKhoans/{id}");
+            try
+            {
+                var response = await _httpClient.GetAsync($"/api/TaiKhoans/{id}");
+
+                if (!response.IsSuccessStatusCode)
+                    return null;
+
+                var content = await response.Content.ReadAsStringAsync();
+                if (string.IsNullOrWhiteSpace(content))
+                    return null;
+
+                return JsonSerializer.Deserialize<TaiKhoan>(content, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public async Task UpdateTaiKhoanAsync(TaiKhoan tk)
