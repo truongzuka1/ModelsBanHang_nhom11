@@ -1,38 +1,43 @@
 ﻿@page "/Admin/AddVoucher"
-
+@rendermode InteractiveServer
 @inject IVoucherService service
-
+@using System.ComponentModel.DataAnnotations
+@using API.Models.DTO
 @inject ITaiKhoanService taiKhoanService
 @inject NavigationManager manager
 <h3>AddVoucher</h3>
-<EditForm Model="std" OnValidSubmit="SubmitFormCreate">
+<EditForm Model="Input" OnValidSubmit="SubmitFormCreate" FormName="AddVoucher">
     <DataAnnotationsValidator />
     <ValidationSummary />
     <div class="mb-3">
-        <label for="TenVoucher" class="form-label">Họ tên:</label>
-        <InputText id="tenvoucher" class="form-control" @bind-Value="std.TenVoucher" />
+        <label for="TenVoucher" class="form-label">Tên Voucher:</label>
+        <InputText id="tenvoucher" class="form-control" @bind-Value="Input.TenVoucher" />
     </div>
     <div class="mb-3">
         <label for="ngaybatdau" class="form-label">Ngày bắt đầu:</label>
-        <InputDate id="ngaybatdau" class="form-control" @bind-Value="std.NgayBatDau" />
+        <InputDate id="ngaybatdau" class="form-control" @bind-Value="Input.NgayBatDau" />
     </div>
     <div class="mb-3">
         <label for="ngayketthuc" class="form-label">Ngày kết thúc:</label>
-        <InputDate id="ngayketthuc" class="form-control" @bind-Value="std.NgayKetThuc" />
+        <InputDate id="ngayketthuc" class="form-control" @bind-Value="Input.NgayKetThuc" />
     </div>
     <div class="mb-3">
         <label for="phantramgiam" class="form-label">Phần trăm giảm:</label>
-        <InputNumber id="phantramgiam" class="form-control" @bind-Value="std.PhanTram" />
+        <InputNumber id="phantramgiam" class="form-control" @bind-Value="Input.PhanTram" />
     </div>
 
     <div class="mb-3">
         <label for="soluong" class="form-label">Số lượng:</label>
-        <InputNumber id="soluong" class="form-control" @bind-Value="std.SoLuong" />
+        <InputNumber id="soluong" class="form-control" @bind-Value="Input.SoLuong" />
     </div>
 
-
+    <button type="submit" class="btn btn-primary">Thêm</button>
 </EditForm>
 @code {
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+
     private Voucher std = new Voucher
         {
             TrangThai = true
@@ -40,6 +45,18 @@
 
     private async Task SubmitFormCreate()
     {
+        var std = new Voucher
+            {
+                VoucherId = Guid.NewGuid(),
+                TenVoucher = Input.TenVoucher,
+                NgayBatDau = Input.NgayBatDau,
+                NgayKetThuc = Input.NgayKetThuc,
+                PhanTram = Input.PhanTram,
+                TrangThai = true,
+                SoLuong = Input.SoLuong,
+                IdTaiKhoan = null // nếu bạn không chọn tài khoản
+            };
+
         std.Validate();
         await service.Add(std);
 
@@ -59,10 +76,29 @@
 
         foreach (var tk in taiKhoanCanApDung)
         {
-          
-            Console.WriteLine($"Gán voucher cho tài khoản: {tk.Username}");   
+            Console.WriteLine($"Gán voucher cho tài khoản: {tk.Username}");
         }
+
         manager.NavigateTo("/Admin/voucher");
+    }
+
+
+    private sealed class InputModel
+    {
+        [Required(ErrorMessage = "Chưa nhập tên voucher")]
+        [Display(Name = "")]
+        public string TenVoucher { get; set; } = string.Empty;
+
+        [Required]
+        public DateTime NgayBatDau { get; set; }
+
+        [Required]
+        public DateTime NgayKetThuc { get; set; }
+
+        [Range(0, 100)]
+        public float PhanTram { get; set; }
+
+        public int SoLuong { get; set; }
     }
 
 }

@@ -8,12 +8,40 @@ namespace API.IRepository.Repository
         private readonly DbContextApp _context;
         public VoucherRepo(DbContextApp context)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _context = context;
         }
         public async Task Create(Voucher voucher)
         {
-            _context.Vouchers.Add(voucher);
-            await _context.SaveChangesAsync();
+            try
+            {
+                // Gán ID nếu chưa có
+                if (voucher.VoucherId == Guid.Empty)
+                {
+                    voucher.VoucherId = Guid.NewGuid();
+                }
+
+                // Xử lý tài khoản nếu là Guid.Empty
+                if (voucher.IdTaiKhoan == Guid.Empty)
+                {
+                    voucher.IdTaiKhoan = null;
+                }
+                if (voucher.IdTaiKhoan != null)
+                {
+                    var tk = await _context.TaiKhoans.FindAsync(voucher.IdTaiKhoan);
+                    if (tk == null)
+                        throw new Exception("Tài khoản không tồn tại.");
+                }
+
+
+                voucher.Validate();
+
+                _context.Vouchers.Add(voucher);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi khi tạo voucher: {ex.Message} -- {(ex.InnerException != null ? ex.InnerException.Message : "Không có chi tiết nội bộ")}");
+            }
         }
 
         public async Task<bool> Delete(Guid id)
@@ -21,12 +49,12 @@ namespace API.IRepository.Repository
             var voucher = await _context.Vouchers.FindAsync(id);
             if (voucher == null)
             {
-                return false; // Return false if the voucher does not exist
+                return false; 
             }
 
             _context.Vouchers.Remove(voucher);
             await _context.SaveChangesAsync();
-            return true; // Return true if the voucher was successfully deleted
+            return true; 
         }
 
         public async Task<List<Voucher>> GetAll() => await _context.Vouchers.ToListAsync();

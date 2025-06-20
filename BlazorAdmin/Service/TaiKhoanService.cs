@@ -77,8 +77,10 @@ namespace BlazorAdmin.Service
         }
         public async Task<TaiKhoan> GetByUsernameAsync(string username)
         {
-            return await _httpClient.GetFromJsonAsync<TaiKhoan>($"/api/TaiKhoans/username/{username}");
+            var encodedUsername = Uri.EscapeDataString(username);
+            return await _httpClient.GetFromJsonAsync<TaiKhoan>($"api/TaiKhoans/username/{encodedUsername}");
         }
+
     }
 
 }

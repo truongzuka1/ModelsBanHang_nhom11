@@ -55,16 +55,16 @@ builder.Services.AddScoped(sp => new HttpClient
 });
 builder.Services.AddHttpClient("voucher", client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7246/");
+    client.BaseAddress = new Uri("https://localhost:7246");
 });
 builder.Services.AddHttpClient<IKhachHangService, KhachHangService>(client =>
 {
-    client.BaseAddress = new Uri("https://localhost:5001/");
+    client.BaseAddress = new Uri("https://localhost:7246/");
 });
 
 builder.Services.AddHttpClient<IDeGiayService, DeGiayService>(client =>
 {
-    client.BaseAddress = new Uri("https://localhost:5001/"); // ✅ URL của API
+    client.BaseAddress = new Uri("https://localhost:5001/"); 
 });
 builder.Services.AddScoped<IHoaDonChiTietService, HoaDonChiTietService>();
 builder.Services.AddScoped<INhanVienService, NhanVienService>();

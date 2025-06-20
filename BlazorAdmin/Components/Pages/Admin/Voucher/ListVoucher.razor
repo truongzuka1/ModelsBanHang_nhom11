@@ -1,4 +1,5 @@
 ﻿@page "/Admin/voucher"
+@rendermode InteractiveServer
 @using Data.Models;
 @using BlazorAdmin.Service;
 @using BlazorAdmin.Service.IService
@@ -21,7 +22,7 @@
 			<td>Phần trăm</td>
 			<td>Trạng thái</td>
 			<td>Số lượng</td>
-			<td>Tên tài khoản</td>
+			@* <td>Tên tài khoản</td> *@
 			<td>Hanh Dong</td>
 		</tr>
 	</thead>
@@ -34,16 +35,15 @@
 				<td>@item.NgayBatDau.ToString("dd/MM/yyyy")</td>
 				<td>@item.NgayKetThuc.ToString("dd/MM/yyyy")</td>
 				<td>@item.PhanTram</td>
-				<td>@item.TrangThai</td>
-				<td>@item.SoLuong</td>
-				<td>@item.TaiKhoan.Username</td>
 				<td>
 					<button class="btn btn-sm @(item.TrangThai ? "btn-danger" : "btn-success") me-2"
 							@onclick="() => ToggleTrangThai(item.VoucherId)">
 						🔄
-					</button> 
-				 <span>@(item.TrangThai ? "Đang diễn ra" : "Hết hạn")</span> 
+					</button>
+					<span>@(item.TrangThai ? "Đang diễn ra" : "Hết hạn")</span>
 				</td>
+				<td>@item.SoLuong</td>
+			@* 	<td>@item.TaiKhoan.Username</td> *@
 				<td>
 					<button class="btn btn-primary" @onclick="() => NavigateToEdit(item.VoucherId)">Edit</button>
 					<button class="btn btn-danger" @onclick="() => DeleteAsyncVoucher(item.VoucherId)">Delete</button>

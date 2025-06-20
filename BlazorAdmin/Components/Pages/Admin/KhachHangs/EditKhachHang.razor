@@ -1,34 +1,33 @@
-﻿@page "/EditNhanVien/{Id:guid}"
+﻿@page "/EditKhachHang/{Id:guid}"
 @rendermode InteractiveServer
 @using Data.Models
 @using BlazorAdmin.Service.IService
-@inject INhanVienService NhanVienservice
+@inject IKhachHangService khachHangService
 @inject NavigationManager manager
+<h3>Chinh sửa khách hàng</h3>	
 
-<h3 class="mb-4">Chỉnh sửa nhân viên</h3>
-
-<EditForm Model="nhanVien" OnValidSubmit="HandleValidSubmit" FormName="UpdateNhanVien">
+<EditForm Model="khachHangs" OnValidSubmit="HandleValidSubmit" FormName="UpdateKhachHang">
     <DataAnnotationsValidator />
     <ValidationSummary />
 
     <div class="mb-3">
         <label for="hoten" class="form-label">Họ tên</label>
-        <InputText id="hoten" class="form-control" @bind-Value="nhanVien.HoTen" />
+        <InputText id="hoten" class="form-control" @bind-Value="khachHangs.HoTen" />
     </div>
 
     <div class="mb-3">
         <label for="sdt" class="form-label">Số điện thoại</label>
-        <InputText id="sdt" class="form-control" @bind-Value="nhanVien.SoDienThoai" />
+        <InputText id="sdt" class="form-control" @bind-Value="khachHangs.SoDienThoai" />
     </div>
 
     <div class="mb-3">
         <label for="email" class="form-label">Email</label>
-        <InputText id="email" class="form-control" @bind-Value="nhanVien.Email" />
+        <InputText id="email" class="form-control" @bind-Value="khachHangs.Email" />
     </div>
 
     <div class="mb-3">
         <label for="ngaysinh" class="form-label">Ngày sinh</label>
-        <InputDate id="ngaysinh" class="form-control" @bind-Value="nhanVien.NgaySinh" />
+        <InputDate id="ngaysinh" class="form-control" @bind-Value="khachHangs.NgaySinh" />
     </div>
 
     @if (!string.IsNullOrEmpty(errorMessage))
@@ -37,24 +36,24 @@
     }
 
     <button type="submit" class="btn btn-success">Lưu thay đổi</button>
-    <button href="/QuanLyNhanVien" class="btn btn-danger">Hủy thay đổi</button>
+    <button href="/KhachHang" class="btn btn-danger">Hủy thay đổi</button>
 </EditForm>
 
 @code {
     [Parameter]
     public Guid Id { get; set; }
 
-    private NhanVien nhanVien = new();
+    private KhachHang khachHangs = new();
     private string errorMessage = "";
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            var result = await NhanVienservice.GetByIdNhanVienAsync(Id);
+            var result = await khachHangService.GetById(Id);
             if (result != null)
             {
-                nhanVien = result;
+                khachHangs = result;
             }
             else
             {
@@ -71,9 +70,9 @@
     {
         try
         {
-            nhanVien.NgayCapNhatCuoiCung = DateTime.Now;
-            await NhanVienservice.UpdateNhanVienAsync(nhanVien);
-            manager.NavigateTo("/QuanLyNhanVien");
+            khachHangs.NgayCapNhatCuoiCung = DateTime.Now;
+            await khachHangService.Update(khachHangs);
+            manager.NavigateTo("/KhachHang");
         }
         catch (Exception ex)
         {
@@ -81,3 +80,4 @@
         }
     }
 }
+

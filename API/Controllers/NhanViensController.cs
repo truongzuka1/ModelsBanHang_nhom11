@@ -39,11 +39,24 @@ namespace API.Controllers
         // PUT: api/NhanViens/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutNhanVien(Guid id, NhanVien nhanVien)
+        public async Task<IActionResult> PutNhanVien(Guid id, [FromBody] NhanVien nhanVien)
         {
-            await _repository.UpdateNhanVienAsync(nhanVien);
-            return Ok();
+            if (id != nhanVien.NhanVienId)
+            {
+                return BadRequest("Id không khớp với dữ liệu nhân viên.");
+            }
+
+            try
+            {
+                await _repository.UpdateNhanVienAsync(nhanVien);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi khi cập nhật: {ex.Message}");
+            }
         }
+
 
         // POST: api/NhanViens
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

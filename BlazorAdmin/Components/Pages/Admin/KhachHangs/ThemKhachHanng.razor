@@ -1,31 +1,32 @@
-@page "/AddNhanVien"
+﻿@page "/AddKhachHang"
 @rendermode InteractiveServer
+@using Data.Models
 @using System.ComponentModel.DataAnnotations
 @using API.Models.DTO
 @using BlazorAdmin.Service.IService
-@inject INhanVienService NhanVienservice
+@inject IKhachHangService khachHangService
 @inject ITaiKhoanService taiKhoanService
 @inject NavigationManager manager
 
-<h3 class="mb-4">Thêm nhân viên</h3>
+<h3 class="mb-4">Thêm khách hàng</h3>
 
-<EditForm Model="Input" OnValidSubmit="SubmitFormCreate" FormName="AddNhanVienForm">
+<EditForm Model="Input" OnValidSubmit="SubmitFormCreate" FormName="AddKhachHangForm">
     <DataAnnotationsValidator />
     <ValidationSummary />
 
     <div class="mb-3">
         <label for="hoTen" class="form-label">Họ tên:</label>
-        <InputText id="hoTen" class="form-control" @bind-Value="Input.HoTen" />
+        <InputText id="hoTen" class="form-control" @bind-Value="Input.HoTen" autocomplete="off" placeholder="Nhập họ và tên" />
     </div>
 
     <div class="mb-3">
         <label for="soDienThoai" class="form-label">Số điện thoại:</label>
-        <InputText id="soDienThoai" class="form-control" @bind-Value="Input.SoDienThoai" />
+        <InputText id="soDienThoai" class="form-control" @bind-Value="Input.SoDienThoai" autocomplete="off" placeholder="Nhập số điện thoại" />
     </div>
 
     <div class="mb-3">
         <label for="email" class="form-label">Email:</label>
-        <InputText id="email" class="form-control" @bind-Value="Input.Email" />
+        <InputText id="email" class="form-control" @bind-Value="Input.Email" autocomplete="off" placeholder="Nhập Email" />
     </div>
 
     <div class="mb-3">
@@ -36,17 +37,17 @@
 
     <div class="mb-3">
         <label for="Tk" class="form-label fw-bold">Tên tài khoản</label>
-        <InputText id="Tk" class="form-control" @bind-Value="Input.UserName" placeholder="Nhập tên tài khoản" />
+        <InputText id="Tk" class="form-control" @bind-Value="Input.UserName" placeholder="Nhập tên tài khoản" autocomplete="off" />
     </div>
 
     <div class="mb-3">
         <label for="MK1" class="form-label fw-bold">Mật khẩu</label>
-        <InputText id="MK1" class="form-control" @bind-Value="Input.Password" placeholder="Nhập mật khẩu" />
+        <InputText id="MK1" type="password" class="form-control" @bind-Value="Input.Password" placeholder="Nhập mật khẩu" />
     </div>
 
     <div class="mb-3">
         <label for="MK2" class="form-label fw-bold">Xác nhận mật khẩu</label>
-        <InputText id="MK2" type="password" class="form-control" @bind-Value="Input.ConfirmPassword" />
+        <InputText id="MK2" type="password" class="form-control" @bind-Value="Input.ConfirmPassword" placeholder="Xác nhận mật khẩu" />
     </div>
 
     @if (!string.IsNullOrEmpty(errorMessage))
@@ -55,16 +56,21 @@
     }
 
     <button type="submit" class="btn btn-primary">Thêm</button>
-    <button type="button" class="btn btn-danger" @onclick="NavigateToNhanVien">Hủy thay đổi</button>
+    <button type="button" class="btn btn-danger" @onclick="NavigateToKhachHang">Hủy thay đổi</button>
+
+
+
 </EditForm>
 
 @code {
     [SupplyParameterFromForm]
     private InputModel Input { get; set; } = new();
 
-    private NhanVien std = new NhanVien
+    private KhachHang std = new KhachHang
         {
-            TrangThai = true
+            TrangThai = true,
+            NgayTao = DateTime.Now,
+            NgayCapNhatCuoiCung = DateTime.Now
         };
 
     private string username = "";
@@ -96,13 +102,6 @@
 
         try
         {
-            // Kiểm tra username đã tồn tại chưa (nếu cần)
-            // var existing = await taiKhoanService.GetByUsernameAsync(Input.UserName);
-            // if (existing != null)
-            // {
-            //     errorMessage = "Tên tài khoản đã tồn tại.";
-            //     return;
-            // }
 
             var taiKhoan = new Data.Models.TaiKhoan
                 {
@@ -118,21 +117,22 @@
             std.Email = Input.Email;
             std.SoDienThoai = Input.SoDienThoai;
             std.NgaySinh = Input.NgaySinh;
-            std.TaikhoanId = taiKhoan.TaikhoanId;
+            std.TaiKhoanId = taiKhoan.TaikhoanId;
             std.NgayCapNhatCuoiCung = DateTime.Now;
+            std.NgayTao = DateTime.Now;
 
-            await NhanVienservice.CreateNhanVien(std);
+            await khachHangService.Create(std);
 
-            manager.NavigateTo("/QuanLyNhanVien", forceLoad: true);
+            manager.NavigateTo("/KhachHang", forceLoad: true);
         }
         catch (Exception ex)
         {
             errorMessage = "Đã xảy ra lỗi: " + ex.Message;
         }
     }
-    private void NavigateToNhanVien()
+    private void NavigateToKhachHang()
     {
-        manager.NavigateTo("/QuanLyNhanVien");
+        manager.NavigateTo("/KhachHang");
     }
 
     private sealed class InputModel
