@@ -5,6 +5,7 @@ using Data.Models;
 
 namespace BlazorAdmin.Service
 {
+    /// hahahaha 
     public class NhanVienService : INhanVienService
     {
         private readonly HttpClient _httpClient;
