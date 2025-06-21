@@ -1,37 +1,42 @@
-﻿using BlazorAdmin.Service.IService;
-using Data.Models;
-using System.Net.Http.Json;
+﻿using Data.Models;
+using BlazorAdmin.Service.IService;
+using BlazorAdmin.Components.Pages;
 
-public class KhachHangService : IKhachHangService
+namespace BlazorAdmin.Service
 {
-    private readonly HttpClient _httpClient;
-    public KhachHangService(IHttpClientFactory httpClientFactory)
+    public class KhachHangService : IKhachHangService
     {
-        _httpClient = httpClientFactory.CreateClient("api");
+        private readonly HttpClient _httpClient;
+
+        public KhachHangService(HttpClient httpClient)
+        {
+            _httpClient = httpClient;
+        }
+
+        public async Task Create(KhachHang khachHang)
+        {
+            await _httpClient.PostAsJsonAsync("api/KhachHang", khachHang);
+        }
+
+        public async Task Delete(Guid id)
+        {
+            await _httpClient.DeleteAsync("api/KhachHang/" + id);
+        }
+
+        public async Task<List<KhachHang>> GetAll()
+        {
+            return await _httpClient.GetFromJsonAsync<List<KhachHang>>("api/KhachHang") ?? new();
+        }
+
+        public async Task<KhachHang?> GetById(Guid id)
+        {
+            return await _httpClient.GetFromJsonAsync<KhachHang>($"api/KhachHang/{id}");
+        }
+
+        public async Task Update(KhachHang khachHang)
+        {
+            var response = await _httpClient.PutAsJsonAsync($"api/KhachHang/{khachHang.KhachHangId}", khachHang);
+            response.EnsureSuccessStatusCode();
+        }
     }
-
-    public async Task<List<KhachHang>> GetAll() =>
-        await _httpClient.GetFromJsonAsync<List<KhachHang>>("api/KhachHang") ?? new();
-
-    public async Task<KhachHang?> GetById(Guid id) =>
-        await _httpClient.GetFromJsonAsync<KhachHang>($"api/KhachHang/{id}");
-
-    public async Task Create(KhachHang khachHang)
-    {
-        var response = await _httpClient.PostAsJsonAsync("api/KhachHang", khachHang);
-        response.EnsureSuccessStatusCode();
-    }
-
-    public async Task Update(KhachHang khachHang)
-    {
-        var response = await _httpClient.PutAsJsonAsync($"api/KhachHang/{khachHang.KhachHangId}", khachHang);
-        response.EnsureSuccessStatusCode();
-    }
-
-    public async Task Delete(Guid id)
-    {
-        var response = await _httpClient.DeleteAsync($"api/KhachHang/{id}");
-        response.EnsureSuccessStatusCode();
-    }
-
 }

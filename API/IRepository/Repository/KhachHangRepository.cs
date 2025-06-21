@@ -29,27 +29,37 @@ namespace Data.Repositories
 		{
 			try
 			{
-				await _db.KhachHangs.AddAsync(khachhang);
+                if (khachhang.TaiKhoanId == Guid.Empty)
+                {
+					khachhang.TaiKhoanId = null;
+                }
+                await _db.KhachHangs.AddAsync(khachhang);
 				await _db.SaveChangesAsync();
 			}
-			catch (Exception)
-			{
-				throw;
-			}
-		}
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi khi tạo khách hàng: {ex.Message}");
+            }
+        }
 
 		public async Task UpdateAsync(KhachHang khachhang)
 		{
-			try
-			{
-				_db.KhachHangs.Update(khachhang);
-				await _db.SaveChangesAsync();
-			}
-			catch (Exception)
-			{
-				throw;
-			}
-		}
+            try
+            {
+                var existing = await _db.KhachHangs.FindAsync(khachhang.KhachHangId);
+                if (existing == null)
+                    throw new Exception("Không tìm thấy nhân viên cần cập nhật.");
+
+                // Chỉ cập nhật các trường thay đổi
+                _db.Entry(existing).CurrentValues.SetValues(khachhang);
+
+                await _db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi cập nhật nhân viên: " + ex.Message);
+            }
+        }
 
 		public async Task DeleteAsync(Guid id)
 		{

@@ -76,12 +76,15 @@ namespace API.Controllers
         public async Task<ActionResult<TaiKhoan>> GetTaiKhoanByUsername(string username)
         {
             var taiKhoan = await _context.GetByUsernameAsync(username);
+            Console.WriteLine($"Username received: {username}, Found: {taiKhoan != null}");
+
             if (taiKhoan == null)
             {
                 return NotFound();
             }
             return Ok(taiKhoan);
         }
+
         [HttpGet("login")]
         public async Task<ActionResult<LoginResponseDto>> Login(string username, string pass)
         {
@@ -89,7 +92,7 @@ namespace API.Controllers
             {
                 var errors = ModelState.Values
                                        .SelectMany(v => v.Errors)
-                                       .Select(e => e.ErrorMessage)
+                                        .Select(e => e.ErrorMessage)
                                        .ToList();
                 return BadRequest(new LoginResponseDto
                 {

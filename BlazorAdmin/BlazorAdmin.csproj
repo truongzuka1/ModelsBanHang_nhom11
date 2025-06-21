@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Components\Pages\Admin\SanPham\**" />
+    <Content Remove="Components\Pages\Admin\SanPham\**" />
+    <EmbeddedResource Remove="Components\Pages\Admin\SanPham\**" />
+    <None Remove="Components\Pages\Admin\SanPham\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.16" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.16">
       <PrivateAssets>all</PrivateAssets>
@@ -24,7 +31,6 @@
     <ProjectReference Include="..\API\API.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Components\Pages\Admin\SanPham\" />
     <Folder Include="wwwroot\img\" />
   </ItemGroup>
 

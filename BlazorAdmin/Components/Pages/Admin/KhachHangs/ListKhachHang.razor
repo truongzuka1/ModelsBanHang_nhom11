@@ -1,0 +1,108 @@
+@page "/KhachHang"
+@rendermode InteractiveServer
+@layout MainLayout;
+@using Data.Models;
+@using BlazorAdmin.Service;
+@using BlazorAdmin.Service.IService
+@inject IKhachHangService service;
+@inject NavigationManager manager;
+@inject IJSRuntime JS;
+
+<h3>Danh Sách Khách Hàng</h3>
+@{
+	int stt = 1;
+}
+<button class="btn btn-primary" @onclick="NavigateToCreate">Tạo mới +</button>
+
+<table class="table">
+	<thead>
+		<tr>
+			<td>STT</td>
+			<td>HoTen</td>
+			<td>Số điện thoại</td>
+			<td>Email</td>
+			<td>Ngày sinh</td>
+			<td>Ngày tạo</td>
+			<td>Ngày cập nhật cuối</td>
+			<td>Trạng Thái</td>
+			<td>Hanh Dong</td>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var item in khachHangs)
+		{
+			<tr>
+				<td>@stt</td>
+				<td>@item.HoTen</td>
+				<td>@item.SoDienThoai</td>
+				<td>@item.Email</td>
+				<td>@item.NgaySinh.ToString("dd/MM/yyyy")</td>
+				<td>@item.NgayTao.ToString("dd/MM/yyyy")</td>
+				<td>@item.NgayCapNhatCuoiCung.ToString("dd/MM/yyyy")</td>
+				<td>
+					<button class="btn btn-sm @(item.TrangThai ? "btn-success" : "btn-danger") me-2"
+							@onclick="() => ToggleTrangThai(item.KhachHangId)">
+						🔄
+					</button>
+					<span>@(item.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")</span>
+				</td>
+				<td>
+					<button class="btn btn-primary" @onclick="() => NavigateToEdit(item.KhachHangId)">Edit</button>
+					<button class="btn btn-danger" @onclick="() => DeleteKhachHangAsync(item.KhachHangId)">Delete</button>
+				</td>
+			</tr>
+			stt++;
+		}
+	</tbody>
+</table>
+
+@code {
+	private List<KhachHang> khachHangs;
+	protected override async Task OnInitializedAsync()
+	{
+		if (khachHangs == null)
+		{
+			khachHangs = new List<KhachHang>();
+
+		}
+		khachHangs = await service.GetAll();
+	}
+
+
+
+	protected void NavigateToCreate()
+	{
+		manager.NavigateTo("/AddKhachHang");
+	}
+	protected void NavigateToEdit(Guid id)
+	{
+		manager.NavigateTo($"/EditKhachHang/{id}");
+	}
+
+	private async Task DeleteKhachHangAsync(Guid id)
+	{
+		var deleKhacHang = await JS.InvokeAsync<bool>("confirm", $"Bạn có chắc chắn muốn xóa không?");
+		if (deleKhacHang)
+		{
+			await service.Delete(id);
+		
+			StateHasChanged();
+		}
+	}
+	private async Task ToggleTrangThai(Guid id)
+	{
+		var khachHang = khachHangs.FirstOrDefault(x => x.KhachHangId == id);
+		if (khachHang != null)
+		{
+
+			khachHang.TrangThai = !khachHang.TrangThai;
+			khachHang.NgayCapNhatCuoiCung = DateTime.Now;
+
+
+			await service.Update(khachHang);
+			StateHasChanged();
+		}
+	}
+
+
+}

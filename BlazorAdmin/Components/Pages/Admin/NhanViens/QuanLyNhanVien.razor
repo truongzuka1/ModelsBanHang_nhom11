@@ -1,4 +1,5 @@
 @page "/QuanLyNhanVien"
+@rendermode InteractiveServer
 @using Data.Models;
 @using BlazorAdmin.Service;
 @using BlazorAdmin.Service.IService
@@ -46,7 +47,9 @@
 				</td>
 				<td>
 					<button class="btn btn-primary" @onclick="() => NavigateToEdit(item.NhanVienId)">Edit</button>
-					<button class="btn btn-danger" @onclick="() => DeleteAsyncNhanVien(item.NhanVienId)">Delete</button>
+					<button class="btn btn-warning" @onclick="() => DeleteAsyncNhanVien(item.NhanVienId)">Delete</button>
+
+
 				</td>
 			</tr>
 			stt++;
@@ -76,7 +79,7 @@
 
 	protected void NavigateToCreate()
 	{
-		manager.NavigateTo("/Addnhanvien");
+		manager.NavigateTo("/AddNhanVien");
 	}
 	protected void NavigateToEdit(Guid id)
 	{

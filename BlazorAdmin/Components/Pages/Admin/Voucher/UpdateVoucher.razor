@@ -1,4 +1,5 @@
-﻿@page "/Adim/updatevoucher/{Id:guid}"
+﻿@page "/Admin/updatevoucher/{Id:guid}"
+@rendermode InteractiveServer
 @using Data.Models
 @using BlazorAdmin.Service
 @using BlazorAdmin.Service.IService
@@ -29,7 +30,7 @@
         <label for="soluong" class="form-label">Số lượng:</label>
         <InputNumber id="soluong" class="form-control" @bind-Value="voucher.SoLuong" />
     </div>
-
+    <button type="submit" class="btn btn-primary">Save</button>
 
 </EditForm>
 @code {

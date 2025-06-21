@@ -84,14 +84,20 @@ namespace API.IRepository.Repository
         {
             try
             {
-                _db.NhanViens.Update(nhanVien);
+                var existing = await _db.NhanViens.FindAsync(nhanVien.NhanVienId);
+                if (existing == null)
+                    throw new Exception("Không tìm thấy nhân viên cần cập nhật.");
+
+                // Chỉ cập nhật các trường thay đổi
+                _db.Entry(existing).CurrentValues.SetValues(nhanVien);
+
                 await _db.SaveChangesAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                throw new Exception("Lỗi cập nhật nhân viên: " + ex.Message);
             }
         }
+
     }
 }

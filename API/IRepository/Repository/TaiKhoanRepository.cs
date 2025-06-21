@@ -92,8 +92,14 @@ namespace API.IRepository.Repository
 
         public async Task<TaiKhoan> GetByUsernameAsync(string username)
         {
-            return await _contextApp.TaiKhoans.FirstOrDefaultAsync(tk => tk.Username == username);
+            var tk = await _contextApp.TaiKhoans.FirstOrDefaultAsync(tk => tk.Username == username);
+            if (tk == null)
+            {
+                Console.WriteLine($"Không tìm thấy username: {username}");
+            }
+            return tk;
         }
+
 
 
     }

@@ -22,7 +22,7 @@
             </div>
         }
 
-        <div class="form-floating mb-3">
+        <div class="text-box">
             <InputText @bind-Value="Input.UserName"
                        id="Input.UserName"
                        class="login-text"
@@ -35,18 +35,14 @@
 
 
         <!-- Password với icon con mắt -->
-       
-        <div class="form-floating mb-3 position-relative">
+        <div>
             <InputText type="password"
                        @bind-Value="Input.Password"
                        id="Input.Password"
                        class="form-control login-text"
                        autocomplete="current-password"
                        placeholder="Password" />
-
             <ValidationMessage For="() => Input.Password" class="text-danger" />
-            
-            
         </div>
 
         <ValidationMessage For="() => Input.Password" class="text-danger" />
