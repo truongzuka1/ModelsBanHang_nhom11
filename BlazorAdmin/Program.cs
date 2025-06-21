@@ -82,7 +82,7 @@ builder.Services.AddScoped<IThuongHieuService, ThuongHieuService>();
 builder.Services.AddScoped<IVoucherService, VoucherService>();
 builder.Services.AddScoped<ITaiKhoanService, TaiKhoanService>();
 builder.Services.AddScoped<IKhachHangService, KhachHangService>();
-
+builder.Services.AddScoped<IReturnService, ReturnService>();
 var app = builder.Build();
 
 

@@ -19,7 +19,7 @@ namespace API.IRepository.Repository
                 .Include(h => h.taiKhoan)
                 .Include(h => h.hinhThucThanhToan)
                 .Include(h => h.khachHang)
-                .Include(h => h.HoaDonChiTietsId) 
+                .Include(h => h.HoaDonChiTiets) 
                 .ToListAsync();
         }
 
@@ -31,7 +31,7 @@ namespace API.IRepository.Repository
                 .Include(h => h.taiKhoan)
                 .Include(h => h.hinhThucThanhToan)
                 .Include(h => h.khachHang)
-                .Include(h => h.HoaDonChiTietsId)
+                .Include(h => h.HoaDonChiTiets)
                 .FirstOrDefaultAsync(h => h.HoaDonId == id);
 
             return hoaDon ?? throw new KeyNotFoundException("Hóa đơn không tồn tại với ID đã cho.");
