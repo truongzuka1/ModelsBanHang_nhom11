@@ -1,14 +1,61 @@
 ﻿@page "/chatlieu"
 @rendermode InteractiveServer
 @using BlazorAdmin.Service.IService
+@using BlazorBootstrap
 
-@inject IJSRuntime JS
+@* @inject IJSRuntime JS *@
 @inject IChatLieuService ChatLieuService
 
+@* <Modal @ref="modal" /> *@
+
+@* <Button Color="ButtonColor.Primary" @onclick="ShowEmployeeComponent">Show Employee Component</Button>
+ *@
+
+@* <Modal @ref="modal" title="Modal title" UseStaticBackdrop="true" CloseOnEscape="false">
+    <BodyTemplate>
+        I will not close if you click outside me. Don't even try to press escape key.
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button Color="ButtonColor.Secondary" @onclick="OnHideModalClick">Close</Button>
+        <Button Color="ButtonColor.Primary">Understood</Button>
+    </FooterTemplate>
+</Modal> *@
+
+<Button Color="ButtonColor.Warning" @onclick="() => ShowModal(ModalType.Warning)">Show Primary Modal</Button>
+
+
+<Accordion>
+    <AccordionItem>
+        <TitleTemplate>
+            <Icon Name="IconName.HouseFill" Class="me-1" /> Accordion Item #1
+        </TitleTemplate>
+        <Content>
+            <b>This is the first item's accordion body.</b> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the .accordion-body, though the transition does limit overflow.
+        </Content>
+    </AccordionItem>
+    <AccordionItem>
+        <TitleTemplate>
+            <Icon Name="IconName.PersonFill" Class="me-1" /> Accordion Item #2
+        </TitleTemplate>
+        <Content>
+            <b>This is the second item's accordion body.</b> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the .accordion-body, though the transition does limit overflow.
+        </Content>
+    </AccordionItem>
+    <AccordionItem>
+        <TitleTemplate>
+            <Icon Name="IconName.PhoneFill" Class="me-1" /> Accordion Item #3
+        </TitleTemplate>
+        <Content>
+            <b>This is the third item's accordion body.</b> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the .accordion-body, though the transition does limit overflow.
+        </Content>
+    </AccordionItem>
+</Accordion>
+
+@* 
 <div class="container mt-5">
     <h2 class="text-success mb-4">Quản lý Chất Liệu</h2>
 
-    <button class="btn btn-success mb-3" @onclick="ShowModal">
+    <button class="btn btn-success mb-3" @onclick="ShowEmployeeComponent">
         <i class="fa fa-plus"></i> Thêm chất liệu
     </button>
 
@@ -60,7 +107,7 @@
                @bind-MoTa="@MoTa"
                @bind-TrangThai="@TrangThai"
                OnClose="CloseModal"
-               OnSaved="HandleSave" />
+               OnSaved="HandleSave" /> *@
 
 @code {
     private List<ChatLieuModel> DanhSachChatLieu = new();
@@ -73,6 +120,19 @@
     private bool TrangThai;
 
     private Guid? EditingId = null;
+    [Inject] ModalService ModalService { get; set; } = default!;
+
+    private async Task ShowModal(ModalType modalType)
+    {
+        var modalOption = new ModalOption
+        {
+            Title = "Modal title",
+            Message = "Modal body text goes here.",
+            Type = modalType,
+        };
+
+        await ModalService.ShowAsync(modalOption);
+    }
 
     private void ShowModal()
     {
