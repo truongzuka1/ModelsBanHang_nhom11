@@ -4,6 +4,7 @@ using BlazorAdmin.Components.Pages;
 
 namespace BlazorAdmin.Service
 {
+    // hahaha
     public class KhachHangService : IKhachHangService
     {
         private readonly HttpClient _httpClient;
