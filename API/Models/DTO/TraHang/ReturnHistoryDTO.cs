@@ -8,6 +8,6 @@
         public int SoLuong { get; set; }
         public decimal Gia { get; set; }
         public DateTime? NgayTraHang { get; set; }
-        public string GhiChu { get; set; }
+        public string? GhiChu { get; set; }
     }
 }

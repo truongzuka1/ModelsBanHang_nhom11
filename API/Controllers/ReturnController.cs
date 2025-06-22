@@ -174,8 +174,8 @@ namespace API.Controllers
                 var validationResults = await ValidateReturnInternal(request);
                 if (validationResults.Any(r => !r.CanReturn))
                 {
-                    //return BadRequest(new { error = "Kiểm tra trả hàng thất bại", details = validationResults });
-                    return Ok(validationResults); //=> đây là cách 1 phù hợp resful api
+                    return BadRequest(new { error = "Kiểm tra trả hàng thất bại", details = validationResults });
+                    //return Ok(validationResults); //=> đây là cách 1 phù hợp resful api
                 }
 
                 var result = await _returnRepository.TraHangAsync(request.HoaDonId, request.Items, taiKhoanId);

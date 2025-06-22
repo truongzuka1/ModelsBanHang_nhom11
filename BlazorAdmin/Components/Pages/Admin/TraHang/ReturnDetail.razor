@@ -193,10 +193,12 @@
                             </tbody>
                         </table>
                     </div>
-                    @if (PendingReturns.Any())
+                    <button class="btn btn-primary mt-3" @onclick="ValidateAsync">Kiểm tra trả hàng</button>
+                    @if (!string.IsNullOrEmpty(ValidationErrorMessage))
                     {
-                        <button class="btn btn-primary mt-3" @onclick="ValidateAsync">Kiểm tra trả hàng</button>
+                        <div class="error-message">@ValidationErrorMessage</div>
                     }
+
                 </div>
             </div>
 
@@ -334,7 +336,11 @@
             CreateReturnRequest = new CreateReturnDTO
                 {
                     HoaDonId = HoaDonId,
-                    Items = ReturnInfo.SanPhams?.Select(sp => new ChiTietTraHangDTO { GiayId = sp.GiayId }).ToList() ?? new List<ChiTietTraHangDTO>()
+                    Items = ReturnInfo.SanPhams.Select(sp => new ChiTietTraHangDTO
+                    {
+                        GiayId = sp.GiayId,
+                        GhiChu = string.Empty // Khởi tạo ghi chú mặc định
+                    }).ToList()
                 };
 
             if (ReturnInfo.SanPhams != null)
@@ -505,15 +511,10 @@
             }
 
             ValidationResults = await ReturnService.ValidateReturnAsync(CreateReturnRequest);
-            if (ValidationResults == null)
+            if (ValidationResults == null || !ValidationResults.Any())
             {
                 ValidationErrorMessage = "Lỗi khi kiểm tra trả hàng. Dữ liệu trả về không hợp lệ.";
-                await JSRuntime.InvokeVoidAsync("console.error", "ValidationResults is null");
-            }
-            else if (!ValidationResults.Any())
-            {
-                ValidationErrorMessage = "Không có kết quả kiểm tra trả hàng.";
-                await JSRuntime.InvokeVoidAsync("console.warn", "ValidationResults is empty");
+                await JSRuntime.InvokeVoidAsync("console.error", "ValidationResults is null or empty");
             }
             else
             {
@@ -535,7 +536,7 @@
     {
         try
         {
-            if (!ValidationResults.Any() || !ValidationResults.All(r => r.CanReturn))
+            if (!ValidationResults.Any() || ValidationResults.Any(r => !r.CanReturn))
             {
                 ValidationErrorMessage = "Không thể xác nhận trả hàng do có lỗi trong kiểm tra.";
                 await JSRuntime.InvokeVoidAsync("console.error", "SubmitAsync blocked due to invalid validation results");
@@ -545,6 +546,7 @@
             var response = await ReturnService.ProcessReturnAsync(CreateReturnRequest);
             if (response)
             {
+                // Tải lại thông tin hóa đơn
                 ReturnInfo = await ReturnService.GetReturnInfoAsync(HoaDonId);
                 if (ReturnInfo == null || ReturnInfo.HoaDonId == Guid.Empty)
                 {
@@ -554,6 +556,7 @@
                     return;
                 }
 
+                // Xóa danh sách trả hàng và cập nhật yêu cầu trả hàng
                 PendingReturns.Clear();
                 ValidationResults.Clear();
                 CreateReturnRequest = new CreateReturnDTO
@@ -561,14 +564,7 @@
                         HoaDonId = HoaDonId,
                         Items = ReturnInfo.SanPhams?.Select(sp => new ChiTietTraHangDTO { GiayId = sp.GiayId }).ToList() ?? new List<ChiTietTraHangDTO>()
                     };
-                ShowCollapses.Clear();
-                if (ReturnInfo.SanPhams != null)
-                {
-                    for (int i = 0; i < ReturnInfo.SanPhams.Count; i++)
-                    {
-                        ShowCollapses[i] = false;
-                    }
-                }
+
                 await JSRuntime.InvokeVoidAsync("alert", "Trả hàng thành công!");
                 await JSRuntime.InvokeVoidAsync("console.log", "Return processed successfully");
             }
