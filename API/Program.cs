@@ -44,6 +44,7 @@ builder.Services.AddScoped<ITheLoaiGiayRepository, TheLoaiGiayRepository>();
 builder.Services.AddScoped<IChiTietHoaDonRepository, ChiTietHoaDonRepository>();
 builder.Services.AddScoped<ITaiKhoanRepository, TaiKhoanRepository>();
 builder.Services.AddScoped<IChucVuRepository, ChucVuRepository>();
+builder.Services.AddScoped<IReturnRepository, ReturnRepository>();
 
 var app = builder.Build();
 
