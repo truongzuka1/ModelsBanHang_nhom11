@@ -1,0 +1,54 @@
+﻿@using Data.Models
+@using static BlazorAdmin.Components.Pages.Admin.ThuongHieu.Thuonghieu
+@code {
+    [Parameter] public ThuongHieuModel Model { get; set; }
+    [Parameter] public string Title { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public bool IsVisible { get; set; }
+}
+
+<div class="modal @(IsVisible ? "show d-block" : "")" tabindex="-1"
+     style="@(IsVisible ? "background-color: rgba(0,0,0,0.5);" : "display: none;")">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <EditForm Model="Model" OnValidSubmit="OnValidSubmit">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Title</h5>
+                    <button type="button" class="btn-close" @onclick="OnCancel"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tên thương hiệu</label>
+                        <InputText class="form-control" @bind-Value="Model.Ten" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <InputText type="email" class="form-control" @bind-Value="Model.Email" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">SĐT</label>
+                        <InputText class="form-control" @bind-Value="Model.Sdt" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Địa chỉ</label>
+                        <InputText class="form-control" @bind-Value="Model.DiaChi" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mô tả</label>
+                        <InputTextArea class="form-control" @bind-Value="Model.MoTa" rows="2" />
+                    </div>
+                    <div class="form-check mb-3">
+                        <InputCheckbox class="form-check-input" @bind-Value="Model.TrangThai" />
+                        <label class="form-check-label">Đang hoạt động</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> Lưu</button>
+                    <button type="button" class="btn btn-secondary" @onclick="OnCancel">Hủy</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+

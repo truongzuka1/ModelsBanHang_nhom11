@@ -1,4 +1,6 @@
-﻿@page "/ThuongHieu"
+﻿@page "/admin/thuonghieu"
+@rendermode InteractiveServer
+
 @using Data.Models
 @using BlazorAdmin.Service.IService
 
@@ -12,59 +14,19 @@
 
 
 
-<h2 class="text-primary mb-4"><i class="fa-solid fa-building-flag"></i> Quản lý Thương Hiệu</h2>
+<h2 class="text-primary mb-4">
+    <i class="fa-solid fa-building-flag"></i> Quản lý Thương Hiệu
+</h2>
 
 <button class="btn btn-primary mb-3" @onclick="ShowAddModal">
     <i class="fa fa-plus"></i> Thêm thương hiệu
 </button>
 
-<!-- Modal -->
-@if (IsModalVisible)
-{
-    <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <EditForm Model="Model" OnValidSubmit="HandleValidSubmit">
-                    <div class="modal-header">
-                        <h5 class="modal-title">@ModalTitle</h5>
-                        <button type="button" class="btn-close" @onclick="CloseModal"></button>
-                    </div>
-                    <div class="modal-body">
-                        @* <InputHidden @bind-Value="Model.Id" /> *@
-                        <div class="mb-3">
-                            <label class="form-label">Tên thương hiệu</label>
-                            <InputText class="form-control" @bind-Value="Model.Ten" required />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <InputText type="email" class="form-control" @bind-Value="Model.Email" />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">SĐT</label>
-                            <InputText class="form-control" @bind-Value="Model.Sdt" />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Địa chỉ</label>
-                            <InputText class="form-control" @bind-Value="Model.DiaChi" />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Mô tả</label>
-                            <InputTextArea class="form-control" @bind-Value="Model.MoTa" rows="2" />
-                        </div>
-                        <div class="form-check mb-3">
-                            <InputCheckbox class="form-check-input" @bind-Value="Model.TrangThai" />
-                            <label class="form-check-label">Đang hoạt động</label>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> Lưu</button>
-                        <button type="button" class="btn btn-secondary" @onclick="CloseModal">Hủy</button>
-                    </div>
-                </EditForm>
-            </div>
-        </div>
-    </div>
-}
+<ThuongHieuModal Model="Model"
+                 Title="@(ModalTitle)"
+                 IsVisible="IsModalVisible"
+                 OnValidSubmit="HandleValidSubmit"
+                 OnCancel="CloseModal" />
 
 <!-- Table -->
 <table class="table table-bordered table-hover">
@@ -80,28 +42,41 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in ThuongHieus.Select((x, i) => new { x, i }))
+        @if (ThuongHieus != null && ThuongHieus.Count > 0)
+        {
+            @foreach (var item in ThuongHieus.Select((x, i) => new { x, i }))
+            {
+                <tr>
+                    <td>@(item.i + 1)</td>
+                    <td>@item.x.Ten</td>
+                    <td>@item.x.Email</td>
+                    <td>@item.x.Sdt</td>
+                    <td>@item.x.DiaChi</td>
+                    <td>
+                        @if (item.x.TrangThai)
+                        {
+                            <span class="badge bg-success">Hoạt động</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Ngừng</span>
+                        }
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-warning me-1" @onclick="() => Edit(item.x)">
+                            <i class="fa fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => Delete(item.x.Id)">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        }
+        else
         {
             <tr>
-                <td>@(item.i + 1)</td>
-                <td>@item.x.Ten</td>
-                <td>@item.x.Email</td>
-                <td>@item.x.Sdt</td>
-                <td>@item.x.DiaChi</td>
-                <td>
-                    @if (item.x.TrangThai)
-                    {
-                        <span class="badge bg-success">Hoạt động</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-secondary">Ngừng</span>
-                    }
-                </td>
-                <td>
-                    <button class="btn btn-sm btn-warning me-1" @onclick="() => Edit(item.x)"><i class="fa fa-edit"></i></button>
-                    <button class="btn btn-sm btn-danger" @onclick="() => Delete(item.x.Id)"><i class="fa fa-trash"></i></button>
-                </td>
+                <td colspan="7" class="text-center text-muted">Không có dữ liệu</td>
             </tr>
         }
     </tbody>
@@ -111,7 +86,6 @@
     public class ThuongHieuModel
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
-       
         public string Ten { get; set; }
         public string Email { get; set; }
         public string Sdt { get; set; }
@@ -120,12 +94,7 @@
         public bool TrangThai { get; set; } = true;
     }
 
-    private List<ThuongHieuModel> ThuongHieus = new()
-    {
-        new() { Id = "1", Ten = "Nike", Email = "nike@brands.com", Sdt = "0123456789", DiaChi = "Mỹ", MoTa = "Thương hiệu thể thao nổi tiếng", TrangThai = true },
-        new() { Id = "2", Ten = "Adidas", Email = "adidas@brands.com", Sdt = "0987654321", DiaChi = "Đức", MoTa = "Phong cách trẻ trung", TrangThai = false }
-    };
-
+    private List<ThuongHieuModel> ThuongHieus = new();
     private ThuongHieuModel Model = new();
     private string ModalTitle = "Thêm Thương Hiệu";
     private bool IsModalVisible = false;
@@ -172,7 +141,6 @@
         var existing = ThuongHieus.FirstOrDefault(x => x.Id == Model.Id);
         if (existing != null)
         {
-            // update
             existing.Ten = Model.Ten;
             existing.Email = Model.Email;
             existing.Sdt = Model.Sdt;
@@ -182,7 +150,6 @@
         }
         else
         {
-            // add new
             ThuongHieus.Add(new ThuongHieuModel
             {
                 Id = Model.Id,
