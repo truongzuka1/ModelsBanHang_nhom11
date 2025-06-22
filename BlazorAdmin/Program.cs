@@ -5,13 +5,10 @@ using BlazorAdmin.Components;
 using BlazorAdmin.Service;
 using BlazorAdmin.Service.IService;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Http; 
-using Microsoft.AspNetCore.Identity; 
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddBlazorBootstrap();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
