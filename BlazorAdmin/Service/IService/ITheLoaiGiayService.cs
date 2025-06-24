@@ -1,14 +1,15 @@
-﻿using Data.Models;
+﻿using API.Models.DTO;
+using Data.Models;
 
-namespace API.IService
+namespace BlazorAdmin.Service.IService
 {
     public interface ITheLoaiGiayService
     {
-        Task<IEnumerable<TheLoaiGiay>> GetAllAsync();
-        Task<TheLoaiGiay> GetByIdAsync(Guid id);
-        Task<TheLoaiGiay> AddAsync(TheLoaiGiay theLoaiGiay);
-        Task<TheLoaiGiay> UpdateAsync(TheLoaiGiay theLoaiGiay);
+        Task<IEnumerable<TheLoaiGiayDTO>> GetAllAsync();
+        Task<TheLoaiGiayDTO> GetByIdAsync(Guid id);
+        Task<TheLoaiGiayDTO> AddAsync(TheLoaiGiayDTO dto);
+        Task<TheLoaiGiayDTO> UpdateAsync(TheLoaiGiayDTO dto);
         Task<bool> DeleteAsync(Guid id);
-        Task<TheLoaiGiay> GetTheLoaiByGiayChiTietIdAsync(Guid giayChiTietId);
+        Task<IEnumerable<TheLoaiGiayDTO>> SearchByNameAsync(string keyword);
     }
 }

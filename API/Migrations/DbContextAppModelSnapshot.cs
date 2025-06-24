@@ -655,7 +655,7 @@ namespace API.Migrations
                             ChucVuId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Email = "admin@shop.com",
                             HoTen = "Nguyễn Văn Quản Trị",
-                            NgayCapNhatCuoiCung = new DateTime(2025, 6, 24, 8, 35, 28, 716, DateTimeKind.Local).AddTicks(204),
+                            NgayCapNhatCuoiCung = new DateTime(2025, 6, 24, 23, 17, 44, 989, DateTimeKind.Local).AddTicks(4523),
                             NgaySinh = new DateTime(1995, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             SoDienThoai = "0987654321",
                             TaikhoanId = new Guid("99999999-9999-9999-9999-999999999999"),
@@ -688,7 +688,7 @@ namespace API.Migrations
                         new
                         {
                             TaikhoanId = new Guid("99999999-9999-9999-9999-999999999999"),
-                            Ngaytaotaikhoan = new DateTime(2025, 6, 24, 8, 35, 28, 716, DateTimeKind.Local).AddTicks(122),
+                            Ngaytaotaikhoan = new DateTime(2025, 6, 24, 23, 17, 44, 989, DateTimeKind.Local).AddTicks(4456),
                             Password = "admin123",
                             Username = "admin"
                         });

@@ -1,8 +1,8 @@
-﻿using API.IRepository;
+﻿using Data.IRepository;
 using Data.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace API.Repository
+namespace Data.Repository
 {
     public class TheLoaiGiayRepository : ITheLoaiGiayRepository
     {
@@ -63,5 +63,12 @@ namespace API.Repository
 
             return giayChiTiet?.TheLoaiGiay;
         }
+        public async Task<IEnumerable<TheLoaiGiay>> SearchByNameAsync(string keyword)
+        {
+            return await _context.TheLoaiGiays
+                .Where(t => t.TenTheLoai.Contains(keyword))
+                .ToListAsync();
+        }
+
     }
 }

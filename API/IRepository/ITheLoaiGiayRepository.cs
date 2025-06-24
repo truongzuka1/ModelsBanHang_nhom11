@@ -1,9 +1,11 @@
 ﻿using Data.Models;
 
-namespace API.IRepository
+namespace Data.IRepository
 {
     public interface ITheLoaiGiayRepository
     {
+        Task<IEnumerable<TheLoaiGiay>> SearchByNameAsync(string keyword);
+
         Task<IEnumerable<TheLoaiGiay>> GetAllAsync();
         Task<TheLoaiGiay> GetByIdAsync(Guid id);
         Task<TheLoaiGiay> AddAsync(TheLoaiGiay theLoaiGiay);
