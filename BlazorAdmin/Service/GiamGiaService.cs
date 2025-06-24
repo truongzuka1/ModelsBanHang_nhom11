@@ -8,9 +8,9 @@ namespace BlazorAdmin.Service
     {
         private readonly HttpClient _httpClient;
 
-        public GiamGiaService(IHttpClientFactory httpClientFactory)
+        public GiamGiaService(HttpClient httpClient)
         {
-            _httpClient = httpClientFactory.CreateClient("giamgia");
+            _httpClient = httpClient;
         }
 
         public async Task<IEnumerable<GiamGia>> GetAllAsync()
