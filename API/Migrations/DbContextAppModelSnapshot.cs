@@ -118,10 +118,6 @@ namespace API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("KichCo")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("MoTa")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -659,7 +655,7 @@ namespace API.Migrations
                             ChucVuId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Email = "admin@shop.com",
                             HoTen = "Nguyễn Văn Quản Trị",
-                            NgayCapNhatCuoiCung = new DateTime(2025, 6, 21, 13, 11, 17, 271, DateTimeKind.Local).AddTicks(6715),
+                            NgayCapNhatCuoiCung = new DateTime(2025, 6, 24, 8, 35, 28, 716, DateTimeKind.Local).AddTicks(204),
                             NgaySinh = new DateTime(1995, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             SoDienThoai = "0987654321",
                             TaikhoanId = new Guid("99999999-9999-9999-9999-999999999999"),
@@ -692,7 +688,7 @@ namespace API.Migrations
                         new
                         {
                             TaikhoanId = new Guid("99999999-9999-9999-9999-999999999999"),
-                            Ngaytaotaikhoan = new DateTime(2025, 6, 21, 13, 11, 17, 271, DateTimeKind.Local).AddTicks(6564),
+                            Ngaytaotaikhoan = new DateTime(2025, 6, 24, 8, 35, 28, 716, DateTimeKind.Local).AddTicks(122),
                             Password = "admin123",
                             Username = "admin"
                         });

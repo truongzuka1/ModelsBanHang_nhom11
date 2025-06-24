@@ -1,17 +1,18 @@
-﻿using Data.Models;
+﻿//using API.Models.DTO;
+//using Data.Models;
 
-namespace API.IService
-{
-    public interface IKichCoService
-    {
-        Task<IEnumerable<KichCo>> GetAllAsync();
-        Task<KichCo> GetByIdAsync(Guid id);
-        Task<KichCo> AddAsync(KichCo kichCo);
-        Task<KichCo> UpdateAsync(KichCo kichCo);
-        Task<bool> DeleteAsync(Guid id);
+//namespace API.IService
+//{
+//    public interface IKichCoService
+//    {
+//        Task<List<KichCoDTO>> GetAllAsync();
+//        Task<KichCoDTO> GetByIdAsync(Guid id);
+//        Task<bool> CreateAsync(KichCoDTO dto);
+//        Task<bool> UpdateAsync(KichCoDTO dto);
+//        Task<bool> DeleteAsync(Guid id);
 
-        Task<bool> AddKichCoToGiayChiTiet(Guid giayChiTietId, Guid kichCoId);
-        Task<bool> RemoveKichCoFromGiayChiTiet(Guid giayChiTietId, Guid kichCoId);
-        Task<IEnumerable<KichCo>> GetKichCosByGiayIdAsync(Guid giayChiTietId);
-    }
-}
+//        Task<bool> AddKichCoToGiayChiTiet(Guid giayChiTietId, Guid kichCoId);
+//        Task<bool> RemoveKichCoFromGiayChiTiet(Guid giayChiTietId, Guid kichCoId);
+//        Task<List<KichCoDTO>> GetKichCosByGiayIdAsync(Guid giayChiTietId);
+//    }
+//}

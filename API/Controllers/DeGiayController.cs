@@ -1,6 +1,5 @@
 ﻿using API.IRepository;
-using API.IRepository.Repository;
-
+using API.Models.DTO;
 using Data.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,75 +7,93 @@ namespace API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class GiayChiTietApi : Controller
+    public class DeGiayController : ControllerBase
     {
-        private readonly IGiayChiTietRepository _giayChitiet;
-        private readonly IDeGiayRepository _degiay;
-        private readonly IAnhRepository _anhRepository;
-        private readonly IKichCoRepository _kichcoRepository;
+        private readonly IDeGiayRepository _deGiayRepository;
 
-        public GiayChiTietApi(IGiayChiTietRepository giayChitiet, IDeGiayRepository degiay)
+        public DeGiayController(IDeGiayRepository deGiayRepository)
         {
-            _giayChitiet = giayChitiet;
-            _degiay = degiay;
-          
+            _deGiayRepository = deGiayRepository;
         }
-        [HttpGet("giaychitiet")]
-        public async Task<ActionResult<IEnumerable<GiayChiTiet>>> GetGiayChiTiets()
+
+        // GET: api/DeGiays
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<DeGiayDTO>>> GetAll()
         {
-            return Ok(await _giayChitiet.getAllGiayChiTiet());
+            var entities = await _deGiayRepository.GetAllDegiay();
+
+            var dtos = entities.Select(d => new DeGiayDTO
+            {
+                DeGiayId = d.DeGiayId,
+                TenDeGiay = d.TenDeGiay,
+                MoTa = d.MoTa,
+                TrangThai = d.TrangThai
+            });
+
+            return Ok(dtos);
         }
-        [HttpGet("degiay")]
-        public async Task<ActionResult<IEnumerable<DeGiay>>> GetDeGiayAll()
+
+        // GET: api/DeGiays/{id}
+        [HttpGet("{id}")]
+        public async Task<ActionResult<DeGiayDTO>> GetById(Guid id)
         {
-            return Ok(await _degiay.GetAllDegiay());
+            var entity = await _deGiayRepository.GetDeGiay(id);
+            if (entity == null)
+                return NotFound();
+
+            var dto = new DeGiayDTO
+            {
+                DeGiayId = entity.DeGiayId,
+                TenDeGiay = entity.TenDeGiay,
+                MoTa = entity.MoTa,
+                TrangThai = entity.TrangThai
+            };
+
+            return Ok(dto);
         }
-        [HttpGet("giaychitiet/{id}")]
-        public async Task<ActionResult<GiayChiTiet>> GetGiayChiTietById(Guid id)
+
+        // POST: api/DeGiays
+        [HttpPost]
+        public async Task<ActionResult> Create(DeGiayDTO dto)
         {
-            return Ok(await _giayChitiet.getGiayChiTietbyID(id));
-        }
-        [HttpGet("degiay/{id}")]
-        public async Task<ActionResult<DeGiay>> GetDeGiayById(Guid id)
-        {
-            return Ok(await _degiay.GetDeGiay(id));
-        }
-        [HttpPost("giaychitiet")]
-        public async Task<ActionResult<GiayChiTiet>> CreateGiayChitiet(GiayChiTiet gct, Guid? iddegiay)
-        {
-            await _giayChitiet.CreateGiayChiTiet(gct, iddegiay);
-            return Ok();
-        }
-        [HttpPost("degiay")]
-        public async Task<ActionResult<DeGiay>> CreateDeGiay(DeGiay dg)
-        {
-            await _degiay.CreateDeGiay(dg);
-            return Ok();
-        }
-        [HttpPut("giaychitiet")]
-        public async Task<ActionResult> UpdateGiayChiTiet(GiayChiTiet gct, Guid? dg)
-        {
-            await _giayChitiet.UpdateGiayChiTiet(gct, dg);
-            return Ok();
-        }
-        [HttpDelete("giaychitiet/{id}")]
-        public async Task<ActionResult> DeleteGiayChiTiet(Guid id)
-        {
-            await _giayChitiet.DeleteGiayChiTiet(id);
-            return Ok();
-        }
-        [HttpPut("degiay")]
-        public async Task<ActionResult> UpdateDeGiay(DeGiay dg)
-        {
-            await _degiay.UpdateDeGiay(dg);
-            return Ok();
-        }
-        [HttpDelete("degiay/{id}")]
-        public async Task<ActionResult> DeleteDeGiay(Guid id)
-        {
-            await _degiay.DeleteDeGiay(id);
+            var entity = new DeGiay
+            {
+                DeGiayId = Guid.NewGuid(), // hoặc để DB tự sinh nếu dùng EF Identity
+                TenDeGiay = dto.TenDeGiay,
+                MoTa = dto.MoTa,
+                TrangThai = dto.TrangThai
+            };
+
+            await _deGiayRepository.CreateDeGiay(entity);
             return Ok();
         }
 
+        // PUT: api/DeGiays
+        [HttpPut]
+        public async Task<ActionResult> Update(DeGiayDTO dto)
+        {
+            var entity = await _deGiayRepository.GetDeGiay(dto.DeGiayId);
+            if (entity == null)
+                return NotFound();
+
+            entity.TenDeGiay = dto.TenDeGiay;
+            entity.MoTa = dto.MoTa;
+            entity.TrangThai = dto.TrangThai;
+
+            await _deGiayRepository.UpdateDeGiay(entity);
+            return Ok();
+        }
+
+        // DELETE: api/DeGiays/{id}
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(Guid id)
+        {
+            var entity = await _deGiayRepository.GetDeGiay(id);
+            if (entity == null)
+                return NotFound();
+
+            await _deGiayRepository.DeleteDeGiay(id);
+            return Ok();
+        }
     }
 }
