@@ -1,0 +1,74 @@
+﻿@page "/ThemDotGiamGia"
+@using Data.Models
+@using BlazorAdmin.Service.IService
+@inject IGiamGiaService GiamGiaService
+@inject NavigationManager Navigation
+
+
+@rendermode InteractiveServer
+
+<h3 class="mb-3"><i class="bi bi-plus-circle"></i> Thêm Đợt Giảm Giá</h3>
+
+<div class="card shadow-sm p-4">
+    <EditForm Model="dot" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label class="form-label">Tên đợt</label>
+            <InputText class="form-control" @bind-Value="dot.TenGiamGia" />
+            <ValidationMessage For="@(() => dot.TenGiamGia)" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Giảm (%)</label>
+            <InputNumber class="form-control" @bind-Value="dot.PhanTramKhuyenMai" />
+            <ValidationMessage For="@(() => dot.PhanTramKhuyenMai)" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Thời gian áp dụng</label>
+            <div class="d-flex gap-2">
+                <div class="flex-fill">
+                    <InputDate class="form-control" @bind-Value="dot.NgayBatDau" />
+                    <ValidationMessage For="@(() => dot.NgayBatDau)" />
+                </div>
+                <div class="flex-fill">
+                    <InputDate class="form-control" @bind-Value="dot.NgayKetThuc" />
+                    <ValidationMessage For="@(() => dot.NgayKetThuc)" />
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-3">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Lưu
+            </button>
+            <button type="button" class="btn btn-secondary ms-2" @onclick='() => Navigation.NavigateTo("/DotGiamGia")'>
+                <i class="bi bi-arrow-left-circle"></i> Quay lại
+            </button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private GiamGia dot = new()
+    {
+        NgayBatDau = DateTime.Today,
+        NgayKetThuc = DateTime.Today.AddDays(7),
+        TrangThai = true
+    };
+
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            await GiamGiaService.AddAsync(dot);
+            Navigation.NavigateTo("/DotGiamGia");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Lỗi khi lưu: " + ex.Message);
+        }
+    }
+}
