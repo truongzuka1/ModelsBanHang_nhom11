@@ -1,6 +1,5 @@
-﻿using BlazorAdmin.Service.IService;
-using Data.Models;
-using System.Net.Http;
+﻿using API.Models.DTO;
+using BlazorAdmin.Service.IService;
 using System.Net.Http.Json;
 
 namespace BlazorAdmin.Service
@@ -9,43 +8,44 @@ namespace BlazorAdmin.Service
     {
         private readonly HttpClient _httpClient;
 
-        public GiayChiTietService(HttpClient httpClient)
+		public GiayChiTietService(IHttpClientFactory httpClientFactory)
+		{
+			_httpClient = httpClientFactory.CreateClient("giaychitiet");
+		}
+
+		public async Task<List<GiayChiTietDTO>> GetAllAsync()
         {
-            _httpClient = httpClient;
+            var result = await _httpClient.GetFromJsonAsync<List<GiayChiTietDTO>>("api/GiayChiTiet");
+            return result ?? new List<GiayChiTietDTO>();
         }
 
-        public async Task<List<GiayChiTiet>> GetAllAsync()
+        public async Task<GiayChiTietDTO?> GetByIdAsync(Guid id)
         {
-            return await _httpClient.GetFromJsonAsync<List<GiayChiTiet>>("api/GiayChiTiet");
+            return await _httpClient.GetFromJsonAsync<GiayChiTietDTO>($"api/GiayChiTiet/{id}");
         }
 
-        public async Task<GiayChiTiet> GetByIdAsync(Guid id)
+        public async Task<List<GiayChiTietDTO>> GetByGiayIdAsync(Guid giayId)
         {
-            return await _httpClient.GetFromJsonAsync<GiayChiTiet>($"api/GiayChiTiet/{id}");
+            var result = await _httpClient.GetFromJsonAsync<List<GiayChiTietDTO>>($"api/GiayChiTiet/by-giay/{giayId}");
+            return result ?? new List<GiayChiTietDTO>();
         }
 
-        public async Task CreateAsync(GiayChiTiet gct, Guid? idDeGiay)
+        public async Task<bool> CreateAsync(GiayChiTietDTO dto)
         {
-            var url = idDeGiay.HasValue
-                ? $"api/GiayChiTiet?idDeGiay={idDeGiay}"
-                : "api/GiayChiTiet";
-            var response = await _httpClient.PostAsJsonAsync(url, gct);
-            response.EnsureSuccessStatusCode();
+            var response = await _httpClient.PostAsJsonAsync("api/GiayChiTiet", dto);
+            return response.IsSuccessStatusCode;
         }
 
-        public async Task UpdateAsync(GiayChiTiet gct, Guid? idDeGiay)
+        public async Task<bool> UpdateAsync(Guid id, GiayChiTietDTO dto)
         {
-            var url = idDeGiay.HasValue
-                ? $"api/GiayChiTiet/{gct.GiayChiTietId}?idDeGiay={idDeGiay}"
-                : $"api/GiayChiTiet/{gct.GiayChiTietId}";
-            var response = await _httpClient.PutAsJsonAsync(url, gct);
-            response.EnsureSuccessStatusCode();
+            var response = await _httpClient.PutAsJsonAsync($"api/GiayChiTiet/{id}", dto);
+            return response.IsSuccessStatusCode;
         }
 
-        public async Task DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
             var response = await _httpClient.DeleteAsync($"api/GiayChiTiet/{id}");
-            response.EnsureSuccessStatusCode();
+            return response.IsSuccessStatusCode;
         }
     }
 }

@@ -1,8 +1,8 @@
-﻿@* @page "/SanPham"
+﻿@page "/SanPham"
 @rendermode InteractiveServer
 @using API.Models.DTO
 @inject IJSRuntime JS
-@inject IGiayService giayService
+@inject IGiayChiTietService giayChiTietService
 @inject NavigationManager NavigationManager
 
 <div class="container-fluid px-4">
@@ -97,12 +97,14 @@
                                 </td>
                             </tr>
                         }
-                        else if (FilteredList?.Any() == true)
+                        else if (PagedList?.Any() == true)
                         {
-                            @foreach (var item in FilteredList)
+                            int stt = (currentPage - 1) * pageSize;
+                            @foreach (var item in PagedList)
                             {
+                                stt++;
                                 <tr>
-                                    <td class="text-center">@item.STT</td>
+                                    <td class="text-center">@stt</td>
                                     <td>@item.TenGiay</td>
                                     <td>@item.NgayTao.ToString("dd/MM/yyyy")</td>
                                     <td class="text-center">
@@ -112,10 +114,10 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <button class="btn btn-outline-primary" @onclick="() => ViewProduct(item.GiayId)">
+                                            <button class="btn btn-outline-primary" @onclick="() => ViewProduct(item.GiayChiTietId)">
                                                 <i class="bi bi-eye"></i>
                                             </button>
-                                            <button class="btn btn-outline-warning" @onclick="() => EditProduct(item.GiayId)">
+                                            <button class="btn btn-outline-warning" @onclick="() => EditProduct(item.GiayChiTietId)">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
                                             <button class="btn btn-outline-danger" @onclick="() => DeleteProduct(item)">
@@ -144,7 +146,7 @@
             {
                 <div class="d-flex justify-content-between align-items-center mt-3">
                     <div class="text-muted">
-                        Hiển thị <b>@FilteredList.Count</b> trong tổng số <b>@ListSanPham.Count</b> sản phẩm
+                        Hiển thị <b>@PagedList.Count</b> trong tổng số <b>@FilteredList.Count</b> sản phẩm
                     </div>
                     <nav>
                         <ul class="pagination pagination-sm mb-0">
@@ -175,19 +177,19 @@
 @code {
     private string searchText = "";
     private bool? statusFilter = null;
-    private List<GiayDTO> ListSanPham = new();
+    private List<GiayChiTietDTO> ListSanPham = new();
     private bool isLoading = true;
     private int currentPage = 1;
     private int pageSize = 10;
     private int totalPages => (int)Math.Ceiling((double)FilteredList.Count / pageSize);
 
-    private List<GiayDTO> FilteredList => ListSanPham
+    private List<GiayChiTietDTO> FilteredList => ListSanPham
         .Where(x => string.IsNullOrEmpty(searchText) ||
                     x.TenGiay.Contains(searchText, StringComparison.OrdinalIgnoreCase))
         .Where(x => statusFilter == null || x.TrangThai == statusFilter)
         .ToList();
 
-    private List<GiayDTO> PagedList => FilteredList
+    private List<GiayChiTietDTO> PagedList => FilteredList
         .Skip((currentPage - 1) * pageSize)
         .Take(pageSize)
         .ToList();
@@ -197,38 +199,31 @@
         try
         {
             isLoading = true;
-            var data = await giayService.GetAllAsync();
-
-            int stt = 1;
-            ListSanPham = data.Select(item =>
-            {
-                item.STT = stt++;
-                return item;
-            }).ToList();
+            var data = await giayChiTietService.GetAllAsync();
+            ListSanPham = data.ToList();
         }
         finally
         {
             isLoading = false;
-            StateHasChanged();
         }
     }
 
-    private void ViewProduct(Guid productId)
+    private void ViewProduct(Guid id)
     {
-        NavigationManager.NavigateTo($"/SanPhamChiTiet/{productId}");
+        NavigationManager.NavigateTo($"/SanPhamChiTiet/{id}");
     }
 
-    private void EditProduct(Guid productId)
+    private void EditProduct(Guid id)
     {
-        NavigationManager.NavigateTo($"/EditGiay/{productId}");
+        NavigationManager.NavigateTo($"/EditGiayChiTiet/{id}");
     }
 
-    private async Task DeleteProduct(GiayDTO product)
+    private async Task DeleteProduct(GiayChiTietDTO product)
     {
         bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Bạn có chắc chắn muốn xóa sản phẩm {product.TenGiay}?");
         if (confirmed)
         {
-            var result = await giayService.DeleteAsync(product.GiayId);
+            var result = await giayChiTietService.DeleteAsync(product.GiayChiTietId);
             if (result)
             {
                 await JS.InvokeVoidAsync("alert", "Xóa sản phẩm thành công");
@@ -251,8 +246,7 @@
         isLoading = true;
         try
         {
-            // Gọi API export Excel
-            await Task.Delay(500); // Giả lập thời gian xuất file
+            await Task.Delay(500);
             await JS.InvokeVoidAsync("alert", "Xuất Excel thành công");
         }
         catch (Exception ex)
@@ -264,4 +258,4 @@
             isLoading = false;
         }
     }
-} *@
+}

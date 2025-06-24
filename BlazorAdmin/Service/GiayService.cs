@@ -1,5 +1,5 @@
-﻿using BlazorAdmin.Service.IService;
-using Data.Models;
+﻿using API.Models.DTO;
+using BlazorAdmin.Service.IService;
 using System.Net.Http.Json;
 
 namespace BlazorAdmin.Service
@@ -8,38 +8,42 @@ namespace BlazorAdmin.Service
     {
         private readonly HttpClient _httpClient;
 
-        public GiayService(IHttpClientFactory httpClientFactory)
+        public GiayService(HttpClient httpClient)
         {
-            _httpClient = httpClientFactory.CreateClient("giay");
+            _httpClient = httpClient;
         }
 
-        public async Task<List<Giay>> GetAllAsync()
+        public async Task<List<GiayDTO>> GetAllAsync()
         {
-            return await _httpClient.GetFromJsonAsync<List<Giay>>("api/Giay")
-                   ?? new List<Giay>();
+            var result = await _httpClient.GetFromJsonAsync<List<GiayDTO>>("api/Giay");
+            return result ?? new();
         }
 
-        public async Task<Giay> GetByIdAsync(Guid id)
+        public async Task<GiayDTO> GetByIdAsync(Guid id)
         {
-            return await _httpClient.GetFromJsonAsync<Giay>($"api/Giay/{id}");
+            return await _httpClient.GetFromJsonAsync<GiayDTO>($"api/Giay/{id}");
         }
 
-        public async Task CreateAsync(Giay obj)
+        public async Task<Guid?> CreateAsync(GiayDTO dto)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/Giay", obj);
-            response.EnsureSuccessStatusCode();
+            var response = await _httpClient.PostAsJsonAsync("api/Giay", dto);
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<Guid>();
+            }
+            return null;
         }
 
-        public async Task UpdateAsync(Giay obj)
+        public async Task<bool> UpdateAsync(GiayDTO dto)
         {
-            var response = await _httpClient.PutAsJsonAsync($"api/Giay/{obj.GiayId}", obj);
-            response.EnsureSuccessStatusCode();
+            var response = await _httpClient.PutAsJsonAsync($"api/Giay/{dto.GiayId}", dto);
+            return response.IsSuccessStatusCode;
         }
 
-        public async Task DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
             var response = await _httpClient.DeleteAsync($"api/Giay/{id}");
-            response.EnsureSuccessStatusCode();
+            return response.IsSuccessStatusCode;
         }
     }
 }

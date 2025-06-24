@@ -5,6 +5,7 @@
 @inject NavigationManager manager
 @inject IJSRuntime JS
 @using API.Models
+@using API.Models.DTO
 @rendermode InteractiveServer
 <link href="css/Thongke.css" rel="stylesheet" />
 <h2>Thống kê</h2>
@@ -270,118 +271,122 @@
 @code {
 
 
-	private List<HoaDon> hoaDons = new List<HoaDon>();
-	private List<HoaDonChiTiet> hoaDonChiTiets = new List<HoaDonChiTiet>();
-	private List<GiayChiTiet> giayChiTiets = new List<GiayChiTiet>();
+    private List<HoaDon> hoaDons = new List<HoaDon>();
+    private List<HoaDonChiTiet> hoaDonChiTiets = new List<HoaDonChiTiet>();
+    private List<GiayChiTiet> giayChiTiets = new List<GiayChiTiet>();
 
 
-	private decimal TongSoTienHomNay ;
-	private int SoLuongSanPhamHomNay ;
-	private int DonThanhCongHomNay ;
-	private int DonHangHuyHomNay ;
-	private int DonTraHomNay;
+    private decimal TongSoTienHomNay ;
+    private int SoLuongSanPhamHomNay ;
+    private int DonThanhCongHomNay ;
+    private int DonHangHuyHomNay ;
+    private int DonTraHomNay;
 
 
-	private decimal TongSoTienTuanNay ;
-	private int SoLuongSanPhamTuanNay;
-	private int DonThanhCongTuanNay ;
-	private int DonHangHuyTuanNay ;
-	private int DonTraTuanNay;
+    private decimal TongSoTienTuanNay ;
+    private int SoLuongSanPhamTuanNay;
+    private int DonThanhCongTuanNay ;
+    private int DonHangHuyTuanNay ;
+    private int DonTraTuanNay;
 
-	private decimal TongSoTienThangNay;
-	private int SoLuongSanPhamThangNay ;
-	private int DonThanhCongThangNay ;
-	private int DonHangHuyThangNay ;
-	private int DonTraThangNay;
-
-
-	private decimal TongSoTienNamNay ;
-	private int SoLuongSanPhamNamNay ;
-	private int DonThanhCongNamNay ;
-	private int DonHangHuyNamNay;
-	private int DonTraNamNay;
-
-	private string PercentDoanhThuHomNay { get; set; } = "0%";
-	private string PercentDonHangHomNay { get; set; } = "0%";
-	private string PercentSanPhamHomNay { get; set; } = "0%";
-
-	private string PercentDoanhThuTuanNay { get; set; } = "0%";
-	private string PercentDonHangTuanNay { get; set; } = "0%";
-	private string PercentSanPhamTuanNay { get; set; } = "0%";
-
-	private string PercentDoanhThuThangNay { get; set; } = "0%";
-	private string PercentDonHangThangNay { get; set; } = "0%";
-	private string PercentSanPhamThangNay { get; set; } = "0%";
-
-	private string PercentDoanhThuNamNay { get; set; } = "0%";
-	private string PercentDonHangNamNay { get; set; } = "0%";
-	private string PercentSanPhamNamNay { get; set; } = "0%";
-
-	private string PercentDaHuy { get; set; } = "0.00%";
-	private string PercentChoXacNhan { get; set; } = "0.00%";
-	private string PercentChoGiaoHang { get; set; } = "0.00%";
-	private string PercentDangVanChuyen { get; set; } = "0.00%";
-	private string PercentDaGiaoHang { get; set; } = "0.00%";
-	private string PercentDaThanhToan { get; set; } = "0.00%";
-	private string PercentChoThanhToan { get; set; } = "0.00%";
-	private string PercentHoanThanh { get; set; } = "0.00%";
-	private string PercentTraHang { get; set; } = "0.00%";
-
-	public List<DanhSachSanPhamBanChay> sanPhamBanChays { get; set; } = new List<DanhSachSanPhamBanChay>();
-	private string activeFilter = "NGÀY";
-
-	private List<string> filterOptions = new List<string> { "NGÀY", "TUẦN", "THÁNG", "NĂM", "TÙY CHỈNH" };
+    private decimal TongSoTienThangNay;
+    private int SoLuongSanPhamThangNay ;
+    private int DonThanhCongThangNay ;
+    private int DonHangHuyThangNay ;
+    private int DonTraThangNay;
 
 
-	private DateTime StartDate { get; set; } = DateTime.Now.AddDays(-7);
-	private DateTime EndDate { get; set; } = DateTime.Now;
+    private decimal TongSoTienNamNay ;
+    private int SoLuongSanPhamNamNay ;
+    private int DonThanhCongNamNay ;
+    private int DonHangHuyNamNay;
+    private int DonTraNamNay;
+
+    private string PercentDoanhThuHomNay { get; set; } = "0%";
+    private string PercentDonHangHomNay { get; set; } = "0%";
+    private string PercentSanPhamHomNay { get; set; } = "0%";
+
+    private string PercentDoanhThuTuanNay { get; set; } = "0%";
+    private string PercentDonHangTuanNay { get; set; } = "0%";
+    private string PercentSanPhamTuanNay { get; set; } = "0%";
+
+    private string PercentDoanhThuThangNay { get; set; } = "0%";
+    private string PercentDonHangThangNay { get; set; } = "0%";
+    private string PercentSanPhamThangNay { get; set; } = "0%";
+
+    private string PercentDoanhThuNamNay { get; set; } = "0%";
+    private string PercentDonHangNamNay { get; set; } = "0%";
+    private string PercentSanPhamNamNay { get; set; } = "0%";
+
+    private string PercentDaHuy { get; set; } = "0.00%";
+    private string PercentChoXacNhan { get; set; } = "0.00%";
+    private string PercentChoGiaoHang { get; set; } = "0.00%";
+    private string PercentDangVanChuyen { get; set; } = "0.00%";
+    private string PercentDaGiaoHang { get; set; } = "0.00%";
+    private string PercentDaThanhToan { get; set; } = "0.00%";
+    private string PercentChoThanhToan { get; set; } = "0.00%";
+    private string PercentHoanThanh { get; set; } = "0.00%";
+    private string PercentTraHang { get; set; } = "0.00%";
+
+    public List<DanhSachSanPhamBanChay> sanPhamBanChays { get; set; } = new List<DanhSachSanPhamBanChay>();
+    private string activeFilter = "NGÀY";
+
+    private List<string> filterOptions = new List<string> { "NGÀY", "TUẦN", "THÁNG", "NĂM", "TÙY CHỈNH" };
 
 
-
-	private List<int> PageSizes1 = new List<int> { 5, 10 };
-	private int _pageSize1 = 5;
-	private List<List<DanhSachSanPhamBanChay>> PagedProducts1 = new List<List<DanhSachSanPhamBanChay>>();
-	private int PageSize1
-	{
-		get => _pageSize1;
-		set
-		{
-			if (_pageSize1 != value)
-			{
-				_pageSize1 = value;
-				UpdatePaging1();
-				CurrentPage1 = 0;
-			}
-		}
-	}
-	private int CurrentPage1 = 0;
-	private int TotalPages1 = 0;
-
-
-	private List<DanhSachSanPhamBanChay> giays2 = new List<DanhSachSanPhamBanChay>();
-	private List<int> PageSizes2 = new List<int> { 5, 10 };
-	private int _pageSize2 = 5;
-	private int PageSize2
-	{
-		get => _pageSize2;
-		set
-		{
-			if (_pageSize2 != value)
-			{
-				_pageSize2 = value;
-				UpdatePaging2();
-				CurrentPage2 = 0;
-			}
-		}
-	}
-	private int CurrentPage2 = 0;
-	private int TotalPages2 = 0;
-	private List<List<DanhSachSanPhamBanChay>> PagedProducts2 = new List<List<DanhSachSanPhamBanChay>>();
+    private DateTime StartDate { get; set; } = DateTime.Now.AddDays(-7);
+    private DateTime EndDate { get; set; } = DateTime.Now;
 
 
 
-	protected override async Task OnInitializedAsync()
-	{
+    private List<int> PageSizes1 = new List<int> { 5, 10 };
+    private int _pageSize1 = 5;
+    private List<List<DanhSachSanPhamBanChay>> PagedProducts1 = new List<List<DanhSachSanPhamBanChay>>();
+    private int PageSize1
+    {
+        get => _pageSize1;
+        set
+        {
+            if (_pageSize1 != value)
+            {
+                _pageSize1 = value;
+                UpdatePaging1();
+                CurrentPage1 = 0;
+            }
+        }
+    }
+    private int CurrentPage1 = 0;
+    private int TotalPages1 = 0;
+
+
+    private List<DanhSachSanPhamBanChay> giays2 = new List<DanhSachSanPhamBanChay>();
+    private List<int> PageSizes2 = new List<int> { 5, 10 };
+    private int _pageSize2 = 5;
+    private int PageSize2
+    {
+        get => _pageSize2;
+        set
+        {
+            if (_pageSize2 != value)
+            {
+                _pageSize2 = value;
+                UpdatePaging2();
+                CurrentPage2 = 0;
+            }
+        }
+    }
+    private int CurrentPage2 = 0;
+    private int TotalPages2 = 0;
+    private List<List<DanhSachSanPhamBanChay>> PagedProducts2 = new List<List<DanhSachSanPhamBanChay>>();
+
+    public ThongKe()
+    {
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+	
+
 		try
 		{
 

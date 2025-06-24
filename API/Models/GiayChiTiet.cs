@@ -12,10 +12,8 @@ namespace Data.Models
     {
         [Key]
         public Guid GiayChiTietId { get; set; }
-
         [Required]
         public Guid GiayId { get; set; }
-
         public Guid ? ChatLieuId { get; set; }
         public Guid ? KichCoId { get; set; }
         public Guid ? MauSacId { get; set; }

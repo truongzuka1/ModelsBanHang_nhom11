@@ -1,4 +1,5 @@
-﻿using API.IRepository;
+﻿using API.Models.DTO;
+using API.IRepository;
 using Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -35,21 +36,29 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Giay giay)
+        public async Task<IActionResult> Create([FromBody] GiayDTO dto)
         {
-            giay.GiayId = Guid.NewGuid();
+            var giay = new Giay
+            {
+                GiayId = dto.GiayId,
+                TenGiay = dto.TenGiay,
+                TrangThai = dto.TrangThai
+            };
+
             await _giayRepository.AddAsync(giay);
-            return Ok();
+            return CreatedAtAction(nameof(GetById), new { id = giay.GiayId }, giay.GiayId);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, Giay giay)
+        public async Task<IActionResult> Update(Guid id, [FromBody] GiayDTO dto)
         {
             var existing = await _giayRepository.GetByIdAsync(id);
-            if (existing == null) return NotFound();
+            if (existing == null)
+                return NotFound();
 
-            existing.TenGiay = giay.TenGiay;
-            existing.TrangThai = giay.TrangThai;
+            existing.TenGiay = dto.TenGiay;
+            existing.TrangThai = dto.TrangThai;
+
             await _giayRepository.UpdateAsync(existing);
             return Ok();
         }
@@ -60,8 +69,5 @@ namespace API.Controllers
             await _giayRepository.DeleteAsync(id);
             return Ok();
         }
-
-       
-
     }
 }
