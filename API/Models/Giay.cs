@@ -18,8 +18,8 @@ namespace Data.Models
         public string TenGiay { get; set; }
         public bool TrangThai { get; set; }
         public virtual ICollection<HoaDonChiTiet>? HoaDonChiTiets { get; set; } = new List<HoaDonChiTiet>();
-        public virtual ICollection<GiayDotGiamGia> GiayDotGiamGias { get; set; }
-        public virtual ICollection<GiayChiTiet> GiayChiTiets { get; set; }
+        public virtual ICollection<GiayDotGiamGia> GiayDotGiamGias { get; set; } = new List<GiayDotGiamGia>();
+        public virtual ICollection<GiayChiTiet> GiayChiTiets { get; set; } = new List<GiayChiTiet>();
         public virtual ICollection<GioHangChiTiet>? GioHangChiTiets { get; set; } = new List<GioHangChiTiet>();
     }
 
