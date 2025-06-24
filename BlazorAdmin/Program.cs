@@ -63,6 +63,14 @@ builder.Services.AddHttpClient<IDeGiayService, DeGiayService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:5001/"); 
 });
+builder.Services.AddHttpClient<IVoucherService, VoucherService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7246"); // đúng base URL API
+});
+builder.Services.AddHttpClient<IGiamGiaService, GiamGiaService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7246/"); // hoặc địa chỉ backend của bạn
+});
 builder.Services.AddScoped<IHoaDonChiTietService, HoaDonChiTietService>();
 builder.Services.AddScoped<INhanVienService, NhanVienService>();
 builder.Services.AddScoped<IAnhService, AnhService>();
