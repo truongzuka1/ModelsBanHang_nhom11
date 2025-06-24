@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(DbContextApp))]
-    [Migration("20250618035009_ver1")]
-    partial class ver1
+    [Migration("20250624013529_Sua1")]
+    partial class Sua1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -120,10 +120,6 @@ namespace API.Migrations
                     b.Property<Guid>("DeGiayId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("KichCo")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MoTa")
                         .IsRequired()
@@ -466,6 +462,10 @@ namespace API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("GhiChu")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
                     b.Property<decimal>("Gia")
                         .HasColumnType("decimal(18,2)");
 
@@ -475,11 +475,18 @@ namespace API.Migrations
                     b.Property<Guid>("HoaDonId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime?>("NgayTraHang")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("SoLuongSanPham")
                         .HasColumnType("int");
 
                     b.Property<bool>("TrangThai")
                         .HasColumnType("bit");
+
+                    b.Property<string>("TrangThaiChiTiet")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("HoaDonChiTietId");
 
@@ -518,7 +525,7 @@ namespace API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("TaiKhoanId")
+                    b.Property<Guid?>("TaiKhoanId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("TrangThai")
@@ -651,7 +658,7 @@ namespace API.Migrations
                             ChucVuId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Email = "admin@shop.com",
                             HoTen = "Nguyễn Văn Quản Trị",
-                            NgayCapNhatCuoiCung = new DateTime(2025, 6, 18, 10, 49, 32, 774, DateTimeKind.Local).AddTicks(5075),
+                            NgayCapNhatCuoiCung = new DateTime(2025, 6, 24, 8, 35, 28, 716, DateTimeKind.Local).AddTicks(204),
                             NgaySinh = new DateTime(1995, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             SoDienThoai = "0987654321",
                             TaikhoanId = new Guid("99999999-9999-9999-9999-999999999999"),
@@ -684,7 +691,7 @@ namespace API.Migrations
                         new
                         {
                             TaikhoanId = new Guid("99999999-9999-9999-9999-999999999999"),
-                            Ngaytaotaikhoan = new DateTime(2025, 6, 18, 10, 49, 32, 774, DateTimeKind.Local).AddTicks(5003),
+                            Ngaytaotaikhoan = new DateTime(2025, 6, 24, 8, 35, 28, 716, DateTimeKind.Local).AddTicks(122),
                             Password = "admin123",
                             Username = "admin"
                         });
@@ -769,7 +776,7 @@ namespace API.Migrations
                     b.Property<int>("SoLuong")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("TaikhoanId")
+                    b.Property<Guid?>("TaikhoanId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("TenVoucher")
@@ -949,7 +956,7 @@ namespace API.Migrations
                         .IsRequired();
 
                     b.HasOne("Data.Models.HoaDon", "HoaDons")
-                        .WithMany("HoaDonChiTietsId")
+                        .WithMany("HoaDonChiTiets")
                         .HasForeignKey("HoaDonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -964,8 +971,7 @@ namespace API.Migrations
                     b.HasOne("Data.Models.TaiKhoan", "TaiKhoan")
                         .WithMany()
                         .HasForeignKey("TaiKhoanId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("TaiKhoan");
                 });
@@ -990,9 +996,7 @@ namespace API.Migrations
                 {
                     b.HasOne("Data.Models.TaiKhoan", "TaiKhoan")
                         .WithMany()
-                        .HasForeignKey("TaikhoanId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TaikhoanId");
 
                     b.Navigation("TaiKhoan");
                 });
@@ -1045,7 +1049,7 @@ namespace API.Migrations
 
             modelBuilder.Entity("Data.Models.HoaDon", b =>
                 {
-                    b.Navigation("HoaDonChiTietsId");
+                    b.Navigation("HoaDonChiTiets");
                 });
 
             modelBuilder.Entity("Data.Models.KhachHang", b =>

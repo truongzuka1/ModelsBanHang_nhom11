@@ -5,13 +5,10 @@ using BlazorAdmin.Components;
 using BlazorAdmin.Service;
 using BlazorAdmin.Service.IService;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Http; 
-using Microsoft.AspNetCore.Identity; 
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddBlazorBootstrap();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -76,13 +73,13 @@ builder.Services.AddScoped<IGiamGiaService, GiamGiaService>();
 builder.Services.AddScoped<IGiayChiTietService, GiayChiTietService>();
 builder.Services.AddScoped<IGiayService, GiayService>();
 builder.Services.AddScoped<IHoaDonService, HoaDonService>();
-builder.Services.AddScoped<IKichCoService, KichCoService>();
 builder.Services.AddScoped<ITheLoaiGiayService, TheLoaiGiayService>();
 builder.Services.AddScoped<IThuongHieuService, ThuongHieuService>();
 builder.Services.AddScoped<IVoucherService, VoucherService>();
 builder.Services.AddScoped<ITaiKhoanService, TaiKhoanService>();
+//builder.Services.AddScoped<IKichCoService, KichCoService>();
 builder.Services.AddScoped<IKhachHangService, KhachHangService>();
-
+builder.Services.AddScoped<IReturnService, ReturnService>();
 var app = builder.Build();
 
 
