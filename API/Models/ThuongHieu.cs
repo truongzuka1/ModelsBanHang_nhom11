@@ -27,6 +27,6 @@ namespace Data.Models
         public string MoTa { get; set; }
 
         public bool TrangThai { get; set; }
-        public virtual ICollection<GiayChiTiet> GiayChiTiets { get; set; } = new List<GiayChiTiet>();
+        public virtual ICollection<Giay> Giays { get; set; } = new List<Giay>();
     }
 }

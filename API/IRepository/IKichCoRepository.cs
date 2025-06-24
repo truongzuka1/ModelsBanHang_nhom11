@@ -10,10 +10,6 @@ namespace API.IRepository
         Task<KichCo> AddAsync(KichCo kichCo);
         Task<KichCo> UpdateAsync(KichCo kichCo);
         Task<bool> DeleteAsync(Guid id);
-
-        // Thêm kích cỡ vào GiayChiTiet (giày chi tiết nào có những kích cỡ nào)
-        Task<bool> AddKichCoToGiayChiTiet(Guid giayChiTietId, Guid kichCoId);
-        Task<bool> RemoveKichCoFromGiayChiTiet(Guid giayChiTietId, Guid kichCoId);
-        Task<IEnumerable<KichCo>> GetKichCosByGiayIdAsync(Guid giayChiTietId);
+        Task<IEnumerable<KichCo>> SearchByTenAsync(string keyword);
     }
 }

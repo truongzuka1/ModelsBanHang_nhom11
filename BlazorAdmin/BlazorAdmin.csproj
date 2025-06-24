@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Components\Pages\Admin\SanPhamChiTiet\**" />
+    <Content Remove="Components\Pages\Admin\SanPhamChiTiet\**" />
+    <EmbeddedResource Remove="Components\Pages\Admin\SanPhamChiTiet\**" />
+    <None Remove="Components\Pages\Admin\SanPhamChiTiet\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Blazor.Bootstrap" Version="3.3.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.16" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.16">
@@ -25,7 +32,6 @@
     <ProjectReference Include="..\API\API.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Components\Pages\Admin\SanPhamChiTiet\" />
     <Folder Include="wwwroot\img\" />
   </ItemGroup>
 

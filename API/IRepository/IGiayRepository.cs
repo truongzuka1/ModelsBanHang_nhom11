@@ -5,10 +5,10 @@ namespace API.IRepository
     public interface IGiayRepository
     {
         Task<IEnumerable<Giay>> GetAllAsync();
-        Task<Giay?> GetByIdAsync(Guid id);
-        Task AddAsync(Giay giay);
-        Task UpdateAsync(Giay giay);
-        Task DeleteAsync(Guid id);
+        Task<Giay> GetByIdAsync(Guid id);
+        Task<Giay> AddAsync(Giay giay);
+        Task<Giay> UpdateAsync(Giay giay);
+        Task<bool> DeleteAsync(Guid id);
 
     }
 }
