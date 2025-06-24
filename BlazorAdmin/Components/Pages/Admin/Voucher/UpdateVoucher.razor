@@ -1,43 +1,13 @@
 ﻿@page "/Admin/updatevoucher/{Id:guid}"
 @rendermode InteractiveServer
-@using Data.Models
-@using BlazorAdmin.Service
-@using BlazorAdmin.Service.IService
 @inject IVoucherService service
 @inject NavigationManager manager
-<h3>UpdateVoucher</h3>
-<EditForm Model="voucher" OnValidSubmit="HandleValidSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-    <div class="mb-3">
-        <label for="TenVoucher" class="form-label">Họ tên:</label>
-        <InputText id="tenvoucher" class="form-control" @bind-Value="voucher.TenVoucher" />
-    </div>
-    <div class="mb-3">
-        <label for="ngaybatdau" class="form-label">Ngày bắt đầu:</label>
-        <InputDate id="ngaybatdau" class="form-control" @bind-Value="voucher.NgayBatDau" />
-    </div>
-    <div class="mb-3">
-        <label for="ngayketthuc" class="form-label">Ngày kết thúc:</label>
-        <InputDate id="ngayketthuc" class="form-control" @bind-Value="voucher.NgayKetThuc" />
-    </div>
-    <div class="mb-3">
-        <label for="phantramgiam" class="form-label">Phần trăm giảm:</label>
-        <InputNumber id="phantramgiam" class="form-control" @bind-Value="voucher.PhanTram" />
-    </div>
-
-    <div class="mb-3">
-        <label for="soluong" class="form-label">Số lượng:</label>
-        <InputNumber id="soluong" class="form-control" @bind-Value="voucher.SoLuong" />
-    </div>
-    <button type="submit" class="btn btn-primary">Save</button>
-
-</EditForm>
+@using Data.Models
 @code {
-    [Parameter]
-    public Guid Id { get; set; }
+    [Parameter] public Guid Id { get; set; }
 
-    private Voucher voucher = new Voucher();
+    private Voucher voucher = new();
+
     protected override async Task OnInitializedAsync()
     {
         voucher = await service.GetById(Id);
@@ -45,8 +15,41 @@
 
     private async Task HandleValidSubmit()
     {
-       
         await service.Update(voucher);
         manager.NavigateTo("/Admin/voucher");
     }
 }
+
+<h3>Cập nhật Voucher</h3>
+
+<EditForm Model="voucher" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label class="form-label">Tên Voucher:</label>
+        <InputText class="form-control" @bind-Value="voucher.TenVoucher" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Ngày bắt đầu:</label>
+        <InputDate class="form-control" @bind-Value="voucher.NgayBatDau" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Ngày kết thúc:</label>
+        <InputDate class="form-control" @bind-Value="voucher.NgayKetThuc" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Phần trăm giảm:</label>
+        <InputNumber class="form-control" @bind-Value="voucher.PhanTram" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Số lượng:</label>
+        <InputNumber class="form-control" @bind-Value="voucher.SoLuong" />
+    </div>
+
+    <button class="btn btn-primary">Lưu thay đổi</button>
+</EditForm>
