@@ -1,6 +1,8 @@
 ﻿@page "/hoadon"
 @layout AdminLayout
 @inject IHoaDonService hoaDonService
+@inject NavigationManager NavigationManager
+@implements IDisposable
 @rendermode InteractiveServer
 
 @using Data.Models
@@ -65,7 +67,20 @@
     private string trangThai;
     private List<string> trangThaiList = new() { "TẤT CẢ", "Chờ xác nhận", "Chờ giao", "Vận chuyển", "Đã giao", "Đã thanh toán", "Đã huỷ", "Hoàn thành" };
 
-    protected override async Task OnInitializedAsync() => await TaiLai();
+    protected override async Task OnInitializedAsync()
+    {
+        NavigationManager.LocationChanged += HandleLocationChanged;
+        await TaiLai();
+    }
+
+    private async void HandleLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        if (e.Location.Contains("/hoadon", StringComparison.OrdinalIgnoreCase))
+        {
+            await TaiLai();
+            StateHasChanged();
+        }
+    }
 
     private async Task TaiLai()
     {
@@ -95,4 +110,9 @@
         "Đã huỷ" => "badge-red",
         _ => "badge-gray"
     };
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= HandleLocationChanged;
+    }
 }
