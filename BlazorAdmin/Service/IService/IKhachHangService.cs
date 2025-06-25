@@ -8,6 +8,7 @@ namespace BlazorAdmin.Service.IService
         Task Create(KhachHang khachHang);
         Task Update(KhachHang khachHang);
         Task Delete(Guid id);
+        Task<List<KhachHang>> SearchKhachHangAsync(string keyword);
 
     }
 }

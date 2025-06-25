@@ -8,5 +8,6 @@ namespace BlazorAdmin.Service.IService
         Task CreateNhanVien(NhanVien nhanVien);
         Task DeleteNhanVienAsync(Guid NhanVienId);
         Task UpdateNhanVienAsync(NhanVien nhanVien);
+        Task<List<NhanVien>> SearchNhanVien(string keyword); 
     }
 }

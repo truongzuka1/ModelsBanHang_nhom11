@@ -4,10 +4,46 @@
 @using BlazorAdmin.Service;
 @using BlazorAdmin.Service.IService
 @inject INhanVienService service;
+@inject ITaiKhoanService TKservice;
 @inject NavigationManager manager;
 @inject IJSRuntime JS;
 
 <h3>DanhSachNhanVien</h3>
+<div class="d-flex justify-content-center mb-4">
+	<div class="input-group rounded shadow-sm" style="max-width: 500px; border: 1px solid #ced4da;">
+		<span class="input-group-text bg-white border-0">
+			<i class="bi bi-search text-secondary"></i>
+		</span>
+		<input type="text"
+			   class="form-control border-0 shadow-none"
+			   placeholder="Nhập tên nhân viên để tìm kiếm..."
+			   @bind="searchKeyword"
+			   @bind:event="oninput"
+			   style="font-size: 1rem;" />
+		<button class="btn btn-primary rounded-end" @onclick="Search" type="button">
+			<i class="bi bi-arrow-right-circle me-1"></i> Tìm
+		</button>
+	</div>
+</div>
+<style>
+	.input-group .form-control:focus {
+		box-shadow: none;
+	}
+
+	.btn-primary {
+		transition: background-color 0.3s ease, transform 0.2s ease;
+	}
+
+		.btn-primary:hover {
+			background-color: #0b5ed7;
+			transform: translateY(-1px);
+		}
+
+	.input-group-text {
+		background-color: #f8f9fa;
+	}
+</style>
+
 @{
 	int stt = 1;
 }
@@ -36,7 +72,7 @@
 				<td>@item.SoDienThoai</td>
 				<td>@item.Email</td>
 				<td>@item.NgaySinh.ToString("dd/MM/yyyy")</td>
-				<td>@item.ChucVu?.TenChucVu</td>
+				<td>@(item.ChucVu != null ? item.ChucVu.MotaChucVu : "Không có chức vụ")</td>
 				<td>@item.NgayCapNhatCuoiCung</td>
 				<td>
 					<button class="btn btn-sm @(item.TrangThai ? "btn-danger" : "btn-success") me-2"
@@ -59,6 +95,8 @@
 
 @code {
 	private List<NhanVien> NhanViens;
+	private string searchKeyword = "";
+	private readonly Guid adminId = Guid.Parse("88888888-8888-8888-8888-888888888888");
 	protected override async Task OnInitializedAsync()
 	{
 		if (NhanViens == null)
@@ -72,9 +110,9 @@
 	private async Task LoadNhanViensAsync()
 	{
 		var allNhanViens = await service.GetAllNhanVienAsync();
-		var adminId = Guid.Parse("88888888-8888-8888-8888-888888888888");
 		NhanViens = allNhanViens.Where(x => x.NhanVienId != adminId).ToList();
 	}
+
 
 
 	protected void NavigateToCreate()
@@ -88,14 +126,27 @@
 
 	private async Task DeleteAsyncNhanVien(Guid id)
 	{
-		var deleSanpham = await JS.InvokeAsync<bool>("confirm", $"Bạn có chắc chắn muốn xóa không?");
-		if (deleSanpham)
+		var deleNhanVien = await JS.InvokeAsync<bool>("confirm", $"Bạn có chắc chắn muốn xóa không?");
+		if (deleNhanVien)
 		{
-			await service.DeleteNhanVienAsync(id);
-			await LoadNhanViensAsync();
-			StateHasChanged();
+			// Lấy nhân viên để lấy thông tin tài khoản
+			var nhanVien = await service.GetByIdNhanVienAsync(id);
+			if (nhanVien != null)
+			{
+				// Nếu có tài khoản thì xóa tài khoản trước
+				if (nhanVien.TaikhoanId.HasValue)
+				{
+					await TKservice.DeleteTaiKhoanAsync(nhanVien.TaikhoanId.Value);
+				}
+
+				// Xóa nhân viên
+				await service.DeleteNhanVienAsync(id);
+				await LoadNhanViensAsync();
+				StateHasChanged();
+			}
 		}
 	}
+
 	private async Task ToggleTrangThai(Guid id)
 	{
 		var nhanVien = NhanViens.FirstOrDefault(x => x.NhanVienId == id);
@@ -111,6 +162,20 @@
 			StateHasChanged();
 		}
 	}
+
+	private async Task Search()
+	{
+		if (string.IsNullOrWhiteSpace(searchKeyword))
+		{
+			await LoadNhanViensAsync(); // luôn loại admin
+		}
+		else
+		{
+			var result = await service.SearchNhanVien(searchKeyword);
+			NhanViens = result.Where(x => x.NhanVienId != adminId).ToList(); // loại admin khỏi kết quả tìm
+		}
+	}
+
 
 
 }

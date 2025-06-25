@@ -60,14 +60,20 @@ namespace API.IRepository.Repository
 
         public async Task<List<NhanVien>> GetAllNhanVienAsync()
         {
-            return await _db.NhanViens.ToListAsync();
+            return await _db.NhanViens
+                            .Include(nv => nv.ChucVu)
+                            .Include(nv => nv.TaiKhoan)
+                            .ToListAsync();
         }
 
         public async Task<NhanVien> GetByIdNhanVienAsync(Guid NhanVienId)
         {
             try
             {
-                return await _db.NhanViens.FindAsync(NhanVienId);
+                return await _db.NhanViens
+                 .Include(nv => nv.TaiKhoan)
+                 .Include(nv => nv.ChucVu)
+                 .FirstOrDefaultAsync(nv => nv.NhanVienId == NhanVienId);
             }
             catch (Exception)
             {
@@ -98,6 +104,15 @@ namespace API.IRepository.Repository
                 throw new Exception("Lỗi cập nhật nhân viên: " + ex.Message);
             }
         }
+
+        public async Task<List<NhanVien>> SearchNhanVienAsync(string keyword)
+        {
+            keyword = keyword.ToLower();
+            return await _db.NhanViens
+                .Where(nv => nv.HoTen.ToLower().Contains(keyword))
+                .ToListAsync();
+        }
+
 
     }
 }

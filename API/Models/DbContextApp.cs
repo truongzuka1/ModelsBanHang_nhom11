@@ -104,14 +104,14 @@ namespace Data.Models
 
             // NhanVien - ChucVu
             modelBuilder.Entity<NhanVien>()
-                .HasOne(nv => nv.ChucVu)
-                .WithMany(cv => cv.nhanViens)
-                .HasForeignKey(nv => nv.ChucVuId)
-                .OnDelete(DeleteBehavior.Restrict);
+      .HasOne(nv => nv.ChucVu)
+      .WithMany(cv => cv.nhanViens)
+      .HasForeignKey(nv => nv.ChucVuId);
+
 
 
             // NhanVien - TaiKhoan
-         
+
 
             //hoadon-taikhoan
 
