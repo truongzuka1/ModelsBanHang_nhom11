@@ -43,7 +43,7 @@ namespace Data.Models
         public TaiKhoan taiKhoan { get; set; }
         public HinhThucThanhToan hinhThucThanhToan {  get; set; }
         public KhachHang? khachHang { get; set; }
-        public virtual ICollection<HoaDonChiTiet> HoaDonChiTietsId { get; set; } = new List<HoaDonChiTiet>();
+        public virtual ICollection<HoaDonChiTiet> HoaDonChiTiets { get; set; } = new List<HoaDonChiTiet>();
         
 
     }

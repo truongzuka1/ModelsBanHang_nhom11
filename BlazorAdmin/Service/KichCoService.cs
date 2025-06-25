@@ -1,4 +1,5 @@
 ﻿using API.IService;
+using API.Models.DTO;
 using BlazorAdmin.Service.IService;
 using Data.Models;
 using System.Net.Http.Json;
@@ -14,56 +15,39 @@ namespace BlazorAdmin.Service
             _httpClient = httpClientFactory.CreateClient("kichco");
         }
 
-        public async Task<IEnumerable<KichCo>> GetAllAsync()
+        public async Task<List<KichCoDTO>> GetAllAsync()
         {
-            return await _httpClient.GetFromJsonAsync<IEnumerable<KichCo>>("api/KichCo")
-                   ?? new List<KichCo>();
+            return await _httpClient.GetFromJsonAsync<List<KichCoDTO>>("api/KichCo")
+                   ?? new List<KichCoDTO>();
         }
 
-        public async Task<KichCo> GetByIdAsync(Guid id)
+        public async Task<KichCoDTO> GetByIdAsync(Guid id)
         {
-            return await _httpClient.GetFromJsonAsync<KichCo>($"api/KichCo/{id}");
+            return await _httpClient.GetFromJsonAsync<KichCoDTO>($"api/KichCo/{id}");
         }
 
-        public async Task<KichCo> AddAsync(KichCo kichCo)
+        public async Task CreateAsync(KichCoDTO obj)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/KichCo", kichCo);
+            var response = await _httpClient.PostAsJsonAsync("api/KichCo", obj);
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<KichCo>();
         }
 
-        public async Task<KichCo> UpdateAsync(KichCo kichCo)
+        public async Task UpdateAsync(KichCoDTO obj)
         {
-            var response = await _httpClient.PutAsJsonAsync($"api/KichCo/{kichCo.KichCoId}", kichCo);
+            var response = await _httpClient.PutAsJsonAsync($"api/KichCo/{obj.KichCoId}", obj);
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<KichCo>();
         }
 
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task DeleteAsync(Guid id)
         {
             var response = await _httpClient.DeleteAsync($"api/KichCo/{id}");
             response.EnsureSuccessStatusCode();
-            return true;
         }
 
-        public async Task<bool> AddKichCoToGiayChiTiet(Guid giayChiTietId, Guid kichCoId)
+        public async Task<List<KichCoDTO>> SearchAsync(string keyword)
         {
-            var response = await _httpClient.PostAsync($"api/KichCo/{kichCoId}/giaychitiet/{giayChiTietId}", null);
-            response.EnsureSuccessStatusCode();
-            return true;
-        }
-
-        public async Task<bool> RemoveKichCoFromGiayChiTiet(Guid giayChiTietId, Guid kichCoId)
-        {
-            var response = await _httpClient.DeleteAsync($"api/KichCo/{kichCoId}/giaychitiet/{giayChiTietId}");
-            response.EnsureSuccessStatusCode();
-            return true;
-        }
-
-        public async Task<IEnumerable<KichCo>> GetKichCosByGiayIdAsync(Guid giayChiTietId)
-        {
-            return await _httpClient.GetFromJsonAsync<IEnumerable<KichCo>>($"api/KichCo/giaychitiet/{giayChiTietId}")
-                   ?? new List<KichCo>();
+            return await _httpClient.GetFromJsonAsync<List<KichCoDTO>>($"api/KichCo/search?keyword={keyword}")
+                   ?? new List<KichCoDTO>();
         }
     }
 }

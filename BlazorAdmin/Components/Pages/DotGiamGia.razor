@@ -1,140 +1,75 @@
-﻿@page "/dotgiamgia"
-@using System.Globalization
+﻿@page "/DotGiamGia"
 @using Data.Models
-@inject VoucherService VoucherService
-<link href="/css/DotGiamGia.css" rel="stylesheet" />
+@using BlazorAdmin.Service.IService
+@layout AdminLayout
+@inject IGiamGiaService GiamGiaService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
 
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4>Đợt giảm giá</h4>
-        <div>
-            <button class="btn btn-warning" @onclick="ExportExcel">EXPORT EXCEL</button>
-            <button class="btn btn-primary" @onclick="CreateNew">+ Thêm mới</button>
-        </div>
+<link href="/css/site.css" rel="stylesheet" />
+
+<h3 class="mb-3">🎯 Quản lý Đợt Giảm Giá</h3>
+
+<div class="card shadow-sm p-4">
+    <div class="d-flex justify-content-between mb-3">
+        <input class="form-control w-50" placeholder="🔍 Tìm tên đợt..." @bind="searchTerm" @bind:event="oninput" />
+        <button class="btn btn-warning" @onclick='() => Navigation.NavigateTo("/ThemDotGiamGia")'>➕ Thêm đợt</button>
     </div>
 
-    <div class="row filter-section mb-3">
-        <div class="col-md-3">
-            <input type="text" class="form-control" placeholder="Tìm kiếm theo tên đợt giảm giá" @bind="SearchTerm" @bind:event="oninput" />
-        </div>
-        <div class="col-md-2">
-            <input type="date" class="form-control" @bind="FromDate" />
-        </div>
-        <div class="col-md-2">
-            <input type="date" class="form-control" @bind="ToDate" />
-        </div>
-        <div class="col-md-2">
-            <select class="form-select" @bind="SelectedStatus">
-                <option value="">Trạng thái</option>
-                <option value="true">Đang diễn ra</option>
-                <option value="false">Đã kết thúc</option>
-            </select>
-        </div>
-        <div class="col-md-2">
-            <select class="form-select" @bind="SelectedValue">
-                <option value="">Giá trị</option>
-                <option value="10">10%</option>
-                <option value="25">25%</option>
-                <option value="45">45%</option>
-            </select>
-        </div>
-    </div>
-
-    <table class="table table-bordered bg-white">
-        <thead>
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
             <tr>
-                <th>STT</th>
-                <th>Tên Đợt giảm giá</th>
-                <th>Giá trị</th>
+                <th>#</th>
+                <th>Tên</th>
+                <th>Thời gian</th>
+                <th>Giảm (%)</th>
                 <th>Trạng thái</th>
-                <th>Thời gian bắt đầu</th>
-                <th>Thời gian kết thúc</th>
-                <th>Hoạt động</th>
+                <th>Giày áp dụng</th>
+                <th>Hành động</th>
             </tr>
         </thead>
         <tbody>
-            @if (FilteredData.Any())
+            @if (PagedList.Count == 0)
             {
-                @foreach (var (item, index) in FilteredData.Select((x, i) => (x, i)))
-                {
-                    <tr>
-                        <td>@(index + 1)</td>
-                        <td>@item.TenVoucher</td>
-                        <td>@item.PhanTram %</td>
-                        <td><span class="badge-green">@(item.TrangThai ? "Đang diễn ra" : "Đã kết thúc")</span></td>
-                        <td>@item.NgayBatDau.ToString("dd/MM/yyyy HH:mm")</td>
-                        <td>@item.NgayKetThuc.ToString("dd/MM/yyyy HH:mm")</td>
-                        <td class="text-center"><span class="action-icon" @onclick="() => ViewDetails(item)">👁️</span></td>
-                    </tr>
-                }
+                <tr><td colspan="7" class="text-center text-muted">Không có dữ liệu.</td></tr>
             }
             else
             {
-                <tr>
-                    <td colspan="7" class="text-center">Không có dữ liệu</td>
-                </tr>
+                @foreach (var (item, index) in PagedList.Select((x, i) => (x, i)))
+                {
+                    <tr>
+                        <td>@((CurrentPage - 1) * PageSize + index + 1)</td>
+                        <td>@item.TenGiamGia</td>
+                        <td>@item.NgayBatDau:dd/MM/yyyy - @item.NgayKetThuc:dd/MM/yyyy</td>
+                        <td>@item.PhanTramKhuyenMai%</td>
+                        <td><span class="badge bg-@(item.TrangThai ? "success" : "secondary")">@(item.TrangThai ? "Hiển thị" : "Ẩn")</span></td>
+                        <td>@(item.GiayDotGiamGias?.Count ?? 0)</td>
+                        <td>
+                            <i class="bi bi-pencil-square text-warning me-2"
+                               @onclick='@(() => Navigation.NavigateTo($"/ThemDotGiamGia/{item.GiamGiaId}"))'
+                               title="Sửa"></i>
+                            <i class="bi bi-link text-success" title="Thêm giày"></i>
+                        </td>
+                    </tr>
+                }
             }
         </tbody>
     </table>
-
-    <div class="d-flex justify-content-between align-items-center">
-        <div>
-            Xem
-            <select class="form-select d-inline-block w-auto">
-                <option>5</option>
-                <option>10</option>
-            </select>
-            sản phẩm
-        </div>
-        <div>
-            <nav>
-                <ul class="pagination mb-0">
-                    <li class="page-item disabled"><a class="page-link">&laquo;</a></li>
-                    <li class="page-item active"><a class="page-link">1</a></li>
-                    <li class="page-item disabled"><a class="page-link">&raquo;</a></li>
-                </ul>
-            </nav>
-        </div>
-    </div>
 </div>
 
-<style>
-    .badge-green {
-        background-color: #d1f5d3;
-        color: #198754;
-        padding: 5px 10px;
-        border-radius: 10px;
-    }
-
-    .action-icon {
-        color: orange;
-        cursor: pointer;
-    }
-</style>
-
 @code {
-    private string SearchTerm = string.Empty;
-    private string SelectedStatus = string.Empty;
-    private string SelectedValue = string.Empty;
-    private DateTime? FromDate;
-    private DateTime? ToDate;
+    private List<GiamGia> all = new();
+    private string searchTerm = "";
+    private int CurrentPage = 1;
+    private int PageSize = 10;
 
-    private List<Voucher> Data = new();
+    private List<GiamGia> Filtered => all.Where(x =>
+        string.IsNullOrWhiteSpace(searchTerm) || x.TenGiamGia.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+
+    private List<GiamGia> PagedList => Filtered.Skip((CurrentPage - 1) * PageSize).Take(PageSize).ToList();
 
     protected override async Task OnInitializedAsync()
     {
-        Data = await VoucherService.GetAll();
+        all = (await GiamGiaService.GetAllAsync()).ToList();
     }
-
-    private IEnumerable<Voucher> FilteredData => Data.Where(d =>
-        (string.IsNullOrWhiteSpace(SearchTerm) || d.TenVoucher.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase)) &&
-        (string.IsNullOrWhiteSpace(SelectedStatus) || d.TrangThai.ToString().ToLower() == SelectedStatus.ToLower()) &&
-        (string.IsNullOrWhiteSpace(SelectedValue) || d.PhanTram.ToString() == SelectedValue) &&
-        (!FromDate.HasValue || d.NgayBatDau >= FromDate) &&
-        (!ToDate.HasValue || d.NgayBatDau <= ToDate)
-    );
-
-    private void ExportExcel() => Console.WriteLine("Exporting...");
-    private void CreateNew() => Console.WriteLine("Creating new discount batch...");
-    private void ViewDetails(Voucher item) => Console.WriteLine($"Viewing details for: {item.TenVoucher}");
 }

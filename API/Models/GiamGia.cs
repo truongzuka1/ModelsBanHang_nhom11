@@ -17,7 +17,8 @@ namespace Data.Models
         [RegularExpression(@"^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưẠ-ỹ\s0-9]+$", ErrorMessage = "Tên chỉ được chứa chữ cái tiếng Việt, số và khoảng trắng")]
         public string TenGiamGia { get; set; }
 
-        public string SanPhamKhuyenMai { get; set; }
+        public string? SanPhamKhuyenMai { get; set; } // ✅ cho phép null
+
         public float PhanTramKhuyenMai { get; set; }
 
         public DateTime NgayBatDau { get; set; }
@@ -28,17 +29,13 @@ namespace Data.Models
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (NgayBatDau < DateTime.Now)
+            if (NgayBatDau.Date < DateTime.Now.Date)
             {
                 yield return new ValidationResult("Ngày bắt đầu không được ở trong quá khứ.", new[] { nameof(NgayBatDau) });
             }
-
-            if (NgayKetThuc <= NgayBatDau)
-            {
-                yield return new ValidationResult("Ngày kết thúc phải sau ngày bắt đầu.", new[] { nameof(NgayKetThuc) });
-            }
         }
-        public virtual ICollection<GiayDotGiamGia> GiayDotGiamGias { get; set; }
+        public virtual ICollection<GiayDotGiamGia> GiayDotGiamGias { get; set; } = new List<GiayDotGiamGia>();
+
     }
 
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Data.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -20,6 +21,6 @@ namespace Data.Models
         public string MoTa { get; set; }
 
         public bool TrangThai { get; set; }
-        public virtual ICollection<GiayChiTiet> GiayChiTiets { get; set; } = new List<GiayChiTiet>();
+        public virtual ICollection<Giay> Giays { get; set; } = new List<Giay>();
     }
 }

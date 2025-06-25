@@ -1,0 +1,544 @@
+﻿@* @page "/AddGiay"
+@rendermode InteractiveServer
+@using API.IService
+@using BlazorAdmin.Service
+@using API.Models.DTO
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
+@inject IMauSacService mauSacService
+@inject IKichCoService kichCoService
+@inject IGiayChiTietService giayChiTietService
+@inject IGiayService giayService
+@inject IThuongHieuService thuongHieuService
+@inject IChatLieuService chatLieuService
+@inject IDeGiayService deGiayService
+@inject ITheLoaiGiayService theLoaiGiayService
+@inject IKieuDangService kieuDangService
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0"><i class="fas fa-shoe-prints me-2"></i> THÊM SẢN PHẨM MỚI</h3>
+        <button class="btn btn-outline-secondary" @onclick="HuyBo">
+            <i class="fas fa-times me-1"></i> Hủy bỏ
+        </button>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> THÔNG TIN CHUNG</h5>
+        </div>
+        <div class="card-body">
+            <EditForm Model="@giayModel" OnValidSubmit="@HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="row g-3">
+                    <div class="col-md-12">
+                        <label class="form-label fw-bold">Tên sản phẩm <span class="text-danger">*</span></label>
+                        <InputText @bind-Value="giayModel.TenGiay" class="form-control" placeholder="Nhập tên sản phẩm" />
+                        <ValidationMessage For="@(() => giayModel.TenGiay)" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Thương hiệu <span class="text-danger">*</span></label>
+                        <InputSelect @bind-Value="giayModel.ThuongHieuId" class="form-select">
+                            <option value="">-- Chọn thương hiệu --</option>
+                            @foreach (var option in thuongHieuOptions)
+                            {
+                                <option value="@option.ThuongHieuId">@option.TenThuongHieu</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(() => giayModel.ThuongHieuId)" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Chất liệu <span class="text-danger">*</span></label>
+                        <InputSelect @bind-Value="giayModel.ChatLieuId" class="form-select">
+                            <option value="">-- Chọn chất liệu --</option>
+                            @foreach (var option in chatLieuOptions)
+                            {
+                                <option value="@option.ChatLieuId">@option.TenChatLieu</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(() => giayModel.ChatLieuId)" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Kiểu dáng</label>
+                        <InputSelect @bind-Value="giayModel.KieuDangId" class="form-select">
+                            <option value="">-- Chọn kiểu dáng --</option>
+                            @foreach (var option in kieuDangOptions)
+                            {
+                                <option value="@option.KieuDangId">@option.TenKieuDang</option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Thể loại</label>
+                        <InputSelect @bind-Value="giayModel.TheLoaiId" class="form-select">
+                            <option value="">-- Chọn thể loại --</option>
+                            @foreach (var option in theLoaiOptions)
+                            {
+                                <option value="@option.TheLoaiGiayId">@option.TenTheLoai</option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Đế giày</label>
+                        <InputSelect @bind-Value="giayModel.DeGiayId" class="form-select">
+                            <option value="">-- Chọn đế giày --</option>
+                            @foreach (var option in deGiayOptions)
+                            {
+                                <option value="@option.DeGiayId">@option.TenDeGiay</option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-bold">Mô tả sản phẩm</label>
+                        <InputTextArea @bind-Value="giayModel.MoTa" class="form-control" rows="3" placeholder="Nhập mô tả sản phẩm..." />
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm mt-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-palette me-2"></i> MÀU SẮC</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3 color-picker">
+                            @foreach (var mau in danhSachMauCoBan)
+                            {
+                                <div class="col-md-2 col-4">
+                                    <div class="form-check">
+                                        <input type="checkbox"
+                                               class="form-check-input"
+                                               id="mau-@mau.Value"
+                                               value="@mau.Value"
+                                               checked="@danhSachChiTiet.Any(x => x.TenMau == mau.Text)"
+                                               @onchange="(e) => ToggleMau(e, mau)" />
+                                        <label class="form-check-label d-flex flex-column align-items-center" for="mau-@mau.Value">
+                                            <span class="color-dot mb-1" style="background-color: @mau.Color"></span>
+                                            <span>@mau.Text</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                @if (danhSachChiTiet.Any())
+                {
+                    <div class="card border-0 shadow-sm mt-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-ruler-combined me-2"></i> KÍCH CỠ & GIÁ BÁN</h5>
+                        </div>
+                        <div class="card-body">
+                            @foreach (var mau in danhSachChiTiet)
+                            {
+                                <div class="mb-4 p-3 border rounded bg-light">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div class="d-flex align-items-center">
+                                            <span class="color-dot me-2" style="background-color: @GetMauHex(mau.TenMau)"></span>
+                                            <h6 class="mb-0 fw-bold">@mau.TenMau</h6>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-danger" @onclick="() => XoaMau(mau)">
+                                            <i class="fas fa-trash-alt me-1"></i> Xóa
+                                        </button>
+                                    </div>
+
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead class="table-primary">
+                                                <tr>
+                                                    <th width="25%">Kích cỡ</th>
+                                                    <th width="25%">Số lượng</th>
+                                                    <th width="25%">Giá bán (VNĐ)</th>
+                                                    <th width="25%">Thao tác</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var size in mau.ChiTietSizes)
+                                                {
+                                                    <tr>
+                                                        <td>
+                                                            <InputSelect @bind-Value="size.KichCoId" class="form-select form-select-sm">
+                                                                @foreach (var kichCo in danhSachKichCo)
+                                                                {
+                                                                    <option value="@kichCo.KichCoId">@kichCo.TenKichCo</option>
+                                                                }
+                                                            </InputSelect>
+                                                        </td>
+                                                        <td>
+                                                            <InputNumber @bind-Value="size.SoLuong" class="form-control form-control-sm" min="0" />
+                                                        </td>
+                                                        <td>
+                                                            <InputNumber @bind-Value="size.Gia" class="form-control form-control-sm" min="0" />
+                                                        </td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                                                    @onclick="() => XoaSize(mau, size)">
+                                                                <i class="fas fa-trash-alt"></i> Xóa
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <button type="button" class="btn btn-sm btn-primary mt-2"
+                                            @onclick="() => ThemSizeChoMau(mau)">
+                                        <i class="fas fa-plus-circle me-1"></i> Thêm kích cỡ
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <div class="d-flex justify-content-end mt-4">
+                    <button type="submit" class="btn btn-success me-2" disabled="@isSubmitting">
+                        <i class="fas fa-save me-1"></i> @(isSubmitting ? "Đang lưu..." : "Lưu sản phẩm")
+                    </button>
+                    <button type="button" class="btn btn-secondary" @onclick="HuyBo">
+                        <i class="fas fa-times me-1"></i> Hủy bỏ
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<style>
+    .color-dot {
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 2px solid #dee2e6;
+        transition: transform 0.2s;
+    }
+
+    .form-check-input:checked + .form-check-label .color-dot {
+        transform: scale(1.2);
+        box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    }
+
+    .color-picker .form-check {
+        padding-left: 0;
+        text-align: center;
+    }
+
+    .color-picker .form-check-label {
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 8px;
+        transition: background-color 0.2s;
+    }
+
+        .color-picker .form-check-label:hover {
+            background-color: #f8f9fa;
+        }
+
+    .card-header {
+        border-radius: 0.375rem 0.375rem 0 0 !important;
+    }
+</style>
+
+@code {
+    private GiayDTO giayModel = new()
+        {
+            NgayTao = DateTime.Now,
+            TrangThai = true,
+            ChiTietGiays = new List<GiayChiTietDTO>()
+        };
+
+    private List<ThuongHieuDTO> thuongHieuOptions = new();
+    private List<ChatLieuDTO> chatLieuOptions = new();
+    private List<KieuDangDTO> kieuDangOptions = new();
+    private List<TheLoaiGiayDTO> theLoaiOptions = new();
+    private List<DeGiayDTO> deGiayOptions = new();
+    private List<KichCoDTO> danhSachKichCo = new();
+    private List<GiayChiTietTheoMauDTO> danhSachChiTiet = new();
+    private bool isSubmitting = false;
+
+    private readonly List<(string Value, string Text, string Color)> danhSachMauCoBan = new()
+    {
+        ("1", "Đỏ", "#dc3545"),
+        ("2", "Cam", "#fd7e14"),
+        ("3", "Vàng", "#ffc107"),
+        ("4", "Lục", "#198754"),
+        ("5", "Lam", "#0d6efd"),
+        ("6", "Chàm", "#6610f2"),
+        ("7", "Tím", "#6f42c1"),
+        ("8", "Đen", "#212529"),
+        ("9", "Trắng", "#f8f9fa"),
+        ("10", "Xám", "#6c757d"),
+        ("11", "Hồng", "#e83e8c"),
+        ("12", "Nâu", "#795548")
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Load danh sách kích cỡ
+            var kichCoResult = await kichCoService.GetAllAsync();
+            if (kichCoResult != null)
+            {
+                danhSachKichCo = kichCoResult;
+            }
+
+            // Load các danh sách lựa chọn
+            thuongHieuOptions = (await thuongHieuService.GetAllAsync())?.ToList() ?? new();
+            chatLieuOptions = (await chatLieuService.GetAllAsync())?.ToList() ?? new();
+            kieuDangOptions = (await kieuDangService.GetAllAsync())?.ToList() ?? new();
+            theLoaiOptions = (await theLoaiGiayService.GetAllAsync())?.ToList() ?? new();
+            deGiayOptions = (await deGiayService.GetAllAsync())?.ToList() ?? new();
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("console.error", $"Lỗi khi khởi tạo: {ex.Message}");
+            await JS.InvokeVoidAsync("alert", "Đã xảy ra lỗi khi tải dữ liệu ban đầu");
+        }
+    }
+
+    private string GetMauHex(string tenMau)
+    {
+        return danhSachMauCoBan.FirstOrDefault(m => m.Text == tenMau).Color ?? "#6c757d";
+    }
+
+    private void ToggleMau(ChangeEventArgs e, (string Value, string Text, string Color) mau)
+    {
+        var isChecked = (bool)e.Value;
+
+        if (isChecked)
+        {
+            if (!danhSachChiTiet.Any(x => x.TenMau == mau.Text))
+            {
+                danhSachChiTiet.Add(new GiayChiTietTheoMauDTO
+                    {
+                        TenMau = mau.Text,
+                        MauSacId = Guid.Parse(mau.Value),
+                        TrangThai = true,
+                        ChiTietSizes = new List<GiayChiTietSizeDTO>
+                    {
+                        new()
+                        {
+                            KichCoId = danhSachKichCo.FirstOrDefault()?.KichCoId ?? Guid.Empty,
+                            TenKichCo = danhSachKichCo.FirstOrDefault()?.TenKichCo ?? string.Empty,
+                            SoLuong = 0,
+                            Gia = 0
+                        }
+                    }
+                    });
+            }
+        }
+        else
+        {
+            var itemToRemove = danhSachChiTiet.FirstOrDefault(x => x.TenMau == mau.Text);
+            if (itemToRemove != null)
+            {
+                danhSachChiTiet.Remove(itemToRemove);
+            }
+        }
+    }
+
+    private void ThemSizeChoMau(GiayChiTietTheoMauDTO mau)
+    {
+        mau.ChiTietSizes ??= new List<GiayChiTietSizeDTO>();
+
+        mau.ChiTietSizes.Add(new GiayChiTietSizeDTO
+            {
+                KichCoId = danhSachKichCo.FirstOrDefault()?.KichCoId ?? Guid.Empty,
+                TenKichCo = danhSachKichCo.FirstOrDefault()?.TenKichCo ?? string.Empty,
+                SoLuong = 0,
+                Gia = 0
+            });
+    }
+
+    private async Task XoaSize(GiayChiTietTheoMauDTO mau, GiayChiTietSizeDTO size)
+    {
+        if (mau.ChiTietSizes.Count > 1)
+        {
+            mau.ChiTietSizes.Remove(size);
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("Swal.fire", {
+            icon: 'warning',
+            title: 'Thông báo',
+            text: 'Mỗi màu phải có ít nhất một kích cỡ'
+            });
+        }
+    }
+
+    private async Task XoaMau(GiayChiTietTheoMauDTO item)
+    {
+        var result = await JS.InvokeAsync<bool>("Swal.fire", {
+        title: 'Xác nhận xóa?',
+        text: `Bạn có chắc muốn xóa màu ${ item.TenMau}
+            và tất cả kích cỡ liên quan ?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Đồng ý',
+        cancelButtonText: 'Hủy bỏ'
+        });
+
+        if (result)
+        {
+            danhSachChiTiet.Remove(item);
+        }
+    }
+
+    private void HuyBo()
+    {
+        NavigationManager.NavigateTo("/SanPham");
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            isSubmitting = true;
+
+            if (string.IsNullOrWhiteSpace(giayModel.TenGiay))
+            {
+                await JS.InvokeVoidAsync("Swal.fire", {
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Vui lòng nhập tên sản phẩm'
+                });
+                return;
+            }
+
+            if (giayModel.ThuongHieuId == Guid.Empty)
+            {
+                await JS.InvokeVoidAsync("Swal.fire", {
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Vui lòng chọn thương hiệu'
+                });
+                return;
+            }
+
+            if (giayModel.ChatLieuId == Guid.Empty)
+            {
+                await JS.InvokeVoidAsync("Swal.fire", {
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Vui lòng chọn chất liệu'
+                });
+                return;
+            }
+
+            if (!danhSachChiTiet.Any())
+            {
+                await JS.InvokeVoidAsync("Swal.fire", {
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Vui lòng chọn ít nhất một màu sắc'
+                });
+                return;
+            }
+
+            // Kiểm tra tất cả size có giá và số lượng hợp lệ
+            foreach (var mau in danhSachChiTiet)
+            {
+                foreach (var size in mau.ChiTietSizes)
+                {
+                    if (size.Gia <= 0)
+                    {
+                        await JS.InvokeVoidAsync("Swal.fire", {
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: `Giá bán cho màu ${ mau.TenMau}
+                            kích cỡ ${ size.TenKichCo}
+                            phải lớn hơn 0`
+                    });
+                        return;
+                    }
+
+                    if (size.SoLuong < 0)
+                    {
+                        await JS.InvokeVoidAsync("Swal.fire", {
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: `Số lượng cho màu ${ mau.TenMau}
+                            kích cỡ ${ size.TenKichCo}
+                            không hợp lệ`
+                    });
+                        return;
+                    }
+                }
+            }
+
+            // Chuẩn bị danh sách chi tiết giày
+            giayModel.ChiTietGiays = danhSachChiTiet
+                .SelectMany(m => m.ChiTietSizes.Select(s => new GiayChiTietDTO
+                    {
+                        MauSacId = m.MauSacId,
+                        KichCoId = s.KichCoId,
+                        SoLuongTon = s.SoLuong,
+                        GiaBan = (float)s.Gia,
+                        TrangThai = true,
+                        NgayTao = DateTime.Now,
+                        NgaySua = DateTime.Now
+                    }))
+                .ToList();
+
+            var result = await giayService.CreateAsync(giayModel);
+            if (result == null)
+            {
+                await JS.InvokeVoidAsync("Swal.fire", {
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Thêm sản phẩm thất bại'
+                });
+                return;
+            }
+
+            await JS.InvokeVoidAsync("Swal.fire", {
+            icon: 'success',
+            title: 'Thành công',
+            text: 'Thêm sản phẩm thành công'
+            });
+
+            NavigationManager.NavigateTo($"/SanPhamChiTiet/{result.GiayId}");
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("console.error", $"Lỗi khi lưu sản phẩm: {ex.Message}");
+            await JS.InvokeVoidAsync("Swal.fire", {
+            icon: 'error',
+            title: 'Lỗi',
+            text: 'Đã xảy ra lỗi khi lưu sản phẩm'
+            });
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private class GiayChiTietTheoMauDTO
+    {
+        public string TenMau { get; set; } = string.Empty;
+        public Guid MauSacId { get; set; }
+        public bool TrangThai { get; set; } = true;
+        public List<GiayChiTietSizeDTO> ChiTietSizes { get; set; } = new();
+    }
+
+    private class GiayChiTietSizeDTO
+    {
+        public Guid KichCoId { get; set; }
+        public string TenKichCo { get; set; } = string.Empty;
+        public int SoLuong { get; set; }
+        public decimal Gia { get; set; }
+    }
+} *@

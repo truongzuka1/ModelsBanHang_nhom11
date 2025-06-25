@@ -1,7 +1,9 @@
 ﻿using API.IRepository;
 using API.IRepository.Repository;
 using API.Repository;
+using Data.IRepository;
 using Data.Models;
+using Data.Repository;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -36,6 +38,7 @@ builder.Services.AddScoped<IGiayChiTietRepository, GiayChiTietRepository>();
 builder.Services.AddScoped<IGioHangRepository, GioHangRepository>();
 builder.Services.AddScoped<IGioHangChiTietRepository, GioHangChiTietRepository>();
 builder.Services.AddScoped<IHoaDonRepo, HoaDonRepo>();
+builder.Services.AddScoped<IMauSacRepository, MauSacRepository>();
 builder.Services.AddScoped<IKichCoRepository, KichCoRepository>();
 builder.Services.AddScoped<INhanVienRepository, NhanVienRepository>();
 builder.Services.AddScoped<IThuongHieuRepository, ThuongHieuRepository>();
@@ -44,6 +47,7 @@ builder.Services.AddScoped<ITheLoaiGiayRepository, TheLoaiGiayRepository>();
 builder.Services.AddScoped<IChiTietHoaDonRepository, ChiTietHoaDonRepository>();
 builder.Services.AddScoped<ITaiKhoanRepository, TaiKhoanRepository>();
 builder.Services.AddScoped<IChucVuRepository, ChucVuRepository>();
+builder.Services.AddScoped<IReturnRepository, ReturnRepository>();
 
 var app = builder.Build();
 

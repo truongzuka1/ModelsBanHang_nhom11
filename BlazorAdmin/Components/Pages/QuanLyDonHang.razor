@@ -1,7 +1,8 @@
 ﻿@page "/hoadon"
 @layout AdminLayout
 @inject IHoaDonService hoaDonService
-@inject IHoaDonChiTietService chiTietHoaDonService
+@inject NavigationManager NavigationManager
+@implements IDisposable
 @rendermode InteractiveServer
 
 @using Data.Models
@@ -26,8 +27,6 @@
         <tr class="bg-gray-100">
             <th class="p-2">#</th>
             <th class="p-2">Mã đơn</th>
-            <th class="p-2">Tổng SP</th>
-            <th class="p-2">Tổng tiền</th>
             <th class="p-2">Khách hàng</th>
             <th class="p-2">Ngày tạo</th>
             <th class="p-2">Loại</th>
@@ -40,13 +39,9 @@
             var index = 1;
             foreach (var hd in dsHoaDon)
             {
-                var tongSP = chiTietMap.GetValueOrDefault(hd.HoaDonId)?.Sum(c => c.SoLuongSanPham) ?? 0;
-                var tongTien = chiTietMap.GetValueOrDefault(hd.HoaDonId)?.Sum(c => c.SoLuongSanPham * c.Gia) ?? 0m;
                 <tr class="border-b">
                     <td class="p-2">@index</td>
                     <td class="p-2">@hd.HoaDonId.ToString().Substring(0, 8)</td>
-                    <td class="p-2">@tongSP</td>
-                    <td class="p-2">@tongTien.ToString("N0") đ</td>
                     <td class="p-2">@(string.IsNullOrEmpty(hd.TenCuaKhachHang) ? "Khách lẻ" : hd.TenCuaKhachHang)</td>
                     <td class="p-2">@hd.NgayTao.ToString("dd/MM/yyyy HH:mm")</td>
                     <td class="p-2">@hd.hinhThucThanhToan?.TenHinhThuc</td>
@@ -60,7 +55,7 @@
         else
         {
             <tr>
-                <td colspan="8" class="text-center text-gray-500 p-4">Chưa có dữ liệu</td>
+                <td colspan="6" class="text-center text-gray-500 p-4">Chưa có dữ liệu</td>
             </tr>
         }
     </tbody>
@@ -68,22 +63,32 @@
 
 @code {
     private List<HoaDon> dsHoaDon;
-    private List<HoaDonChiTiet> dsChiTiet;
-    private Dictionary<Guid, List<HoaDonChiTiet>> chiTietMap = new();
     private string tuKhoa;
     private string trangThai;
     private List<string> trangThaiList = new() { "TẤT CẢ", "Chờ xác nhận", "Chờ giao", "Vận chuyển", "Đã giao", "Đã thanh toán", "Đã huỷ", "Hoàn thành" };
 
-    protected override async Task OnInitializedAsync() => await TaiLai();
+    protected override async Task OnInitializedAsync()
+    {
+        NavigationManager.LocationChanged += HandleLocationChanged;
+        await TaiLai();
+    }
+
+    private async void HandleLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        if (e.Location.Contains("/hoadon", StringComparison.OrdinalIgnoreCase))
+        {
+            await TaiLai();
+            StateHasChanged();
+        }
+    }
 
     private async Task TaiLai()
     {
         var all = await hoaDonService.GetAll();
-        dsChiTiet = await chiTietHoaDonService.GetAllAsync();
+        dsHoaDon = all?
+            .Where(hd => string.IsNullOrEmpty(tuKhoa) || hd.TenCuaKhachHang?.Contains(tuKhoa, StringComparison.OrdinalIgnoreCase) == true)
+            .ToList();
 
-        chiTietMap = dsChiTiet.GroupBy(x => x.HoaDonId).ToDictionary(g => g.Key, g => g.ToList());
-
-        dsHoaDon = all?.Where(hd => string.IsNullOrEmpty(tuKhoa) || hd.TenCuaKhachHang?.Contains(tuKhoa, StringComparison.OrdinalIgnoreCase) == true).ToList();
         if (!string.IsNullOrEmpty(trangThai) && trangThai != "TẤT CẢ")
             dsHoaDon = dsHoaDon.Where(h => h.TrangThai == trangThai).ToList();
     }
@@ -105,5 +110,9 @@
         "Đã huỷ" => "badge-red",
         _ => "badge-gray"
     };
-}
 
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= HandleLocationChanged;
+    }
+}

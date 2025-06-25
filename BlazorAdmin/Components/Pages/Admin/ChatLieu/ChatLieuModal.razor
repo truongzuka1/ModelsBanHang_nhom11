@@ -1,0 +1,56 @@
+﻿@* Shared/ChatLieuModal.razor *@
+@if (IsOpen)
+{
+    <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5); z-index: 1050;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">@((IsEdit ? "Sửa chất liệu" : "Thêm chất liệu"))</h5>
+                    <button type="button" class="btn-close" @onclick="OnClose"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tên chất liệu</label>
+                        <input class="form-control" @bind="TenChatLieu" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mô tả</label>
+                        <textarea class="form-control" rows="3" @bind="MoTa"></textarea>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="trangThai" @bind="TrangThai" />
+                        <label class="form-check-label" for="trangThai">Đang sử dụng</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="OnClose">Hủy</button>
+                    <button class="btn btn-primary" @onclick="OnSave">
+                        <i class="fa fa-floppy-disk"></i> Lưu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public bool IsEdit { get; set; }
+
+    [Parameter] public string TenChatLieu { get; set; }
+    [Parameter] public EventCallback<string> TenChatLieuChanged { get; set; }
+
+    [Parameter] public string MoTa { get; set; }
+    [Parameter] public EventCallback<string> MoTaChanged { get; set; }
+
+    [Parameter] public bool TrangThai { get; set; }
+    [Parameter] public EventCallback<bool> TrangThaiChanged { get; set; }
+
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback<(string, string, bool)> OnSaved { get; set; }
+
+    private async Task OnSave()
+    {
+        await OnSaved.InvokeAsync((TenChatLieu, MoTa, TrangThai));
+    }
+}

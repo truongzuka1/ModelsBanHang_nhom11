@@ -6,11 +6,12 @@ namespace BlazorAdmin.Service.IService
     {
         Task<IEnumerable<GiamGia>> GetAllAsync();
         Task<GiamGia> GetByIdAsync(Guid id);
-        Task<GiamGia> AddAsync(GiamGia giamGia);
-        Task<GiamGia> UpdateAsync(GiamGia giamGia);
-        Task<bool> DeleteAsync(Guid id);
+        Task<HttpResponseMessage> AddAsync(GiamGia giamGia); // <== Sửa dòng này
+        Task<HttpResponseMessage> UpdateAsyncReturnResponse(GiamGia giamGia);
 
+        Task<bool> DeleteAsync(Guid id);
         Task<bool> AddGiayToDotGiamGia(Guid giamGiaId, Guid giayId);
         Task<bool> RemoveGiayFromDotGiamGia(Guid giamGiaId, Guid giayId);
     }
+
 }

@@ -8,9 +8,9 @@ namespace BlazorAdmin.Service
     {
         private readonly HttpClient _httpClient;
 
-        public GiamGiaService(IHttpClientFactory httpClientFactory)
+        public GiamGiaService(HttpClient httpClient)
         {
-            _httpClient = httpClientFactory.CreateClient("giamgia");
+            _httpClient = httpClient;
         }
 
         public async Task<IEnumerable<GiamGia>> GetAllAsync()
@@ -24,18 +24,16 @@ namespace BlazorAdmin.Service
             return await _httpClient.GetFromJsonAsync<GiamGia>($"api/GiamGia/{id}");
         }
 
-        public async Task<GiamGia> AddAsync(GiamGia giamGia)
+        public async Task<HttpResponseMessage> AddAsync(GiamGia giamGia)
         {
             var response = await _httpClient.PostAsJsonAsync("api/GiamGia", giamGia);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<GiamGia>();
+            return response;
         }
 
-        public async Task<GiamGia> UpdateAsync(GiamGia giamGia)
+        public async Task<HttpResponseMessage> UpdateAsyncReturnResponse(GiamGia giamGia)
         {
             var response = await _httpClient.PutAsJsonAsync($"api/GiamGia/{giamGia.GiamGiaId}", giamGia);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<GiamGia>();
+            return response;
         }
 
         public async Task<bool> DeleteAsync(Guid id)

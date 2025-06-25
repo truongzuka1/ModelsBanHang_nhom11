@@ -16,13 +16,12 @@ namespace Data.Models
         [Required]
         public Guid GiayId { get; set; }
 
-        public Guid ? ChatLieuId { get; set; }
+       
         public Guid ? KichCoId { get; set; }
         public Guid ? MauSacId { get; set; }
-        public Guid ? ThuongHieuId { get; set; }
-        public Guid ? KieuDangId { get; set; }
-        public Guid ? DeGiayId { get; set; }
-        public Guid ? TheLoaiGiayId { get; set; }
+       
+      
+        
     
 
         public int SoLuongCon { get; set; }
@@ -34,13 +33,8 @@ namespace Data.Models
         public bool TrangThai { get; set; }
 
         public virtual Giay Giay { get; set; }
-        public virtual ChatLieu ? ChatLieu { get; set; }
         public virtual KichCo ? KichCo { get; set; }
         public virtual MauSac ? MauSac { get; set; }
-        public virtual ThuongHieu ? ThuongHieu { get; set; }
-        public virtual KieuDang ? KieuDang { get; set; }
-        public virtual DeGiay ? DeGiay { get; set; }
-        public virtual TheLoaiGiay ? TheLoaiGiay { get; set; }
 		public virtual ICollection<Anh> Anhs { get; set; } = new List<Anh>();
 
 

@@ -1,23 +1,21 @@
 ﻿@inherits LayoutComponentBase
-
+@inject NavigationManager NavigationManager
 
 <link href="css/Sidebar.css" rel="stylesheet" />
 
 <div class="page">
     <div class="sidebar">
-        <NavAdmin /> 
+        <NavAdmin />
     </div>
 
     <div class="main">
         <div class="header">
             <div class="user-area">
-                
                 <span class="bell" @onclick="ToggleBellDropdown">
                     🔔<span class="badge">2</span>
                     @if (showBellDropdown)
                     {
                         <div class="dropdown-bell">
-                            
                             <div class="bell-title">Thông báo mới</div>
                             <hr>
                             <div class="dropdown-item">Thông báo 1</div>
@@ -25,45 +23,50 @@
                         </div>
                     }
                 </span>
-                <img class="avatar" @onclick="ToggleAvatarDropdown" src="https://randomuser.me/api/portraits/women/44.jpg" alt="user" />
+
+                <img class="avatar" @onclick="ToggleAvatarDropdown"
+                     src="https://cdn.discordapp.com/attachments/1383447837370617867/1387275546592804966/smug.png?ex=685cc088&is=685b6f08&hm=61031208be9cf4552c5fe92c05eca9cab9eeb59fb80e6cc347c2234d130e4542"
+                     alt="user" />
+
+
                 @if (showAvatarDropdown)
                 {
                     <div class="dropdown-avatar">
-                        
-                        <div class="dropdown-item">Thông tin tài khoản</div>
-                        <div class="dropdown-item">Đăng xuất</div> 
+                        <div class="dropdown-item" @onclick="GotoProfile">Thông tin tài khoản</div>
+                        <div class="dropdown-item">Đăng xuất</div>
                     </div>
                 }
             </div>
         </div>
+
         <div class="dashboard-content">
-            @Body 
+            @Body
         </div>
     </div>
 </div>
-
-
-
 
 @code {
     private bool showBellDropdown = false;
     private bool showAvatarDropdown = false;
 
+    // ✅ Đã cập nhật ID theo yêu cầu
+    private Guid LoggedInUserId = Guid.Parse("99999999-9999-9999-9999-999999999999");
+
     private void ToggleBellDropdown()
     {
         showBellDropdown = !showBellDropdown;
-        
         if (showBellDropdown) showAvatarDropdown = false;
-        StateHasChanged();
     }
 
     private void ToggleAvatarDropdown()
     {
         showAvatarDropdown = !showAvatarDropdown;
-        
         if (showAvatarDropdown) showBellDropdown = false;
-        StateHasChanged(); 
     }
 
-
+    private void GotoProfile()
+    {
+        showAvatarDropdown = false;
+        NavigationManager.NavigateTo($"/taikhoan/chitiet/{LoggedInUserId}");
+    }
 }
