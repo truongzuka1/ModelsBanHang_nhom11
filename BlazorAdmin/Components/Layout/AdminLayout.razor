@@ -30,7 +30,10 @@
                 </span>
 
                 <img class="avatar" @onclick="ToggleAvatarDropdown"
-                     src="https://randomuser.me/api/portraits/women/44.jpg" alt="user" />
+
+                     src="https://cdn.discordapp.com/attachments/1383447837370617867/1387275546592804966/smug.png?ex=685cc088&is=685b6f08&hm=61031208be9cf4552c5fe92c05eca9cab9eeb59fb80e6cc347c2234d130e4542"
+                     alt="user" />
+
 
                 @if (showAvatarDropdown)
                 {
@@ -109,7 +112,9 @@
                char.ToUpper(input[0]) + input.Substring(1).ToLower();
     }
 
-    private Guid LoggedInUserId = Guid.Parse("8a3c1a42-b3d4-49dc-bb53-d99d7b1145aa");
+    // ✅ Đã cập nhật ID theo yêu cầu
+    private Guid LoggedInUserId = Guid.Parse("99999999-9999-9999-9999-999999999999");
+
 
     private void ToggleBellDropdown()
     {

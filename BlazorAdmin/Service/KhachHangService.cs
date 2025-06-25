@@ -4,6 +4,7 @@ using BlazorAdmin.Components.Pages;
 
 namespace BlazorAdmin.Service
 {
+    // hahaha
     public class KhachHangService : IKhachHangService
     {
         private readonly HttpClient _httpClient;
@@ -37,6 +38,12 @@ namespace BlazorAdmin.Service
         {
             var response = await _httpClient.PutAsJsonAsync($"api/KhachHang/{khachHang.KhachHangId}", khachHang);
             response.EnsureSuccessStatusCode();
+        }
+        public async Task<List<KhachHang>> SearchKhachHangAsync(string keyword)
+        {
+            var result = await _httpClient.GetFromJsonAsync<List<KhachHang>>(
+                $"api/KhachHang/search?keyword={Uri.EscapeDataString(keyword)}");
+            return result ?? new List<KhachHang>();
         }
     }
 }

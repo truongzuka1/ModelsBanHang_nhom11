@@ -44,6 +44,7 @@ namespace API.Controllers
             var items = await _repo.GetAllAsync();
             return Ok(items.Select(MapToDTO));
         }
+      
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
