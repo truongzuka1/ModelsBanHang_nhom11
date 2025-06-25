@@ -50,14 +50,32 @@
         background-color: #d1ecf1;
     }
 
-    .error-message {
-        color: #dc3545;
-        font-size: 0.9rem;
-        margin-top: 10px;
+    .alert {
+        margin-bottom: 20px;
+        padding: 15px;
+        border-radius: 8px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .alert-dismissible .btn-close {
+        position: absolute;
+        top: 50%;
+        right: 15px;
+        transform: translateY(-50%);
     }
 </style>
 
 <div class="container my-5">
+    <!-- Khu vực thông báo lỗi -->
+    @if (!string.IsNullOrEmpty(ErrorMessage) || !string.IsNullOrEmpty(ValidationErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Lỗi:</strong> @(ErrorMessage ?? ValidationErrorMessage)
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" @onclick="ClearErrorMessage"></button>
+        </div>
+    }
+
     @if (IsLoading)
     {
         <div class="text-center">
@@ -65,10 +83,6 @@
                 <span class="visually-hidden">Đang tải...</span>
             </div>
         </div>
-    }
-    else if (!string.IsNullOrEmpty(ErrorMessage))
-    {
-        <div class="alert alert-danger text-center">@ErrorMessage</div>
     }
     else if (ReturnInfo != null && ReturnInfo.HoaDonId != Guid.Empty)
     {
@@ -129,13 +143,17 @@
                                             </div>
                                             <div class="col-auto">
                                                 <InputNumber class="form-control form-control-sm"
-                                                             id=@($"qtyReturn{i}")
+                                                             id="@($"qtyReturn{i}")"
                                                              @bind-Value="CreateReturnRequest.Items[index].SoLuong"
-                                                             @bind-Value:after="() => UpdatePendingReturns(index)"
                                                              min="1" max="@item.SoLuongConLai" />
                                             </div>
                                             <div class="col-auto">
-                                                <InputText class="form-control form-control-sm" @bind-Value="CreateReturnRequest.Items[index].GhiChu" placeholder="Ghi chú (tùy chọn)" />
+                                                <InputText class="form-control form-control-sm"
+                                                           @bind-Value="CreateReturnRequest.Items[index].GhiChu"
+                                                           placeholder="Ghi chú (tùy chọn)" />
+                                            </div>
+                                            <div class="col-auto">
+                                                <button class="btn btn-sm btn-success" @onclick="() => ConfirmReturnItem(index)">Xác nhận</button>
                                             </div>
                                         </div>
                                     </td>
@@ -194,11 +212,6 @@
                         </table>
                     </div>
                     <button class="btn btn-primary mt-3" @onclick="ValidateAsync">Kiểm tra trả hàng</button>
-                    @if (!string.IsNullOrEmpty(ValidationErrorMessage))
-                    {
-                        <div class="error-message">@ValidationErrorMessage</div>
-                    }
-
                 </div>
             </div>
 
@@ -271,10 +284,6 @@
                             }
                         </tbody>
                     </table>
-                    @if (!string.IsNullOrEmpty(ValidationErrorMessage))
-                    {
-                        <div class="error-message">@ValidationErrorMessage</div>
-                    }
                 </div>
                 @if (ValidationResults.All(r => r.CanReturn))
                 {
@@ -336,11 +345,11 @@
             CreateReturnRequest = new CreateReturnDTO
                 {
                     HoaDonId = HoaDonId,
-                    Items = ReturnInfo.SanPhams.Select(sp => new ChiTietTraHangDTO
+                    Items = ReturnInfo.SanPhams?.Select(sp => new ChiTietTraHangDTO
                     {
                         GiayId = sp.GiayId,
-                        GhiChu = string.Empty // Khởi tạo ghi chú mặc định
-                    }).ToList()
+                        GhiChu = string.Empty
+                    }).ToList() ?? new List<ChiTietTraHangDTO>()
                 };
 
             if (ReturnInfo.SanPhams != null)
@@ -354,7 +363,7 @@
         catch (Exception ex)
         {
             ErrorMessage = "Lỗi khi tải thông tin hóa đơn. Vui lòng thử lại sau.";
-            // Log lỗi sẽ được thực hiện trong OnAfterRenderAsync
+            await JSRuntime.InvokeVoidAsync("console.error", $"Error in OnInitializedAsync: {ex.Message}");
         }
         finally
         {
@@ -389,11 +398,26 @@
     {
         try
         {
+            // Đóng tất cả collapse khác
+            foreach (var key in ShowCollapses.Keys.ToList())
+            {
+                ShowCollapses[key] = false;
+            }
+
+            // Toggle collapse hiện tại
             if (!ShowCollapses.ContainsKey(index))
             {
                 ShowCollapses[index] = false;
             }
             ShowCollapses[index] = !ShowCollapses[index];
+
+            // Reset input khi đóng collapse
+            if (!ShowCollapses[index])
+            {
+                CreateReturnRequest.Items[index].SoLuong = 0;
+                CreateReturnRequest.Items[index].GhiChu = string.Empty;
+            }
+
             StateHasChanged();
             JSRuntime.InvokeVoidAsync("console.log", $"Toggled collapse for index: {index}, Show: {ShowCollapses[index]}");
         }
@@ -405,61 +429,56 @@
         }
     }
 
-    private void UpdatePendingReturns(int index)
+    private void ConfirmReturnItem(int index)
     {
         try
         {
             if (index < 0 || index >= CreateReturnRequest.Items.Count || index >= ReturnInfo.SanPhams.Count)
             {
                 ErrorMessage = "Chỉ số sản phẩm không hợp lệ.";
-                JSRuntime.InvokeVoidAsync("console.error", $"Invalid index in UpdatePendingReturns: {index}");
+                JSRuntime.InvokeVoidAsync("console.error", $"Invalid index in ConfirmReturnItem: {index}");
                 return;
             }
 
             var returnItem = CreateReturnRequest.Items[index];
             var product = ReturnInfo.SanPhams[index];
 
-            if (returnItem.SoLuong < 0 || returnItem.SoLuong > product.SoLuongConLai)
+            if (returnItem.SoLuong <= 0 || returnItem.SoLuong > product.SoLuongConLai)
             {
                 ErrorMessage = $"Số lượng trả không hợp lệ cho sản phẩm {product.TenSanPham}. Tối đa: {product.SoLuongConLai}.";
                 JSRuntime.InvokeVoidAsync("console.error", $"Invalid quantity for GiayId: {returnItem.GiayId}, SoLuong: {returnItem.SoLuong}");
                 return;
             }
 
-            if (returnItem.SoLuong > 0)
+            var existingPending = PendingReturns.FirstOrDefault(p => p.GiayId == returnItem.GiayId);
+            if (existingPending != null)
             {
-                var existingPending = PendingReturns.FirstOrDefault(p => p.GiayId == returnItem.GiayId);
-                if (existingPending != null)
-                {
-                    existingPending.SoLuong = returnItem.SoLuong;
-                    existingPending.GhiChu = returnItem.GhiChu;
-                }
-                else
-                {
-                    PendingReturns.Add(new ReturnHistoryDTO
-                        {
-                            GiayId = returnItem.GiayId,
-                            TenSanPham = product.TenSanPham,
-                            SoLuong = returnItem.SoLuong,
-                            Gia = product.Gia,
-                            GhiChu = returnItem.GhiChu,
-                            HoaDonChiTietId = Guid.Empty
-                        });
-                }
-                JSRuntime.InvokeVoidAsync("console.log", $"Added/Updated pending return: GiayId={returnItem.GiayId}, SoLuong={returnItem.SoLuong}");
+                existingPending.SoLuong = returnItem.SoLuong;
+                existingPending.GhiChu = returnItem.GhiChu;
             }
             else
             {
-                PendingReturns.RemoveAll(p => p.GiayId == returnItem.GiayId);
-                JSRuntime.InvokeVoidAsync("console.log", $"Removed pending return for GiayId: {returnItem.GiayId}");
+                PendingReturns.Add(new ReturnHistoryDTO
+                    {
+                        GiayId = returnItem.GiayId,
+                        TenSanPham = product.TenSanPham,
+                        SoLuong = returnItem.SoLuong,
+                        Gia = product.Gia,
+                        GhiChu = returnItem.GhiChu,
+                        HoaDonChiTietId = Guid.Empty
+                    });
             }
 
+            // Đóng collapse sau khi xác nhận
+            ShowCollapses[index] = false;
+
+            JSRuntime.InvokeVoidAsync("console.log", $"Confirmed return item for GiayId: {returnItem.GiayId}, SoLuong: {returnItem.SoLuong}");
             StateHasChanged();
         }
         catch (Exception ex)
         {
-            ErrorMessage = "Lỗi khi cập nhật danh sách trả hàng.";
-            JSRuntime.InvokeVoidAsync("console.error", $"Error in UpdatePendingReturns: {ex.Message}");
+            ErrorMessage = "Lỗi khi xác nhận sản phẩm trả hàng.";
+            JSRuntime.InvokeVoidAsync("console.error", $"Error in ConfirmReturnItem: {ex.Message}");
             StateHasChanged();
         }
     }
@@ -546,7 +565,6 @@
             var response = await ReturnService.ProcessReturnAsync(CreateReturnRequest);
             if (response)
             {
-                // Tải lại thông tin hóa đơn
                 ReturnInfo = await ReturnService.GetReturnInfoAsync(HoaDonId);
                 if (ReturnInfo == null || ReturnInfo.HoaDonId == Guid.Empty)
                 {
@@ -556,7 +574,6 @@
                     return;
                 }
 
-                // Xóa danh sách trả hàng và cập nhật yêu cầu trả hàng
                 PendingReturns.Clear();
                 ValidationResults.Clear();
                 CreateReturnRequest = new CreateReturnDTO
@@ -597,5 +614,12 @@
             JSRuntime.InvokeVoidAsync("console.error", $"Error in NavigateToSearch: {ex.Message}");
             StateHasChanged();
         }
+    }
+
+    private void ClearErrorMessage()
+    {
+        ErrorMessage = string.Empty;
+        ValidationErrorMessage = string.Empty;
+        StateHasChanged();
     }
 }
