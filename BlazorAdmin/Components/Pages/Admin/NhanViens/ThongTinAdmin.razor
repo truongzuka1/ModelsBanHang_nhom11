@@ -1,0 +1,63 @@
+﻿@page "/ThongTinAdmin"
+@rendermode InteractiveServer
+@using Data.Models
+@inject INhanVienService service
+
+<h3><i class="bi bi-person-gear me-2"></i>Thông Tin Admin</h3>
+
+@if (admin != null)
+{
+    <div class="card shadow-lg p-4 mt-4">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <strong>👤 Họ tên:</strong> @admin.HoTen
+            </div>
+            <div class="col-md-6 mb-3">
+                <strong>📞 Số điện thoại:</strong> @admin.SoDienThoai
+            </div>
+            <div class="col-md-6 mb-3">
+                <strong>📧 Email:</strong> @admin.Email
+            </div>
+            <div class="col-md-6 mb-3">
+                <strong>🎂 Ngày sinh:</strong> @admin.NgaySinh.ToString("dd/MM/yyyy")
+            </div>
+            <div class="col-md-6 mb-3">
+                <strong>🛡️ Chức vụ:</strong> @(admin.ChucVu?.MotaChucVu ?? "Không có chức vụ")
+            </div>
+            <div class="col-md-6 mb-3">
+                <strong>🔄 Trạng thái:</strong>
+                <span class="badge @(admin.TrangThai ? "bg-success" : "bg-danger")">
+                    @(admin.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")
+                </span>
+            </div>
+            <div class="col-md-6 mb-3">
+                <strong>📅 Ngày cập nhật cuối:</strong> @admin.NgayCapNhatCuoiCung.ToString("dd/MM/yyyy")
+            </div>
+            <div class="col-md-6 mb-3">
+                <strong>👨‍💻 Tên tài khoản:</strong> @(admin.TaiKhoan?.Username ?? "Không có tài khoản")
+            </div>
+            <div class="col-md-6 mb-3">
+                <strong>🔐 Mật khẩu:</strong> @(admin.TaiKhoan?.Password ?? "Không có mật khẩu")
+            </div>
+            <div class="col-md-6 mb-3">
+                <strong>🕓 Ngày tạo tài khoản:</strong> @(admin.TaiKhoan?.Ngaytaotaikhoan.ToString("dd/MM/yyyy") ?? "Không có")
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <p class="text-danger mt-4">❌ Không tìm thấy thông tin Admin.</p>
+}
+
+@code {
+    private NhanVien? admin;
+    private readonly Guid adminId = Guid.Parse("88888888-8888-8888-8888-888888888888");
+
+    protected override async Task OnInitializedAsync()
+    {
+        admin = await service.GetByIdNhanVienAsync(adminId);
+    }
+}
+
+

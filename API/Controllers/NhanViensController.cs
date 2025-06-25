@@ -92,5 +92,15 @@ namespace API.Controllers
 
             return Ok(nhanVien);
         }
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<NhanVien>>> Search(string keyword)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+                return Ok(await _repository.GetAllNhanVienAsync());
+
+            var result = await _repository.SearchNhanVienAsync(keyword);
+            return Ok(result);
+        }
+
     }
 }
