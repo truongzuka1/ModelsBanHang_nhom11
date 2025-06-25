@@ -1,18 +1,25 @@
 ﻿@page "/ThemDotGiamGia"
+@page "/ThemDotGiamGia/{Id:guid}"
 @using Data.Models
 @using BlazorAdmin.Service.IService
 @inject IGiamGiaService GiamGiaService
 @inject NavigationManager Navigation
 
-
 @rendermode InteractiveServer
 
-<h3 class="mb-3"><i class="bi bi-plus-circle"></i> Thêm Đợt Giảm Giá</h3>
+<h3 class="mb-3">
+    <i class="bi bi-plus-circle"></i> @(Id.HasValue ? "Chỉnh sửa Đợt Giảm Giá" : "Thêm Đợt Giảm Giá")
+</h3>
 
 <div class="card shadow-sm p-4">
     <EditForm Model="dot" OnValidSubmit="HandleSubmit">
         <DataAnnotationsValidator />
         <ValidationSummary />
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger">@errorMessage</div>
+        }
 
         <div class="mb-3">
             <label class="form-label">Tên đợt</label>
@@ -52,23 +59,57 @@
 </div>
 
 @code {
-    private GiamGia dot = new()
+    [Parameter]
+    public Guid? Id { get; set; }
+
+    private GiamGia dot = new();
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
     {
-        NgayBatDau = DateTime.Today,
-        NgayKetThuc = DateTime.Today.AddDays(7),
-        TrangThai = true
-    };
+        if (Id.HasValue)
+        {
+            var existing = await GiamGiaService.GetByIdAsync(Id.Value);
+            if (existing != null)
+            {
+                dot = existing;
+            }
+        }
+        else
+        {
+            dot = new GiamGia
+            {
+                NgayBatDau = DateTime.Today,
+                NgayKetThuc = DateTime.Today.AddDays(7),
+                TrangThai = true,
+                SanPhamKhuyenMai = "Tất cả sản phẩm"
+            };
+        }
+    }
 
     private async Task HandleSubmit()
     {
-        try
+        errorMessage = null;
+
+        HttpResponseMessage response;
+
+        if (Id.HasValue)
         {
-            await GiamGiaService.AddAsync(dot);
+            response = await GiamGiaService.UpdateAsyncReturnResponse(dot);
+        }
+        else
+        {
+            response = await GiamGiaService.AddAsync(dot);
+        }
+
+        if (response.IsSuccessStatusCode)
+        {
             Navigation.NavigateTo("/DotGiamGia");
         }
-        catch (Exception ex)
+        else
         {
-            Console.WriteLine("Lỗi khi lưu: " + ex.Message);
+            var content = await response.Content.ReadAsStringAsync();
+            errorMessage = $"Không lưu được: {content}";
         }
     }
 }

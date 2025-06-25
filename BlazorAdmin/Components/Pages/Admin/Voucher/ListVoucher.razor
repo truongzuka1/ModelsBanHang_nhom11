@@ -1,104 +1,119 @@
 ﻿@page "/Admin/voucher"
 @rendermode InteractiveServer
-@using Data.Models;
-@using BlazorAdmin.Service;
+@using Data.Models
+@using BlazorAdmin.Service
 @using BlazorAdmin.Service.IService
-@inject IVoucherService service;
-@inject NavigationManager manager;
-@inject IJSRuntime JS;
+@inject IVoucherService service
+@inject NavigationManager manager
+@inject IJSRuntime JS
 
-<h3>ListVoucher</h3>
-@{
-	int stt = 1;
-}
-<button class="btn btn-primary" @onclick="NavigateToCreate">Tạo mới +</button>
-<table class="table">
-	<thead>
-		<tr>
-			<td>STT</td>
-			<td>Tên Voucher</td>
-			<td>Ngày bắt đầu</td>
-			<td>Ngày kết thúc</td>
-			<td>Phần trăm</td>
-			<td>Trạng thái</td>
-			<td>Số lượng</td>
-			@* <td>Tên tài khoản</td> *@
-			<td>Hanh Dong</td>
-		</tr>
-	</thead>
-	<tbody>
-		@foreach (var item in Vouchers)
-		{
-			<tr>
-				<td>@stt</td>
-				<td>@item.TenVoucher</td>
-				<td>@item.NgayBatDau.ToString("dd/MM/yyyy")</td>
-				<td>@item.NgayKetThuc.ToString("dd/MM/yyyy")</td>
-				<td>@item.PhanTram</td>
-				<td>
-					<button class="btn btn-sm @(item.TrangThai ? "btn-danger" : "btn-success") me-2"
-							@onclick="() => ToggleTrangThai(item.VoucherId)">
-						🔄
-					</button>
-					<span>@(item.TrangThai ? "Đang diễn ra" : "Hết hạn")</span>
-				</td>
-				<td>@item.SoLuong</td>
-			@* 	<td>@item.TaiKhoan.Username</td> *@
-				<td>
-					<button class="btn btn-primary" @onclick="() => NavigateToEdit(item.VoucherId)">Edit</button>
-					<button class="btn btn-danger" @onclick="() => DeleteAsyncVoucher(item.VoucherId)">Delete</button>
-				</td>
-			</tr>
-			stt++;
-		}
-	</tbody>
-</table>
+<div class="container mt-4">
+	<div class="d-flex justify-content-between align-items-center mb-3">
+		<h3 class="fw-bold" style="color: #d4af37;">🎟️ Danh sách Voucher</h3>
+		<button class="btn btn-warning text-dark fw-bold" @onclick="NavigateToCreate">
+			<i class="bi bi-plus-circle me-1"></i> Tạo mới
+		</button>
+	</div>
+
+	<div class="mb-3 row">
+		<div class="col-md-6">
+			<input type="text" class="form-control border-warning" placeholder="🔍 Tìm theo tên voucher..."
+				   @bind="searchText" @bind:event="oninput" />
+		</div>
+	</div>
+
+	@if (FilteredVouchers is null || FilteredVouchers.Count == 0)
+	{
+		<div class="alert alert-warning">Không tìm thấy voucher nào.</div>
+	}
+	else
+	{
+		<table class="table table-bordered table-hover text-center align-middle shadow-sm">
+			<thead style="background-color: #fff8e1;">
+				<tr class="text-dark">
+					<th>STT</th>
+					<th>Tên Voucher</th>
+					<th>Ngày bắt đầu</th>
+					<th>Ngày kết thúc</th>
+					<th>Phần trăm</th>
+					<th>Trạng thái</th>
+					<th>Số lượng</th>
+					<th>Hành động</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var item in FilteredVouchers.Select((v, i) => new { v, Index = i + 1 }))
+				{
+					<tr>
+						<td>@item.Index</td>
+						<td>@item.v.TenVoucher</td>
+						<td>@item.v.NgayBatDau.ToString("dd/MM/yyyy")</td>
+						<td>@item.v.NgayKetThuc.ToString("dd/MM/yyyy")</td>
+						<td>@item.v.PhanTram%</td>
+						<td>
+							<span class="badge @(item.v.TrangThai ? "bg-warning text-dark" : "bg-secondary")">
+								@(item.v.TrangThai ? "Đang diễn ra" : "Hết hạn")
+							</span>
+							<button class="btn btn-sm btn-outline-dark ms-2" title="Chuyển trạng thái"
+									@onclick="() => ToggleTrangThai(item.v.VoucherId)">
+								🔄
+							</button>
+						</td>
+						<td>@item.v.SoLuong</td>
+						<td>
+							<div class="btn-group">
+								<button class="btn btn-sm btn-outline-warning text-dark fw-bold" @onclick="() => NavigateToEdit(item.v.VoucherId)">
+									Sửa
+								</button>
+								<button class="btn btn-sm btn-danger" @onclick="() => DeleteAsyncVoucher(item.v.VoucherId)">
+									Xoá
+								</button>
+							</div>
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	}
+</div>
 
 @code {
+	private List<Voucher> Vouchers = new();
+	private string searchText = string.Empty;
 
-	private List<Voucher> Vouchers;
+	private List<Voucher> FilteredVouchers =>
+		string.IsNullOrWhiteSpace(searchText)
+			? Vouchers
+			: Vouchers.Where(v => v.TenVoucher.Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList();
 
 	protected override async Task OnInitializedAsync()
 	{
-		if (Vouchers == null)
-		{
-			Vouchers = new List<Voucher>();
-
-		}
 		Vouchers = await service.GetAll();
-		
 	}
 
-	protected void NavigateToCreate()
-	{
+	private void NavigateToCreate() =>
 		manager.NavigateTo("/Admin/AddVoucher");
-	}
-	protected void NavigateToEdit(Guid id)
-	{
+
+	private void NavigateToEdit(Guid id) =>
 		manager.NavigateTo($"/Admin/updatevoucher/{id}");
-	}
 
 	private async Task DeleteAsyncVoucher(Guid id)
 	{
-		var deleSanpham = await JS.InvokeAsync<bool>("confirm", $"Bạn có chắc chắn muốn xóa không?");
-		if (deleSanpham)
+		bool confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn xoá voucher này?");
+		if (confirmed)
 		{
 			await service.Delete(id);
-			StateHasChanged();
+			Vouchers = await service.GetAll();
 		}
 	}
+
 	private async Task ToggleTrangThai(Guid id)
 	{
 		var voucher = Vouchers.FirstOrDefault(x => x.VoucherId == id);
-		if (voucher != null)
+		if (voucher is not null)
 		{
-
 			voucher.TrangThai = !voucher.TrangThai;
-			
-
-
 			await service.Update(voucher);
-			StateHasChanged();
 		}
 	}
 }
