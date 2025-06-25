@@ -10,6 +10,8 @@
     <i class="fa fa-plus"></i> Thêm thương hiệu
 </button>
 
+<input class="form-control mb-3 w-50" placeholder="Tìm thương hiệu..." @bind="SearchText" @bind:event="oninput" />
+
 @if (IsModalVisible)
 {
     <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);" tabindex="-1">
@@ -69,15 +71,15 @@
         </tr>
     </thead>
     <tbody>
-        @if (ThuongHieus.Count == 0)
+        @if (FilteredThuongHieus.Count() == 0)
         {
             <tr>
-                <td colspan="7" class="text-center text-muted">Chưa có thương hiệu nào.</td>
+                <td colspan="7" class="text-center text-muted">Không tìm thấy thương hiệu nào.</td>
             </tr>
         }
         else
         {
-            @foreach (var (item, i) in ThuongHieus.Select((x, i) => (x, i)))
+            @foreach (var (item, i) in FilteredThuongHieus.Select((x, i) => (x, i)))
             {
                 <tr>
                     <td>@(i + 1)</td>
@@ -110,6 +112,16 @@
     private string ModalTitle = "Thêm Thương Hiệu";
     private bool IsModalVisible = false;
 
+    private string SearchText = string.Empty;
+
+    private IEnumerable<ThuongHieu> FilteredThuongHieus =>
+        string.IsNullOrWhiteSpace(SearchText)
+            ? ThuongHieus
+            : ThuongHieus.Where(x =>
+                (x.TenThuongHieu ?? "").Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                (x.Email ?? "").Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                (x.SDT ?? "").Contains(SearchText));
+
     protected override async Task OnInitializedAsync()
     {
         await LoadDataAsync();
@@ -122,7 +134,7 @@
 
     private void ShowAddModal()
     {
-        Model = new ThuongHieu(); // reset
+        Model = new ThuongHieu();
         ModalTitle = "Thêm Thương Hiệu";
         IsModalVisible = true;
     }
