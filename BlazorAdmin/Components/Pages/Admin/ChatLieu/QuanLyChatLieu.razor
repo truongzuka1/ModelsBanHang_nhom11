@@ -9,6 +9,8 @@
         <i class="fa fa-plus"></i> Thêm chất liệu
     </button>
 
+    <input class="form-control mb-3 w-50" placeholder="Tìm chất liệu..." @bind="SearchText" @bind:event="oninput" />
+
     <table class="table table-bordered table-hover align-middle">
         <thead class="table-success">
             <tr>
@@ -20,9 +22,15 @@
             </tr>
         </thead>
         <tbody>
-            @if (DanhSachChatLieu.Any())
+            @if (!FilteredChatLieus.Any())
             {
-                @foreach (var (item, index) in DanhSachChatLieu.Select((x, i) => (x, i + 1)))
+                <tr>
+                    <td colspan="5" class="text-center text-muted">Không tìm thấy chất liệu nào.</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var (item, index) in FilteredChatLieus.Select((x, i) => (x, i + 1)))
                 {
                     <tr>
                         <td>@index</td>
@@ -41,12 +49,6 @@
                     </tr>
                 }
             }
-            else
-            {
-                <tr>
-                    <td colspan="5" class="text-center text-muted">Chưa có dữ liệu</td>
-                </tr>
-            }
         </tbody>
     </table>
 </div>
@@ -61,6 +63,14 @@
 
 @code {
     private List<ChatLieu> DanhSachChatLieu = new();
+    private string SearchText = string.Empty;
+
+    private IEnumerable<ChatLieu> FilteredChatLieus =>
+        string.IsNullOrWhiteSpace(SearchText)
+            ? DanhSachChatLieu
+            : DanhSachChatLieu.Where(x =>
+                (x.TenChatLieu ?? "").Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                (x.MoTa ?? "").Contains(SearchText, StringComparison.OrdinalIgnoreCase));
 
     private bool IsModalOpen = false;
     private bool IsEdit = false;
