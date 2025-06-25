@@ -1,5 +1,8 @@
-﻿@inherits LayoutComponentBase
+﻿@using API.Models.DTO
+@inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthProvider
+@inject IJSRuntime JSRuntime
 
 <link href="css/Sidebar.css" rel="stylesheet" />
 
@@ -9,8 +12,10 @@
     </div>
 
     <div class="main">
-        <div class="header">
-            <div class="user-area">
+        <div class="header d-flex align-items-center justify-content-between px-3">
+            <div class="breadcrumb">@breadcrumbText</div>
+
+            <div class="user-area d-flex align-items-center gap-3">
                 <span class="bell" @onclick="ToggleBellDropdown">
                     🔔<span class="badge">2</span>
                     @if (showBellDropdown)
@@ -24,13 +29,14 @@
                     }
                 </span>
 
-                <img class="avatar" @onclick="ToggleAvatarDropdown" src="https://randomuser.me/api/portraits/women/44.jpg" alt="user" />
+                <img class="avatar" @onclick="ToggleAvatarDropdown"
+                     src="https://randomuser.me/api/portraits/women/44.jpg" alt="user" />
 
                 @if (showAvatarDropdown)
                 {
                     <div class="dropdown-avatar">
                         <div class="dropdown-item" @onclick="GotoProfile">Thông tin tài khoản</div>
-                        <div class="dropdown-item">Đăng xuất</div>
+                        <div class="dropdown-item" @onclick="ShowLogoutConfirm">Đăng xuất</div>
                     </div>
                 }
             </div>
@@ -42,17 +48,95 @@
     </div>
 </div>
 
+<!-- Modal xác nhận đăng xuất -->
+@if (showLogoutConfirm)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác nhận đăng xuất</h5>
+                    <button type="button" class="btn-close" @onclick="HideLogoutConfirm"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn đăng xuất?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="HideLogoutConfirm">Hủy</button>
+                    <button type="button" class="btn btn-primary" @onclick="Logout">Đăng xuất</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     private bool showBellDropdown = false;
     private bool showAvatarDropdown = false;
+    private bool showLogoutConfirm = false; // Biến trạng thái cho modal xác nhận
+    private string breadcrumbText = "Dashboard";
 
-    // 🔁 Tạm thời hardcode ID người dùng (có thể lấy từ login/session)
+    protected override void OnInitialized()
+    {
+        NavigationManager.LocationChanged += OnLocationChanged;
+        UpdateBreadcrumb(NavigationManager.Uri);
+    }
+
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        UpdateBreadcrumb(e.Location);
+    }
+
+    private void UpdateBreadcrumb(string uri)
+    {
+        var relativePath = NavigationManager.ToBaseRelativePath(uri);
+        if (string.IsNullOrWhiteSpace(relativePath))
+        {
+            breadcrumbText = "Dashboard";
+            return;
+        }
+
+        var segments = relativePath
+            .Split("/", StringSplitOptions.RemoveEmptyEntries)
+            .Select(Capitalize);
+
+        breadcrumbText = "Dashboard / " + string.Join(" / ", segments);
+    }
+
+    private string Capitalize(string input)
+    {
+        return string.IsNullOrWhiteSpace(input) ? "" :
+               char.ToUpper(input[0]) + input.Substring(1).ToLower();
+    }
+
     private Guid LoggedInUserId = Guid.Parse("8a3c1a42-b3d4-49dc-bb53-d99d7b1145aa");
 
     private void ToggleBellDropdown()
     {
         showBellDropdown = !showBellDropdown;
         if (showBellDropdown) showAvatarDropdown = false;
+    }
+
+    private void ShowLogoutConfirm()
+    {
+        showLogoutConfirm = true;
+        showAvatarDropdown = false;
+    }
+
+    private void HideLogoutConfirm()
+    {
+        showLogoutConfirm = false;
+    }
+
+    private async Task Logout()
+    {
+        if (AuthProvider is CustomAuthenticationStateProvider customProvider)
+        {
+            customProvider.MarkUserAsLoggedOut();
+        }
+
+        showLogoutConfirm = false;
+        NavigationManager.NavigateTo("/");
     }
 
     private void ToggleAvatarDropdown()
