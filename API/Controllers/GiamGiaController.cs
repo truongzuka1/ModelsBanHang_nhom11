@@ -18,7 +18,6 @@ namespace API.Controllers
             _giamGiaRepository = giamGiaRepository;
         }
 
-        // GET: api/giamgia
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GiamGia>>> GetAll()
         {
@@ -26,7 +25,6 @@ namespace API.Controllers
             return Ok(result);
         }
 
-        // GET: api/giamgia/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<GiamGia>> GetById(Guid id)
         {
@@ -35,20 +33,29 @@ namespace API.Controllers
             return Ok(result);
         }
 
-        // POST: api/giamgia
         [HttpPost]
-        public async Task<ActionResult<GiamGia>> Create(GiamGia giamGia)
+        public async Task<ActionResult<GiamGia>> Create([FromBody] GiamGia giamGia)
         {
+            // ✅ Thêm validate rõ ràng phía server
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var created = await _giamGiaRepository.AddAsync(giamGia);
             return CreatedAtAction(nameof(GetById), new { id = created.GiamGiaId }, created);
         }
 
-        // PUT: api/giamgia/{id}
         [HttpPut("{id}")]
-        public async Task<ActionResult<GiamGia>> Update(Guid id, GiamGia giamGia)
+        public async Task<ActionResult<GiamGia>> Update(Guid id, [FromBody] GiamGia giamGia)
         {
             if (id != giamGia.GiamGiaId)
                 return BadRequest("Id mismatch");
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
             var updated = await _giamGiaRepository.UpdateAsync(giamGia);
             if (updated == null) return NotFound();
@@ -56,7 +63,6 @@ namespace API.Controllers
             return Ok(updated);
         }
 
-        // DELETE: api/giamgia/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -65,16 +71,16 @@ namespace API.Controllers
             return NoContent();
         }
 
-        // POST: api/giamgia/{giamGiaId}/add-giay/{giayId}
         [HttpPost("{giamGiaId}/add-giay/{giayId}")]
         public async Task<IActionResult> AddGiayToDotGiamGia(Guid giamGiaId, Guid giayId)
         {
             var added = await _giamGiaRepository.AddGiayToDotGiamGia(giamGiaId, giayId);
-            if (!added) return BadRequest("Unable to add giay to dot giam gia (maybe already added or not found)");
+            if (!added)
+                return BadRequest("Không thể thêm giày vào đợt giảm giá (đã tồn tại hoặc không tìm thấy)");
+
             return Ok();
         }
 
-        // DELETE: api/giamgia/{giamGiaId}/remove-giay/{giayId}
         [HttpDelete("{giamGiaId}/remove-giay/{giayId}")]
         public async Task<IActionResult> RemoveGiayFromDotGiamGia(Guid giamGiaId, Guid giayId)
         {
@@ -83,4 +89,5 @@ namespace API.Controllers
             return Ok();
         }
     }
+
 }
