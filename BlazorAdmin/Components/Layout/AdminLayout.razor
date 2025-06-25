@@ -135,13 +135,18 @@
 
     private async Task Logout()
     {
+        // Nếu có authToken đang lưu
+        await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "authToken");
+
         if (AuthProvider is CustomAuthenticationStateProvider customProvider)
         {
             customProvider.MarkUserAsLoggedOut();
         }
 
         showLogoutConfirm = false;
-        NavigationManager.NavigateTo("/");
+
+        // Reload toàn trang để reset interop và renderer
+        NavigationManager.NavigateTo("/", true);
     }
 
     private void ToggleAvatarDropdown()
