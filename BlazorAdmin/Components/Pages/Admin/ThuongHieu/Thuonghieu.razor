@@ -10,7 +10,6 @@
     <i class="fa fa-plus"></i> Thêm thương hiệu
 </button>
 
-<!-- Modal Form -->
 @if (IsModalVisible)
 {
     <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);" tabindex="-1">
@@ -24,7 +23,7 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label">Tên thương hiệu</label>
-                            <InputText class="form-control" @bind-Value="Model.Ten" required />
+                            <InputText class="form-control" @bind-Value="Model.TenThuongHieu" required />
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Email</label>
@@ -32,7 +31,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">SĐT</label>
-                            <InputText class="form-control" @bind-Value="Model.Sdt" />
+                            <InputText class="form-control" @bind-Value="Model.SDT" />
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Địa chỉ</label>
@@ -57,7 +56,6 @@
     </div>
 }
 
-<!-- Danh sách -->
 <table class="table table-bordered table-hover">
     <thead class="table-primary">
         <tr>
@@ -83,9 +81,9 @@
             {
                 <tr>
                     <td>@(i + 1)</td>
-                    <td>@item.Ten</td>
+                    <td>@item.TenThuongHieu</td>
                     <td>@item.Email</td>
-                    <td>@item.Sdt</td>
+                    <td>@item.SDT</td>
                     <td>@item.DiaChi</td>
                     <td>
                         <span class="badge bg-@(item.TrangThai ? "success" : "secondary")">
@@ -96,7 +94,7 @@
                         <button class="btn btn-sm btn-warning me-1" @onclick="() => Edit(item)">
                             <i class="fa fa-edit"></i>
                         </button>
-                        <button class="btn btn-sm btn-danger" @onclick="() => Delete(item.Id)">
+                        <button class="btn btn-sm btn-danger" @onclick="() => Delete(item.ThuongHieuId)">
                             <i class="fa fa-trash"></i>
                         </button>
                     </td>
@@ -107,47 +105,36 @@
 </table>
 
 @code {
-    public class ThuongHieuModel
-    {
-        public string Id { get; set; } = Guid.NewGuid().ToString();
-        public string Ten { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Sdt { get; set; } = string.Empty;
-        public string DiaChi { get; set; } = string.Empty;
-        public string MoTa { get; set; } = string.Empty;
-        public bool TrangThai { get; set; } = true;
-    }
-
-    private List<ThuongHieuModel> ThuongHieus = new();
-    private ThuongHieuModel Model = new();
+    private List<ThuongHieu> ThuongHieus = new();
+    private ThuongHieu Model = new();
     private string ModalTitle = "Thêm Thương Hiệu";
     private bool IsModalVisible = false;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        // Tạm thời dữ liệu giả
-        ThuongHieus = new()
-        {
-            new() { Id = "1", Ten = "Nike", Email = "nike@brands.com", Sdt = "0123456789", DiaChi = "Mỹ", MoTa = "Thương hiệu thể thao", TrangThai = true },
-            new() { Id = "2", Ten = "Adidas", Email = "adidas@brands.com", Sdt = "0987654321", DiaChi = "Đức", MoTa = "Phong cách trẻ trung", TrangThai = false }
-        };
+        await LoadDataAsync();
     }
 
-    void ShowAddModal()
+    private async Task LoadDataAsync()
     {
-        Model = new ThuongHieuModel();
+        ThuongHieus = await ThuongHieuService.GetAllAsync();
+    }
+
+    private void ShowAddModal()
+    {
+        Model = new ThuongHieu(); // reset
         ModalTitle = "Thêm Thương Hiệu";
         IsModalVisible = true;
     }
 
-    void Edit(ThuongHieuModel item)
+    private void Edit(ThuongHieu item)
     {
-        Model = new ThuongHieuModel
+        Model = new ThuongHieu
         {
-            Id = item.Id,
-            Ten = item.Ten,
+            ThuongHieuId = item.ThuongHieuId,
+            TenThuongHieu = item.TenThuongHieu,
             Email = item.Email,
-            Sdt = item.Sdt,
+            SDT = item.SDT,
             DiaChi = item.DiaChi,
             MoTa = item.MoTa,
             TrangThai = item.TrangThai
@@ -156,46 +143,29 @@
         IsModalVisible = true;
     }
 
-    void Delete(string id)
+    private async Task Delete(Guid id)
     {
-        var item = ThuongHieus.FirstOrDefault(x => x.Id == id);
-        if (item != null)
-        {
-            ThuongHieus.Remove(item);
-        }
+        await ThuongHieuService.DeleteAsync(id);
+        await LoadDataAsync();
     }
 
-    void CloseModal()
+    private void CloseModal()
     {
         IsModalVisible = false;
     }
 
-    void HandleValidSubmit()
+    private async Task HandleValidSubmit()
     {
-        var existing = ThuongHieus.FirstOrDefault(x => x.Id == Model.Id);
-        if (existing != null)
+        if (Model.ThuongHieuId == Guid.Empty)
         {
-            existing.Ten = Model.Ten;
-            existing.Email = Model.Email;
-            existing.Sdt = Model.Sdt;
-            existing.DiaChi = Model.DiaChi;
-            existing.MoTa = Model.MoTa;
-            existing.TrangThai = Model.TrangThai;
+            await ThuongHieuService.CreateAsync(Model);
         }
         else
         {
-            ThuongHieus.Add(new ThuongHieuModel
-            {
-                Id = Model.Id,
-                Ten = Model.Ten,
-                Email = Model.Email,
-                Sdt = Model.Sdt,
-                DiaChi = Model.DiaChi,
-                MoTa = Model.MoTa,
-                TrangThai = Model.TrangThai
-            });
+            await ThuongHieuService.UpdateAsync(Model);
         }
 
         IsModalVisible = false;
+        await LoadDataAsync();
     }
 }

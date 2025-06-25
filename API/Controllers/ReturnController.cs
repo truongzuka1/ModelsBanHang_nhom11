@@ -64,8 +64,7 @@ namespace API.Controllers
                         TongTienSauKhiGiam = hoaDon.TongTienSauKhiGiam,
                         TrangThai = hoaDon.TrangThai,
                         SanPhams = returnItems,
-                        ////HinhThucThanhToan = hoaDon.hinhThucThanhToan,
-                        ////TaiKhoan = hoaDon.taiKhoan
+                        TenHinhThuc = hoaDon.hinhThucThanhToan.TenHinhThuc,
                     });
                 }
 
@@ -113,8 +112,8 @@ namespace API.Controllers
                 TongTienSauKhiGiam = hoaDon.TongTienSauKhiGiam,
                 TrangThai = hoaDon.TrangThai,
                 SanPhams = returnItems,
-                //HinhThucThanhToan = hoaDon.hinhThucThanhToan,
-                //TaiKhoan = hoaDon.taiKhoan
+                TenHinhThuc = hoaDon.hinhThucThanhToan.TenHinhThuc,
+            
             });
         }
 

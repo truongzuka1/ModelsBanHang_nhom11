@@ -91,20 +91,32 @@ namespace API.Controllers
             return NoContent();
         }
 
-        // DELETE: api/KhachHang/{id}
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteKhachHang(Guid id)
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<KhachHang>>> SearchKhachHang(string keyword)
         {
-            var khachHang = await _context.KhachHangs.FindAsync(id);
-            if (khachHang == null)
+            if (string.IsNullOrWhiteSpace(keyword))
             {
-                return NotFound();
+                // Trả về danh sách đầy đủ (nếu không truyền keyword)
+                return Ok(await _context.KhachHangs
+                    .Include(kh => kh.TaiKhoan)
+                    .Include(kh => kh.HoaDons)
+                    .Include(kh => kh.GioHangs)
+                    .Include(kh => kh.DiaChiKhachHangs)
+                    .ToListAsync());
             }
 
-            _context.KhachHangs.Remove(khachHang);
-            await _context.SaveChangesAsync();
+            // Tìm theo Họ tên (lowercase)
+            keyword = keyword.ToLower();
 
-            return NoContent();
+            var result = await _context.KhachHangs
+                .Include(kh => kh.TaiKhoan)
+                .Include(kh => kh.HoaDons)
+                .Include(kh => kh.GioHangs)
+                .Include(kh => kh.DiaChiKhachHangs)
+                .Where(kh => kh.HoTen.ToLower().Contains(keyword))
+                .ToListAsync();
+
+            return Ok(result);
         }
     }
 }

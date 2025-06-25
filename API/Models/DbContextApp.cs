@@ -23,7 +23,7 @@ namespace Data.Models
         {
 
 
-            optionsBuilder.UseSqlServer(@"Data Source=.\SQLEXPRESS;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
+            optionsBuilder.UseSqlServer(@"Data Source=.;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
 
 
 
@@ -104,14 +104,14 @@ namespace Data.Models
 
             // NhanVien - ChucVu
             modelBuilder.Entity<NhanVien>()
-                .HasOne(nv => nv.ChucVu)
-                .WithMany(cv => cv.nhanViens)
-                .HasForeignKey(nv => nv.ChucVuId)
-                .OnDelete(DeleteBehavior.Restrict);
+      .HasOne(nv => nv.ChucVu)
+      .WithMany(cv => cv.nhanViens)
+      .HasForeignKey(nv => nv.ChucVuId);
+
 
 
             // NhanVien - TaiKhoan
-         
+
 
             //hoadon-taikhoan
 

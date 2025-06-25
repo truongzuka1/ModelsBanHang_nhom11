@@ -11,5 +11,6 @@ namespace API.IRepository
         Task UpdateNhanVienAsync(NhanVien nhanVien);
 
         Task<NhanVien> GetIdNhanVienTaiKhoan(Guid TK);
+        Task<List<NhanVien>> SearchNhanVienAsync(string keyword);
     }
 }
