@@ -41,8 +41,12 @@ namespace API.Repository
                 .Include(g => g.TheLoaiGiay)
                 .Include(g => g.KieuDang)
                 .Include(g => g.GiayChiTiets)
+                    .ThenInclude(ct => ct.MauSac)
+                .Include(g => g.GiayChiTiets)
+                    .ThenInclude(ct => ct.KichCo)
                 .ToListAsync();
         }
+
 
         public async Task<Giay> GetByIdAsync(Guid id)
         {
@@ -53,6 +57,9 @@ namespace API.Repository
                 .Include(g => g.TheLoaiGiay)
                 .Include(g => g.KieuDang)
                 .Include(g => g.GiayChiTiets)
+                    .ThenInclude(ct => ct.MauSac)
+                .Include(g => g.GiayChiTiets)
+                    .ThenInclude(ct => ct.KichCo)
                 .FirstOrDefaultAsync(g => g.GiayId == id);
         }
 
@@ -66,8 +73,12 @@ namespace API.Repository
                 .Include(g => g.TheLoaiGiay)
                 .Include(g => g.KieuDang)
                 .Include(g => g.GiayChiTiets)
+                    .ThenInclude(ct => ct.MauSac)
+                .Include(g => g.GiayChiTiets)
+                    .ThenInclude(ct => ct.KichCo)
                 .ToListAsync();
         }
+
 
         public async Task<Giay> UpdateAsync(Giay giay)
         {

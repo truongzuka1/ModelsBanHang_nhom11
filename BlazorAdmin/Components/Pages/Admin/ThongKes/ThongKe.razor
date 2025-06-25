@@ -5,6 +5,7 @@
 @inject NavigationManager manager
 @inject IJSRuntime JS
 @using API.Models
+@using API.Models.DTO
 @rendermode InteractiveServer
 <link href="css/Thongke.css" rel="stylesheet" />
 <h2>Thống kê</h2>
@@ -387,7 +388,7 @@
 
 			hoaDons = await hoaDonService.GetAll();
 			hoaDonChiTiets = await chiTietHoaDonService.GetAllHDCTAsync();
-			giayChiTiets = await giayChiTietService.GetAllAsync();
+			// giayChiTiets = await giayChiTietService.GetAllAsync();
 			Console.WriteLine($"Loaded {hoaDons.Count} HoaDon records.");
 			Console.WriteLine($"Loaded {hoaDonChiTiets.Count} HoaDonChiTiet records.");
 			Console.WriteLine($"Loaded {giayChiTiets.Count} GiayChiTiet records.");

@@ -13,7 +13,7 @@
         public Guid? TheLoaiGiayId { get; set; }
         public Guid? DeGiayId { get; set; }
         public Guid? KieuDangId { get; set; }
-
+        public int STT { get; set; } // Số thứ tự hiển thị
         // 🔽 Tên hiển thị các liên kết
         public string? TenThuongHieu { get; set; }
         public string? TenChatLieu { get; set; }

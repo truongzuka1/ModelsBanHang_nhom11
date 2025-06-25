@@ -24,11 +24,14 @@ namespace BlazorAdmin.Service
             return await _httpClient.GetFromJsonAsync<GiayDTO>($"api/Giay/{id}");
         }
 
-        public async Task CreateAsync(GiayDTO obj)
+        public async Task<GiayDTO> CreateAsync(GiayDTO obj)
         {
             var response = await _httpClient.PostAsJsonAsync("api/Giay", obj);
             response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadFromJsonAsync<GiayDTO>();
         }
+
 
         public async Task UpdateAsync(GiayDTO obj)
         {

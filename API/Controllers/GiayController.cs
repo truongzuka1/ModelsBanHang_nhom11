@@ -35,19 +35,41 @@ namespace API.Controllers
                 TenTheLoaiGiay = giay.TheLoaiGiay?.TenTheLoai,
                 TenDeGiay = giay.DeGiay?.TenDeGiay,
                 TenKieuDang = giay.KieuDang?.TenKieuDang,
-                ChiTietGiays = giay.GiayChiTiets.Select(ct => new GiayChiTietDTO
+
+                ChiTietGiays = giay.GiayChiTiets?.Select(ct => new GiayChiTietDTO
                 {
-                    // TODO: map các trường cần thiết nếu có
-                }).ToList()
+                    GiayChiTietId = ct.GiayChiTietId,
+                    GiayId = ct.GiayId,
+                    MauSacId = ct.MauSacId,
+                    KichCoId = ct.KichCoId,
+                    TenGiay = ct.Giay?.TenGiay,
+                    Gia = ct.Gia,
+                    SoLuongCon = ct.SoLuongCon,
+                    MoTa = ct.MoTa,
+                    TrangThai = ct.TrangThai,
+                    size = ct.KichCo?.size != null ? ct.KichCo.size.ToString() : null,
+                    TenMau = ct.MauSac?.TenMau,
+                    AnhGiay = ct.AnhGiay,
+                    NgayTao = ct.NgayTao,
+                    NgaySua = ct.NgaySua
+                }).ToList() ?? new List<GiayChiTietDTO>()
             };
         }
+
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var giays = await _giayRepo.GetAllAsync();
-            var dtoList = giays.Select(MapToDTO).ToList();
-            return Ok(dtoList);
+            try
+            {
+                var giays = await _giayRepo.GetAllAsync();
+                var dtoList = giays.Select(MapToDTO).ToList();
+                return Ok(dtoList);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi khi lấy giày: {ex.Message}");
+            }
         }
 
         [HttpGet("{id}")]

@@ -72,6 +72,11 @@ builder.Services.AddHttpClient<IGiamGiaService, GiamGiaService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7246/"); // hoặc địa chỉ backend của bạn
 });
+builder.Services.AddHttpClient("giay", client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7246/"); // thay đổi tùy theo API của bạn
+});
+
 builder.Services.AddScoped<IHoaDonChiTietService, HoaDonChiTietService>();
 builder.Services.AddScoped<INhanVienService, NhanVienService>();
 builder.Services.AddScoped<IAnhService, AnhService>();

@@ -5,7 +5,8 @@ namespace BlazorAdmin.Service.IService
     {
         Task<List<GiayDTO>> GetAllAsync();
         Task<GiayDTO> GetByIdAsync(Guid id);
-        Task CreateAsync(GiayDTO obj);
+        Task<GiayDTO> CreateAsync(GiayDTO obj);
+
         Task UpdateAsync(GiayDTO obj);
         Task DeleteAsync(Guid id);
         Task<List<GiayDTO>> SearchAsync(string keyword);
