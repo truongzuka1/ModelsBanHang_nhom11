@@ -6,31 +6,43 @@
 @using Microsoft.AspNetCore.Components.Forms
 
 <link rel="stylesheet" href="/css/Form.css" />
+<link rel="stylesheet" href="/css/Profile.css" />
 
 @if (TaiKhoan == null)
 {
-    <p class="text-danger">Không tìm thấy tài khoản!</p>
+    <div class="text-danger text-center mt-5">❌ Không tìm thấy tài khoản!</div>
 }
 else
 {
-    <EditForm Model="TaiKhoan" OnValidSubmit="HandleValidSubmit">
-        <input type="hidden" value="@TaiKhoan.TaikhoanId" />
+    <div class="mt-5 px-5" style="max-width: 600px; margin: auto;">
+        <h3 class="text-center mb-4">✏️ Chỉnh sửa tài khoản</h3>
 
-        <div class="form-group">
-            <label>Tên đăng nhập</label>
-            <InputText @bind-Value="TaiKhoan.Username" class="form-control" />
-        </div>
+        <EditForm Model="TaiKhoan" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
 
-        <div class="form-group">
-            <label>Mật khẩu</label>
-            <InputText @bind-Value="TaiKhoan.Password" type="password" class="form-control" />
-        </div>
+            <div class="card shadow-sm p-4">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">👨‍💻 Tên đăng nhập</label>
+                    <InputText @bind-Value="TaiKhoan.Username" class="form-control" />
+                </div>
 
-        <div class="form-actions">
-            <button type="submit" class="btn btn-warning">💾 Lưu</button>
-            <a href="/taikhoan/chitiet/@TaiKhoan.TaikhoanId" class="btn btn-secondary">✖️ Hủy</a>
-        </div>
-    </EditForm>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">🔐 Mật khẩu</label>
+                    <InputText @bind-Value="TaiKhoan.Password" type="password" class="form-control" />
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="/ThongTinAdmin" class="btn btn-secondary">
+                        ✖️ Hủy
+                    </a>
+                    <button type="submit" class="btn btn-warning fw-bold">
+                        💾 Lưu thay đổi
+                    </button>
+                </div>
+            </div>
+        </EditForm>
+    </div>
 }
 
 @code {
@@ -47,6 +59,6 @@ else
     private async Task HandleValidSubmit()
     {
         await _taiKhoanService.UpdateTaiKhoanAsync(TaiKhoan);
-        NavigationManager.NavigateTo($"/taikhoan/chitiet/{TaiKhoan.TaikhoanId}");
+        NavigationManager.NavigateTo("/ThongTinAdmin");
     }
 }
