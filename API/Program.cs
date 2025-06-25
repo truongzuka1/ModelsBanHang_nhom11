@@ -43,6 +43,7 @@ builder.Services.AddScoped<IKichCoRepository, KichCoRepository>();
 builder.Services.AddScoped<INhanVienRepository, NhanVienRepository>();
 builder.Services.AddScoped<IThuongHieuRepository, ThuongHieuRepository>();
 builder.Services.AddScoped<IVoucherRepo, VoucherRepo>();
+builder.Services.AddScoped<IKieuDangRepository, KieuDangRepository>();
 builder.Services.AddScoped<ITheLoaiGiayRepository, TheLoaiGiayRepository>();
 builder.Services.AddScoped<IChiTietHoaDonRepository, ChiTietHoaDonRepository>();
 builder.Services.AddScoped<ITaiKhoanRepository, TaiKhoanRepository>();
