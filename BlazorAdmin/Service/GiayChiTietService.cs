@@ -1,6 +1,7 @@
 ﻿using API.Models.DTO;
 using BlazorAdmin.Service.IService;
 using System.Net.Http.Json;
+using static BlazorAdmin.Components.Pages.Admin.SanPham.SanPhamChiTiet;
 
 namespace BlazorAdmin.Service
 {
@@ -41,6 +42,7 @@ namespace BlazorAdmin.Service
             var response = await _httpClient.PostAsJsonAsync("api/GiayChiTiet/multiple", list);
             response.EnsureSuccessStatusCode();
         }
+       
 
         public async Task DeleteAsync(Guid id)
         {

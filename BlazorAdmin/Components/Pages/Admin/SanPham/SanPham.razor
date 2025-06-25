@@ -32,7 +32,7 @@
         </div>
 
         <div class="col-md-3 text-end">
-            <NavLink class="btn btn-primary" href="/addgiay"><i class="bi bi-plus-lg me-2"></i>Thêm sản phẩm</NavLink>
+            <NavLink class="btn btn-primary" href="/AddGiay"><i class="bi bi-plus-lg me-2"></i>Thêm sản phẩm</NavLink>
         </div>
     </div>
 
@@ -43,6 +43,11 @@
                 <tr>
                     <th class="text-center" style="width: 60px;">STT</th>
                     <th>Tên giày</th>
+                    <th>Thương hiệu</th>
+                    <th>Chất liệu</th>
+                    <th>Thể loại</th>
+                    <th>Đế giày</th>
+                    <th>Kiểu dáng</th>
                     <th>Ngày thêm</th>
                     <th class="text-center">Trạng thái</th>
                     <th class="text-center" style="width: 150px;">Thao tác</th>
@@ -51,7 +56,7 @@
             <tbody>
                 @if (isLoading)
                 {
-                    <tr><td colspan="5" class="text-center py-4"><div class="spinner-border text-primary"></div></td></tr>
+                    <tr><td colspan="10" class="text-center py-4"><div class="spinner-border text-primary"></div></td></tr>
                 }
                 else if (pagedList.Any())
                 {
@@ -60,6 +65,11 @@
                         <tr>
                             <td class="text-center">@item.STT</td>
                             <td>@item.TenGiay</td>
+                            <td>@item.TenThuongHieu</td>
+                            <td>@item.TenChatLieu</td>
+                            <td>@item.TenTheLoaiGiay</td>
+                            <td>@item.TenDeGiay</td>
+                            <td>@item.TenKieuDang</td>
                             <td>@item.NgayTao.ToString("dd/MM/yyyy")</td>
                             <td class="text-center">
                                 <span class="badge @(item.TrangThai ? "bg-success text-light" : "bg-secondary")">
@@ -78,7 +88,7 @@
                 }
                 else
                 {
-                    <tr><td colspan="5" class="text-center text-muted py-4">Không tìm thấy sản phẩm nào.</td></tr>
+                    <tr><td colspan="10" class="text-center text-muted py-4">Không tìm thấy sản phẩm nào.</td></tr>
                 }
             </tbody>
         </table>
@@ -149,9 +159,9 @@
         }
     }
 
-    private void ViewProduct(Guid id)
+    private void ViewProduct(Guid GiayId)
     {
-        NavigationManager.NavigateTo($"/sanphamchitiet/{id}");
+        NavigationManager.NavigateTo($"/Giay/{GiayId.ToString()}");
     }
 
     private void EditProduct(Guid id)

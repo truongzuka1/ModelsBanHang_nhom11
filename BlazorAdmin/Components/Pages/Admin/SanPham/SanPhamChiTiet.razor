@@ -1,5 +1,197 @@
-﻿<h3>SanPhamChiTiet</h3>
+﻿@page "/Giay/{GiayId.ToString()}"
+@inject IGiayService giayService
+@inject IGiayChiTietService giayChiTietService
+@inject NavigationManager NavigationManager
+@using API.Models.DTO
+@using System.Globalization
+
+<h4 class="mb-3 fw-bold">Sản phẩm / Chi tiết sản phẩm</h4>
+
+<div class="card p-3 mb-4 shadow-sm">
+    <div class="row g-3">
+        <div class="col-md-4">
+            <input type="text" class="form-control" placeholder="Nhập tên giày để tìm..." @bind="searchTerm" />
+        </div>
+        <div class="col-md-8 d-flex flex-wrap gap-2 align-items-center">
+            <select class="form-select w-auto" @bind="selectedDanhMuc">
+                <option value="">Danh mục: Tất cả</option>
+                @foreach (var item in danhMucOptions)
+                {
+                    <option value="@item">@item</option>
+                }
+            </select>
+
+            <select class="form-select w-auto" @bind="selectedThuongHieu">
+                <option value="">Thương hiệu: Tất cả</option>
+                @foreach (var item in thuongHieuOptions)
+                {
+                    <option value="@item">@item</option>
+                }
+            </select>
+
+            <select class="form-select w-auto" @bind="selectedMau">
+                <option value="">Màu sắc: Tất cả</option>
+                @foreach (var item in mauOptions)
+                {
+                    <option value="@item">@item</option>
+                }
+            </select>
+
+            <select class="form-select w-auto" @bind="selectedChatLieu">
+                <option value="">Chất liệu: Tất cả</option>
+                @foreach (var item in chatLieuOptions)
+                {
+                    <option value="@item">@item</option>
+                }
+            </select>
+
+            <select class="form-select w-auto" @bind="selectedDeGiay">
+                <option value="">Đế giày: Tất cả</option>
+                @foreach (var item in deGiayOptions)
+                {
+                    <option value="@item">@item</option>
+                }
+            </select>
+
+            <select class="form-select w-auto" @bind="selectedTrangThai">
+                <option value="">Trạng thái: Tất cả</option>
+                <option value="true">Đang bán</option>
+                <option value="false">Ngừng bán</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <thead class="table-light">
+            <tr>
+                <th>Ảnh</th>
+                <th>Tên giày</th>
+                <th>Thương hiệu</th>
+                <th>Loại giày</th>
+                <th>Chất liệu</th>
+                <th>Màu sắc</th>
+                <th>Size</th>
+                <th>Cân nặng</th>
+                <th>Số lượng</th>
+                <th>Đơn giá</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in filteredList)
+            {
+                <tr>
+                    <td><img src="@item.AnhGiay" width="60" /></td>
+                    <td>@item.TenGiay</td>
+                    <td>@item.TenThuongHieu</td>
+                    <td>@item.TenTheLoaiGiay</td>
+                    <td>@item.TenChatLieu</td>
+                    <td>@item.TenMau</td>
+                    <td>@item.Size</td>
+                    <td>800g</td>
+                    <td>@item.SoLuongCon</td>
+                    <td>@item.Gia.ToString("N0", CultureInfo.InvariantCulture) đ</td>
+                    <td>
+                        @if (item.TrangThai)
+                        {
+                            <span class="badge bg-success">Đang bán</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Ngừng bán</span>
+                        }
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-warning">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
 
 @code {
+    private List<GiayChiTietViewDTO> danhSach = new();
+    private string searchTerm;
+    private string selectedDanhMuc;
+    private string selectedThuongHieu;
+    private string selectedMau;
+    private string selectedChatLieu;
+    private string selectedDeGiay;
+    private string selectedTrangThai;
 
+    private List<string> danhMucOptions = new();
+    private List<string> thuongHieuOptions = new();
+    private List<string> mauOptions = new();
+    private List<string> chatLieuOptions = new();
+    private List<string> deGiayOptions = new();
+
+    private List<GiayChiTietViewDTO> filteredList => danhSach
+        .Where(x => string.IsNullOrWhiteSpace(searchTerm) || x.TenGiay.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+        .Where(x => string.IsNullOrEmpty(selectedDanhMuc) || x.TenTheLoaiGiay == selectedDanhMuc)
+        .Where(x => string.IsNullOrEmpty(selectedThuongHieu) || x.TenThuongHieu == selectedThuongHieu)
+        .Where(x => string.IsNullOrEmpty(selectedMau) || x.TenMau == selectedMau)
+        .Where(x => string.IsNullOrEmpty(selectedChatLieu) || x.TenChatLieu == selectedChatLieu)
+        .Where(x => string.IsNullOrEmpty(selectedDeGiay) || x.TenDeGiay == selectedDeGiay)
+        .Where(x => string.IsNullOrEmpty(selectedTrangThai) || x.TrangThai.ToString().ToLower() == selectedTrangThai.ToLower())
+        .ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var giays = await giayService.GetAllAsync();
+        var chiTiets = await giayChiTietService.GetAllAsync();
+
+        danhSach = (from giay in giays
+                    join ct in chiTiets on giay.GiayId equals ct.GiayId
+                    select new GiayChiTietViewDTO
+                        {
+                            GiayChiTietId = ct.GiayChiTietId,
+                            GiayId = giay.GiayId,
+                            TenGiay = giay.TenGiay,
+                            TenThuongHieu = giay.TenThuongHieu,
+                            TenChatLieu = giay.TenChatLieu,
+                            TenTheLoaiGiay = giay.TenTheLoaiGiay,
+                            TenDeGiay = giay.TenDeGiay,
+                            TenKieuDang = giay.TenKieuDang,
+                            TenMau = ct.TenMau,
+                            Size = ct.size,
+                            Gia = ct.Gia,
+                            SoLuongCon = ct.SoLuongCon,
+                            MoTa = ct.MoTa,
+                            TrangThai = ct.TrangThai,
+                            AnhGiay = ct.AnhGiay,
+                            NgayTao = ct.NgayTao
+                        }).ToList();
+
+        danhMucOptions = danhSach.Select(x => x.TenTheLoaiGiay).Distinct().ToList();
+        thuongHieuOptions = danhSach.Select(x => x.TenThuongHieu).Distinct().ToList();
+        mauOptions = danhSach.Select(x => x.TenMau).Distinct().ToList();
+        chatLieuOptions = danhSach.Select(x => x.TenChatLieu).Distinct().ToList();
+        deGiayOptions = danhSach.Select(x => x.TenDeGiay).Distinct().ToList();
+    }
+
+    public class GiayChiTietViewDTO
+    {
+        public Guid GiayChiTietId { get; set; }
+        public Guid GiayId { get; set; }
+        public string TenGiay { get; set; }
+        public string? AnhGiay { get; set; }
+        public string? TenThuongHieu { get; set; }
+        public string? TenChatLieu { get; set; }
+        public string? TenTheLoaiGiay { get; set; }
+        public string? TenDeGiay { get; set; }
+        public string? TenKieuDang { get; set; }
+        public string? TenMau { get; set; }
+        public string? Size { get; set; }
+        public float Gia { get; set; }
+        public int SoLuongCon { get; set; }
+        public string? MoTa { get; set; }
+        public bool TrangThai { get; set; }
+        public DateTime NgayTao { get; set; }
+    }
 }
