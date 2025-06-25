@@ -9,6 +9,7 @@ namespace API.IRepository
         Task<Giay> AddAsync(Giay giay);
         Task<Giay> UpdateAsync(Giay giay);
         Task<bool> DeleteAsync(Guid id);
+        Task<IEnumerable<Giay>> SearchByTenAsync(string keyword);
 
     }
 }

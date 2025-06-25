@@ -1,13 +1,13 @@
-﻿using Data.Models;
-
+﻿using API.Models.DTO;
 namespace BlazorAdmin.Service.IService
 {
     public interface IGiayService
     {
-        Task<List<Giay>> GetAllAsync();
-        Task<Giay> GetByIdAsync(Guid id);
-        Task CreateAsync(Giay obj);
-        Task UpdateAsync(Giay obj);
+        Task<List<GiayDTO>> GetAllAsync();
+        Task<GiayDTO> GetByIdAsync(Guid id);
+        Task CreateAsync(GiayDTO obj);
+        Task UpdateAsync(GiayDTO obj);
         Task DeleteAsync(Guid id);
+        Task<List<GiayDTO>> SearchAsync(string keyword);
     }
 }

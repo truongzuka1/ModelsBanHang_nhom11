@@ -5,126 +5,90 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
+    [ApiController]
     public class KichCoController : ControllerBase
     {
-        private readonly IKichCoRepository _kichCoRepository;
+        private readonly IKichCoRepository _kichCoRepo;
 
-        public KichCoController(IKichCoRepository kichCoRepository)
+        public KichCoController(IKichCoRepository kichCoRepo)
         {
-            _kichCoRepository = kichCoRepository;
+            _kichCoRepo = kichCoRepo;
         }
 
-        // GET: api/KichCo
+        private KichCoDTO MapToDTO(KichCo kc)
+        {
+            return new KichCoDTO
+            {
+                KichCoId = kc.KichCoId,
+                TenKichCo = kc.TenKichCo,
+                size = kc.size,
+                CanNang = kc.size * 0.5f // ví dụ tính Cân Nặng, tuỳ theo logic bạn định nghĩa
+            };
+        }
+
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<KichCoDTO>>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var list = await _kichCoRepository.GetAllAsync();
-            var dtos = list.Select(x => new KichCoDTO
-            {
-                KichCoId = x.KichCoId,
-                TenKichCo = x.TenKichCo,
-                MoTa = x.MoTa,
-                TrangThai = x.TrangThai
-            });
-
-            return Ok(dtos);
+            var result = await _kichCoRepo.GetAllAsync();
+            return Ok(result.Select(MapToDTO));
         }
 
-        // GET: api/KichCo/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<KichCoDTO>> GetById(Guid id)
+        public async Task<IActionResult> GetById(Guid id)
         {
-            var item = await _kichCoRepository.GetByIdAsync(id);
-            if (item == null) return NotFound();
+            var kc = await _kichCoRepo.GetByIdAsync(id);
+            if (kc == null) return NotFound();
 
-            var dto = new KichCoDTO
-            {
-                KichCoId = item.KichCoId,
-                TenKichCo = item.TenKichCo,
-                MoTa = item.MoTa,
-                TrangThai = item.TrangThai
-            };
-
-            return Ok(dto);
+            return Ok(MapToDTO(kc));
         }
 
-        // POST: api/KichCo
         [HttpPost]
-        public async Task<ActionResult> Create(KichCoDTO dto)
+        public async Task<IActionResult> Create([FromBody] KichCoDTO dto)
         {
             var kichCo = new KichCo
             {
                 TenKichCo = dto.TenKichCo,
-                MoTa = dto.MoTa,
-                TrangThai = dto.TrangThai
+                size = dto.size,
+                MoTa = "", // có thể thay bằng giá trị mặc định nếu DTO không có
+                TrangThai = true
             };
 
-            await _kichCoRepository.AddAsync(kichCo);
-            return Ok();
+            var created = await _kichCoRepo.AddAsync(kichCo);
+            return CreatedAtAction(nameof(GetById), new { id = created.KichCoId }, MapToDTO(created));
         }
 
-        // PUT: api/KichCo
-        [HttpPut]
-        public async Task<ActionResult> Update(KichCoDTO dto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] KichCoDTO dto)
         {
             var kichCo = new KichCo
             {
-                KichCoId = dto.KichCoId,
+                KichCoId = id,
                 TenKichCo = dto.TenKichCo,
-                MoTa = dto.MoTa,
-                TrangThai = dto.TrangThai
+                size = dto.size,
+                MoTa = "", // hoặc cập nhật từ DTO nếu mở rộng
+                TrangThai = true
             };
 
-            var result = await _kichCoRepository.UpdateAsync(kichCo);
-            if (result == null) return NotFound();
+            var updated = await _kichCoRepo.UpdateAsync(kichCo);
+            if (updated == null) return NotFound();
 
-            return Ok();
+            return Ok(MapToDTO(updated));
         }
 
-        // DELETE: api/KichCo/{id}
         [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(Guid id)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            var result = await _kichCoRepository.DeleteAsync(id);
+            var result = await _kichCoRepo.DeleteAsync(id);
             if (!result) return NotFound();
-
-            return Ok();
+            return NoContent();
         }
 
-        // POST: api/KichCo/{giayChiTietId}/add-kichco/{kichCoId}
-        [HttpPost("{giayChiTietId}/add-kichco/{kichCoId}")]
-        public async Task<ActionResult> AddKichCoToGiayChiTiet(Guid giayChiTietId, Guid kichCoId)
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchByTen([FromQuery] string keyword)
         {
-            var result = await _kichCoRepository.AddKichCoToGiayChiTiet(giayChiTietId, kichCoId);
-            if (!result) return BadRequest("Không thể thêm kích cỡ vào giày chi tiết.");
-            return Ok();
-        }
-
-        // DELETE: api/KichCo/{giayChiTietId}/remove-kichco/{kichCoId}
-        [HttpDelete("{giayChiTietId}/remove-kichco/{kichCoId}")]
-        public async Task<ActionResult> RemoveKichCoFromGiayChiTiet(Guid giayChiTietId, Guid kichCoId)
-        {
-            var result = await _kichCoRepository.RemoveKichCoFromGiayChiTiet(giayChiTietId, kichCoId);
-            if (!result) return BadRequest("Không thể xoá kích cỡ khỏi giày chi tiết.");
-            return Ok();
-        }
-
-        // GET: api/KichCo/giaychitiet/{giayChiTietId}
-        [HttpGet("giaychitiet/{giayChiTietId}")]
-        public async Task<ActionResult<IEnumerable<KichCoDTO>>> GetKichCosByGiayChiTietId(Guid giayChiTietId)
-        {
-            var list = await _kichCoRepository.GetKichCosByGiayIdAsync(giayChiTietId);
-            var dtos = list.Select(x => new KichCoDTO
-            {
-                KichCoId = x.KichCoId,
-                TenKichCo = x.TenKichCo,
-                MoTa = x.MoTa,
-                TrangThai = x.TrangThai
-            });
-
-            return Ok(dtos);
+            var result = await _kichCoRepo.SearchByTenAsync(keyword);
+            return Ok(result.Select(MapToDTO));
         }
     }
 }

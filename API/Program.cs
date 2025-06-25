@@ -38,6 +38,7 @@ builder.Services.AddScoped<IGiayChiTietRepository, GiayChiTietRepository>();
 builder.Services.AddScoped<IGioHangRepository, GioHangRepository>();
 builder.Services.AddScoped<IGioHangChiTietRepository, GioHangChiTietRepository>();
 builder.Services.AddScoped<IHoaDonRepo, HoaDonRepo>();
+builder.Services.AddScoped<IMauSacRepository, MauSacRepository>();
 builder.Services.AddScoped<IKichCoRepository, KichCoRepository>();
 builder.Services.AddScoped<INhanVienRepository, NhanVienRepository>();
 builder.Services.AddScoped<IThuongHieuRepository, ThuongHieuRepository>();

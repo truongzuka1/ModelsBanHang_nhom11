@@ -1,24 +1,24 @@
-﻿@* @page "/SanPham"
-@rendermode InteractiveServer
-@using API.Models.DTO
-@inject IJSRuntime JS
-@inject IGiayService giayService
-@inject NavigationManager NavigationManager
+﻿@* @page "/sanpham"
+@rendermode interactiveserver
+@using api.models.dto
+@inject ijsruntime js
+@inject igiayservice giayservice
+@inject navigationmanager navigationmanager
 
 <div class="container-fluid px-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="mb-0 fw-bold">
-            <i class="bi bi-box-seam me-2"></i>Quản lý sản phẩm giày
+            <i class="bi bi-box-seam me-2"></i>quản lý sản phẩm giày
         </h4>
-        <NavLink class="btn btn-primary" href="/AddGiay">
+        <navlink class="btn btn-primary" href="/addgiay">
             <i class="bi bi-plus-lg me-2"></i>
-            Thêm sản phẩm
-        </NavLink>
+            thêm sản phẩm
+        </navlink>
     </div>
 
     <div class="card shadow-sm border-0">
         <div class="card-body p-4">
-            <!-- Search and Filter Section -->
+            <!-- search and filter section -->
             <div class="row g-3 mb-4 align-items-center">
                 <div class="col-md-4">
                     <div class="input-group">
@@ -27,98 +27,98 @@
                         </span>
                         <input type="text"
                                class="form-control border-start-0"
-                               placeholder="Tìm kiếm sản phẩm..."
-                               @bind="searchText"
+                               placeholder="tìm kiếm sản phẩm..."
+                               @bind="searchtext"
                                @bind:event="oninput" />
                     </div>
                 </div>
 
                 <div class="col-md-5">
                     <div class="d-flex align-items-center">
-                        <span class="me-3 fw-medium">Trạng thái:</span>
+                        <span class="me-3 fw-medium">trạng thái:</span>
                         <div class="btn-group" role="group">
                             <input type="radio"
                                    class="btn-check"
-                                   name="statusFilter"
+                                   name="statusfilter"
                                    id="tatca"
                                    autocomplete="off"
-                                   checked="@(statusFilter == null)"
-                                   @onchange="@(() => statusFilter = null)" />
-                            <label class="btn btn-outline-secondary" for="tatca">Tất cả</label>
+                                   checked="@(statusfilter == null)"
+                                   @onchange="@(() => statusfilter = null)" />
+                            <label class="btn btn-outline-secondary" for="tatca">tất cả</label>
 
                             <input type="radio"
                                    class="btn-check"
-                                   name="statusFilter"
+                                   name="statusfilter"
                                    id="dangban"
                                    autocomplete="off"
-                                   checked="@(statusFilter == true)"
-                                   @onchange="@(() => statusFilter = true)" />
-                            <label class="btn btn-outline-secondary" for="dangban">Đang bán</label>
+                                   checked="@(statusfilter == true)"
+                                   @onchange="@(() => statusfilter = true)" />
+                            <label class="btn btn-outline-secondary" for="dangban">đang bán</label>
 
                             <input type="radio"
                                    class="btn-check"
-                                   name="statusFilter"
+                                   name="statusfilter"
                                    id="ngungban"
                                    autocomplete="off"
-                                   checked="@(statusFilter == false)"
-                                   @onchange="@(() => statusFilter = false)" />
-                            <label class="btn btn-outline-secondary" for="ngungban">Ngừng bán</label>
+                                   checked="@(statusfilter == false)"
+                                   @onchange="@(() => statusfilter = false)" />
+                            <label class="btn btn-outline-secondary" for="ngungban">ngừng bán</label>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-md-3 text-end">
-                    <button class="btn btn-outline-secondary" @onclick="ExportToExcel">
-                        <i class="bi bi-download me-2"></i>Xuất Excel
+                    <button class="btn btn-outline-secondary" @onclick="exporttoexcel">
+                        <i class="bi bi-download me-2"></i>xuất excel
                     </button>
                 </div>
             </div>
 
-            <!-- Product Table -->
+            <!-- product table -->
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th style="width: 60px;" class="text-center">STT</th>
-                            <th>Tên giày</th>
-                            <th style="width: 150px;">Ngày thêm</th>
-                            <th style="width: 150px;" class="text-center">Trạng thái</th>
-                            <th style="width: 120px;" class="text-center">Thao tác</th>
+                            <th style="width: 60px;" class="text-center">stt</th>
+                            <th>tên giày</th>
+                            <th style="width: 150px;">ngày thêm</th>
+                            <th style="width: 150px;" class="text-center">trạng thái</th>
+                            <th style="width: 120px;" class="text-center">thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @if (isLoading)
+                        @if (isloading)
                         {
                             <tr>
                                 <td colspan="5" class="text-center py-4">
                                     <div class="spinner-border text-primary" role="status">
-                                        <span class="visually-hidden">Loading...</span>
+                                        <span class="visually-hidden">loading...</span>
                                     </div>
                                 </td>
                             </tr>
                         }
-                        else if (FilteredList?.Any() == true)
+                        else if (filteredlist?.any() == true)
                         {
-                            @foreach (var item in FilteredList)
+                            @foreach (var item in filteredlist)
                             {
                                 <tr>
-                                    <td class="text-center">@item.STT</td>
-                                    <td>@item.TenGiay</td>
-                                    <td>@item.NgayTao.ToString("dd/MM/yyyy")</td>
+                                    <td class="text-center">@item.stt</td>
+                                    <td>@item.tengiay</td>
+                                    <td>@item.ngaytao.tostring("dd/mm/yyyy")</td>
                                     <td class="text-center">
-                                        <span class="badge @(item.TrangThai ? "bg-success bg-opacity-10 text-success" : "bg-secondary bg-opacity-10 text-secondary") px-3 py-2">
-                                            @(item.TrangThai ? "Đang bán" : "Ngừng bán")
+                                        <span class="badge @(item.trangthai ? "bg-success bg-opacity-10 text-success" : "bg-secondary bg-opacity-10 text-secondary") px-3 py-2">
+                                            @(item.trangthai ? "đang bán" : "ngừng bán")
                                         </span>
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <button class="btn btn-outline-primary" @onclick="() => ViewProduct(item.GiayId)">
+                                            <button class="btn btn-outline-primary" @onclick="() => viewproduct(item.giayid)">
                                                 <i class="bi bi-eye"></i>
                                             </button>
-                                            <button class="btn btn-outline-warning" @onclick="() => EditProduct(item.GiayId)">
+                                            <button class="btn btn-outline-warning" @onclick="() => editproduct(item.giayid)">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
-                                            <button class="btn btn-outline-danger" @onclick="() => DeleteProduct(item)">
+                                            <button class="btn btn-outline-danger" @onclick="() => deleteproduct(item)">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </div>
@@ -131,7 +131,7 @@
                             <tr>
                                 <td colspan="5" class="text-center py-4 text-muted">
                                     <i class="bi bi-exclamation-circle me-2"></i>
-                                    Không tìm thấy sản phẩm nào phù hợp
+                                    không tìm thấy sản phẩm nào phù hợp
                                 </td>
                             </tr>
                         }
@@ -139,28 +139,28 @@
                 </table>
             </div>
 
-            <!-- Pagination -->
-            @if (FilteredList?.Any() == true)
+            <!-- pagination -->
+            @if (filteredlist?.any() == true)
             {
                 <div class="d-flex justify-content-between align-items-center mt-3">
                     <div class="text-muted">
-                        Hiển thị <b>@FilteredList.Count</b> trong tổng số <b>@ListSanPham.Count</b> sản phẩm
+                        hiển thị <b>@filteredlist.count</b> trong tổng số <b>@listsanpham.count</b> sản phẩm
                     </div>
                     <nav>
                         <ul class="pagination pagination-sm mb-0">
-                            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-                                <button class="page-link" @onclick="() => ChangePage(currentPage - 1)">
+                            <li class="page-item @(currentpage == 1 ? "disabled" : "")">
+                                <button class="page-link" @onclick="() => changepage(currentpage - 1)">
                                     &laquo;
                                 </button>
                             </li>
-                            @for (int i = 1; i <= totalPages; i++)
+                            @for (int i = 1; i <= totalpages; i++)
                             {
-                                <li class="page-item @(i == currentPage ? "active" : "")">
-                                    <button class="page-link" @onclick="() => ChangePage(i)">@i</button>
+                                <li class="page-item @(i == currentpage ? "active" : "")">
+                                    <button class="page-link" @onclick="() => changepage(i)">@i</button>
                                 </li>
                             }
-                            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-                                <button class="page-link" @onclick="() => ChangePage(currentPage + 1)">
+                            <li class="page-item @(currentpage == totalpages ? "disabled" : "")">
+                                <button class="page-link" @onclick="() => changepage(currentpage + 1)">
                                     &raquo;
                                 </button>
                             </li>
@@ -173,95 +173,95 @@
 </div>
 
 @code {
-    private string searchText = "";
-    private bool? statusFilter = null;
-    private List<GiayDTO> ListSanPham = new();
-    private bool isLoading = true;
-    private int currentPage = 1;
-    private int pageSize = 10;
-    private int totalPages => (int)Math.Ceiling((double)FilteredList.Count / pageSize);
+    private string searchtext = "";
+    private bool? statusfilter = null;
+    private list<giaydto> listsanpham = new();
+    private bool isloading = true;
+    private int currentpage = 1;
+    private int pagesize = 10;
+    private int totalpages => (int)math.ceiling((double)filteredlist.count / pagesize);
 
-    private List<GiayDTO> FilteredList => ListSanPham
-        .Where(x => string.IsNullOrEmpty(searchText) ||
-                    x.TenGiay.Contains(searchText, StringComparison.OrdinalIgnoreCase))
-        .Where(x => statusFilter == null || x.TrangThai == statusFilter)
-        .ToList();
+    private list<giaydto> filteredlist => listsanpham
+        .where(x => string.isnullorempty(searchtext) ||
+                    x.tengiay.contains(searchtext, stringcomparison.ordinalignorecase))
+        .where(x => statusfilter == null || x.trangthai == statusfilter)
+        .tolist();
 
-    private List<GiayDTO> PagedList => FilteredList
-        .Skip((currentPage - 1) * pageSize)
-        .Take(pageSize)
-        .ToList();
+    private list<giaydto> pagedlist => filteredlist
+        .skip((currentpage - 1) * pagesize)
+        .take(pagesize)
+        .tolist();
 
-    protected override async Task OnInitializedAsync()
+    protected override async task oninitializedasync()
     {
         try
         {
-            isLoading = true;
-            var data = await giayService.GetAllAsync();
+            isloading = true;
+            var data = await giayservice.getallasync();
 
             int stt = 1;
-            ListSanPham = data.Select(item =>
+            listsanpham = data.select(item =>
             {
-                item.STT = stt++;
+                item.stt = stt++;
                 return item;
-            }).ToList();
+            }).tolist();
         }
         finally
         {
-            isLoading = false;
-            StateHasChanged();
+            isloading = false;
+            statehaschanged();
         }
     }
 
-    private void ViewProduct(Guid productId)
+    private void viewproduct(guid productid)
     {
-        NavigationManager.NavigateTo($"/SanPhamChiTiet/{productId}");
+        navigationmanager.navigateto($"/sanphamchitiet/{productid}");
     }
 
-    private void EditProduct(Guid productId)
+    private void editproduct(guid productid)
     {
-        NavigationManager.NavigateTo($"/EditGiay/{productId}");
+        navigationmanager.navigateto($"/editgiay/{productid}");
     }
 
-    private async Task DeleteProduct(GiayDTO product)
+    private async task deleteproduct(giaydto product)
     {
-        bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Bạn có chắc chắn muốn xóa sản phẩm {product.TenGiay}?");
+        bool confirmed = await js.invokeasync<bool>("confirm", $"bạn có chắc chắn muốn xóa sản phẩm {product.tengiay}?");
         if (confirmed)
         {
-            var result = await giayService.DeleteAsync(product.GiayId);
+            var result = await giayservice.deleteasync(product.giayid);
             if (result)
             {
-                await JS.InvokeVoidAsync("alert", "Xóa sản phẩm thành công");
-                await OnInitializedAsync();
+                await js.invokevoidasync("alert", "xóa sản phẩm thành công");
+                await oninitializedasync();
             }
             else
             {
-                await JS.InvokeVoidAsync("alert", "Xóa sản phẩm thất bại");
+                await js.invokevoidasync("alert", "xóa sản phẩm thất bại");
             }
         }
     }
 
-    private void ChangePage(int page)
+    private void changepage(int page)
     {
-        currentPage = page;
+        currentpage = page;
     }
 
-    private async Task ExportToExcel()
+    private async task exporttoexcel()
     {
-        isLoading = true;
+        isloading = true;
         try
         {
-            // Gọi API export Excel
-            await Task.Delay(500); // Giả lập thời gian xuất file
-            await JS.InvokeVoidAsync("alert", "Xuất Excel thành công");
+            // gọi api export excel
+            await task.delay(500); // giả lập thời gian xuất file
+            await js.invokevoidasync("alert", "xuất excel thành công");
         }
-        catch (Exception ex)
+        catch (exception ex)
         {
-            await JS.InvokeVoidAsync("alert", $"Lỗi khi xuất Excel: {ex.Message}");
+            await js.invokevoidasync("alert", $"lỗi khi xuất excel: {ex.message}");
         }
         finally
         {
-            isLoading = false;
+            isloading = false;
         }
     }
 } *@

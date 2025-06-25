@@ -20,7 +20,7 @@ namespace Data.Models
         public Guid ? KichCoId { get; set; }
         public Guid ? MauSacId { get; set; }
        
-        public Guid ? DeGiayId { get; set; }
+      
         
     
 
@@ -33,7 +33,6 @@ namespace Data.Models
         public bool TrangThai { get; set; }
 
         public virtual Giay Giay { get; set; }
-        public virtual ChatLieu ? ChatLieu { get; set; }
         public virtual KichCo ? KichCo { get; set; }
         public virtual MauSac ? MauSac { get; set; }
 		public virtual ICollection<Anh> Anhs { get; set; } = new List<Anh>();

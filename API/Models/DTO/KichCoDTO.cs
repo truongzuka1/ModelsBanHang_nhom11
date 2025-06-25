@@ -6,7 +6,7 @@ namespace API.Models.DTO
     {
         public Guid KichCoId { get; set; }
         public string TenKichCo { get; set; }
+        public int size { get; set; }
         public float CanNang { get; set; }
-        public decimal Gia { get; set; }
     }
 }

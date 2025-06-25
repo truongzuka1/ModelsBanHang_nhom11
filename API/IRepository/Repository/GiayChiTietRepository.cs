@@ -1,97 +1,79 @@
-﻿//using API.IRepository;
-//using Data.Models;
-//using Microsoft.EntityFrameworkCore;
+﻿using API.IRepository;
+using Data.Models;
+using Microsoft.EntityFrameworkCore;
 
-//namespace API.IRepository.Repository
-//{
-//    public class GiayChiTietRepository : IGiayChiTietRepository
-//    {
-//        private readonly DbContextApp _db;
-//        private readonly IDeGiayRepository _deGiayRepository;
+namespace API.Repository
+{
+    public class GiayChiTietRepository : IGiayChiTietRepository
+    {
+        private readonly DbContextApp _context;
 
-//        public GiayChiTietRepository(DbContextApp db, IDeGiayRepository deGiayRepository)
-//        {
-//            _db = db;
-//            _deGiayRepository = deGiayRepository;
-//        }
+        public GiayChiTietRepository(DbContextApp context)
+        {
+            _context = context;
+        }
 
-        
+        public async Task<IEnumerable<GiayChiTiet>> GetAllAsync()
+        {
+            return await _context.GiayChiTiets
+                .Include(x => x.Giay)
+                .Include(x => x.KichCo)
+                .Include(x => x.MauSac)
+                .ToListAsync();
+        }
 
-//        public async Task CreateGiayChiTiet(GiayChiTiet gct ,Guid? iddegiay)
-//        {
-//            try
-//            {
-//                gct.DeGiayId = _deGiayRepository.GetDeGiay(iddegiay).Result.DeGiayId;
-//                _db.GiayChiTiets.Add(gct);
-//                await _db.SaveChangesAsync();
-//            }
-//            catch (Exception)
-//            {
+        public async Task<IEnumerable<GiayChiTiet>> GetByGiayIdAsync(Guid giayId)
+        {
+            return await _context.GiayChiTiets
+                .Where(x => x.GiayId == giayId)
+                .Include(x => x.Giay)
+                .Include(x => x.KichCo)
+                .Include(x => x.MauSac)
+                .ToListAsync();
+        }
 
-//                throw;
-//            }
-//        }
+        public async Task<GiayChiTiet> GetByIdAsync(Guid id)
+        {
+            return await _context.GiayChiTiets
+                .Include(x => x.Giay)
+                .Include(x => x.KichCo)
+                .Include(x => x.MauSac)
+                .FirstOrDefaultAsync(x => x.GiayChiTietId == id);
+        }
 
-        
+        public async Task<GiayChiTiet> AddAsync(GiayChiTiet chiTiet)
+        {
+            chiTiet.GiayChiTietId = Guid.NewGuid();
+            chiTiet.NgayTao = DateTime.Now;
+            chiTiet.NgaySua = DateTime.Now;
 
-//        public async Task DeleteGiayChiTiet(Guid id)
-//        {
-//            try
-//            {
-//                var gctdel = await _db.FindAsync<GiayChiTiet>(id);
-//                if (gctdel != null)
-//                {
-//                    _db.Remove(gctdel);
-//                    await _db.SaveChangesAsync();
-//                }
-                
-//            }
-//            catch (Exception)
-//            {
+            _context.GiayChiTiets.Add(chiTiet);
+            await _context.SaveChangesAsync();
+            return chiTiet;
+        }
 
-//                throw;
-//            }
-//        }
+        public async Task<bool> DeleteAsync(Guid id)
+        {
+            var entity = await _context.GiayChiTiets.FindAsync(id);
+            if (entity == null) return false;
 
-        
+            _context.GiayChiTiets.Remove(entity);
+            await _context.SaveChangesAsync();
+            return true;
+        }
 
-//        public async Task<IEnumerable<GiayChiTiet>> getAllGiayChiTiet()
-//        {
-//            return await _db.GiayChiTiets
-//            .Include(x => x.Giay)
-//            .Include(x => x.ChatLieu)
-//            .Include(x => x.KichCo)
-//            .Include(x => x.MauSac)
-//            .Include(x => x.ThuongHieu)
-//            .Include(x => x.KieuDang)
-//            .Include(x => x.DeGiay)
-//            .Include(x => x.TheLoaiGiay)
-//            .Include(x => x.Anhs)
-//            .ToListAsync();
-//        }
+        public async Task<bool> AddMultipleAsync(List<GiayChiTiet> chiTietList)
+        {
+            foreach (var item in chiTietList)
+            {
+                item.GiayChiTietId = Guid.NewGuid();
+                item.NgayTao = DateTime.Now;
+                item.NgaySua = DateTime.Now;
+                _context.GiayChiTiets.Add(item);
+            }
 
-        
-
-//        public async Task<GiayChiTiet> getGiayChiTietbyID(Guid id)
-//        {
-//            return await _db.GiayChiTiets.FindAsync(id);
-//        }
-
-        
-
-//        public async Task UpdateGiayChiTiet(GiayChiTiet gct, Guid? iddegiay)
-//        {
-//            try
-//            {
-//                gct.DeGiayId = _deGiayRepository.GetDeGiay(iddegiay).Result.DeGiayId;
-//                _db.GiayChiTiets.Update(gct);
-//                await _db.SaveChangesAsync();
-//            }
-//            catch (Exception)
-//            {
-
-//                throw;
-//            }
-//        }
-//    }
-//}
+            await _context.SaveChangesAsync();
+            return true;
+        }
+    }
+}
