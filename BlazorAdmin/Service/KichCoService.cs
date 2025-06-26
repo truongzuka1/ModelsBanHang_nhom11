@@ -10,9 +10,9 @@ namespace BlazorAdmin.Service
     {
         private readonly HttpClient _httpClient;
 
-        public KichCoService(IHttpClientFactory httpClientFactory)
+        public KichCoService(HttpClient httpClient)
         {
-            _httpClient = httpClientFactory.CreateClient("kichco");
+            _httpClient = httpClient;
         }
 
         public async Task<List<KichCoDTO>> GetAllAsync()
