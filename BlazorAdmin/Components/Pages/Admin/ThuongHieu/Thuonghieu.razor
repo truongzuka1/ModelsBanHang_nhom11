@@ -3,20 +3,69 @@
 @using BlazorAdmin.Service.IService
 @inject IJSRuntime JS
 @inject IThuongHieuService ThuongHieuService
+<link href="/css/site.css" rel="stylesheet" />
 
-<h2 class="text-primary mb-4"><i class="fa-solid fa-building-flag"></i> Quản lý Thương Hiệu</h2>
+<div class="container mt-5">
+    <h4 class="mb-3">🏢 Quản lý thương hiệu</h4>
 
-<button class="btn btn-primary mb-3" @onclick="ShowAddModal">
-    <i class="fa fa-plus"></i> Thêm thương hiệu
-</button>
+    <div class="card shadow-sm p-4">
+        <!-- Tìm kiếm & nút -->
+        <div class="d-flex justify-content-between mb-3">
+            <input type="text" class="form-control w-50" placeholder="🔍 Tìm kiếm thương hiệu..." @bind="SearchText" @bind:event="oninput" />
+            <button class="btn btn-outline-primary" @onclick="ShowAddModal">➕ Thêm thương hiệu</button>
+        </div>
 
-<input class="form-control mb-3 w-50" placeholder="Tìm thương hiệu..." @bind="SearchText" @bind:event="oninput" />
+        <!-- Bảng dữ liệu -->
+        <table class="table table-bordered table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 60px;">STT</th>
+                    <th>Tên thương hiệu</th>
+                    <th>Email</th>
+                    <th>SĐT</th>
+                    <th>Địa chỉ</th>
+                    <th>Trạng thái</th>
+                    <th style="width: 120px;">Chức năng</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!FilteredThuongHieus.Any())
+                {
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">Không tìm thấy thương hiệu nào.</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var (item, index) in FilteredThuongHieus.Select((x, i) => (x, i + 1)))
+                    {
+                        <tr>
+                            <td>@index</td>
+                            <td>@item.TenThuongHieu</td>
+                            <td>@item.Email</td>
+                            <td>@item.SDT</td>
+                            <td>@item.DiaChi</td>
+                            <td>
+                                <span class="badge bg-@(item.TrangThai ? "success" : "secondary")">
+                                    @(item.TrangThai ? "Hoạt động" : "Ngừng")
+                                </span>
+                            </td>
+                            <td>
+                                <i class="bi bi-pencil-square text-primary" style="cursor: pointer;" title="Sửa" @onclick="() => Edit(item)"></i>
+                                <i class="bi bi-trash text-danger ms-2" style="cursor: pointer;" title="Xóa" @onclick="() => Delete(item.ThuongHieuId)"></i>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
 
-@if (IsModalVisible)
-{
-    <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
+    <!-- Modal Inline -->
+    @if (IsModalVisible)
+    {
+        <div class="popup-overlay">
+            <div class="popup-form">
                 <EditForm Model="Model" OnValidSubmit="HandleValidSubmit">
                     <div class="modal-header">
                         <h5 class="modal-title">@ModalTitle</h5>
@@ -49,62 +98,14 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> Lưu</button>
+                        <button type="submit" class="btn btn-success"><i class="bi bi-save"></i> Lưu</button>
                         <button type="button" class="btn btn-secondary" @onclick="CloseModal">Hủy</button>
                     </div>
                 </EditForm>
             </div>
         </div>
-    </div>
-}
-
-<table class="table table-bordered table-hover">
-    <thead class="table-primary">
-        <tr>
-            <th>#</th>
-            <th>Tên</th>
-            <th>Email</th>
-            <th>SĐT</th>
-            <th>Địa chỉ</th>
-            <th>Trạng thái</th>
-            <th>Hành động</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (FilteredThuongHieus.Count() == 0)
-        {
-            <tr>
-                <td colspan="7" class="text-center text-muted">Không tìm thấy thương hiệu nào.</td>
-            </tr>
-        }
-        else
-        {
-            @foreach (var (item, i) in FilteredThuongHieus.Select((x, i) => (x, i)))
-            {
-                <tr>
-                    <td>@(i + 1)</td>
-                    <td>@item.TenThuongHieu</td>
-                    <td>@item.Email</td>
-                    <td>@item.SDT</td>
-                    <td>@item.DiaChi</td>
-                    <td>
-                        <span class="badge bg-@(item.TrangThai ? "success" : "secondary")">
-                            @(item.TrangThai ? "Hoạt động" : "Ngừng")
-                        </span>
-                    </td>
-                    <td>
-                        <button class="btn btn-sm btn-warning me-1" @onclick="() => Edit(item)">
-                            <i class="fa fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger" @onclick="() => Delete(item.ThuongHieuId)">
-                            <i class="fa fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            }
-        }
-    </tbody>
-</table>
+    }
+</div>
 
 @code {
     private List<ThuongHieu> ThuongHieus = new();
