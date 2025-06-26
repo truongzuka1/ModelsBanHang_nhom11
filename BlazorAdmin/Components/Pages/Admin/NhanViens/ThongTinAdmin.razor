@@ -1,4 +1,5 @@
 ﻿@page "/ThongTinAdmin"
+@layout Layout.EmptyLayout
 @rendermode InteractiveServer
 @using Data.Models
 @inject INhanVienService service
@@ -14,14 +15,6 @@
 else
 {
     <div class="mt-5 px-5 position-relative">
-
-        <a href="/thongke" class="btn btn-secondary position-absolute start-0 top-0 ms-4 mt-3">
-            🔙 Quay về
-        </a>
-
-        <a href="/taikhoan/edit/@admin.TaiKhoan?.TaikhoanId" class="btn btn-warning fw-bold float-end">
-            ✏️ Chỉnh sửa thông tin
-        </a>
 
         <div class="d-flex flex-column align-items-center text-center mb-4">
             <img src="https://cdn.discordapp.com/attachments/1383447837370617867/1387275546592804966/smug.png?ex=685cc088&is=685b6f08&hm=61031208be9cf4552c5fe92c05eca9cab9eeb59fb80e6cc347c2234d130e4542"
@@ -51,14 +44,12 @@ else
             <div class="card-body">
                 <h5 class="card-title">Thông tin tài khoản</h5>
                 <p>👨‍💻 Tên tài khoản: <strong>@(admin.TaiKhoan?.Username ?? "Không có tài khoản")</strong></p>
-                
                 <p>
                     🕓 Ngày tạo tài khoản:
                     <strong>@(admin.TaiKhoan?.Ngaytaotaikhoan.ToString("dd/MM/yyyy") ?? "Không có")</strong>
                 </p>
             </div>
         </div>
-
     </div>
 }
 

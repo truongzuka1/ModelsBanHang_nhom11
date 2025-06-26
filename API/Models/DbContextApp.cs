@@ -18,16 +18,7 @@ namespace Data.Models
         public DbContextApp(DbContextOptions options) : base(options)
         {
         }
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-
-        {
-
-
-            optionsBuilder.UseSqlServer(@"Data Source=.\SQLEXPRESS;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
-
-
-
-        }
+    
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
