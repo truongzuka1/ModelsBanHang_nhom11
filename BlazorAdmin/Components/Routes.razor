@@ -26,14 +26,17 @@
 @code {
     private Type ResolveLayout(RouteData routeData)
     {
+        // Nếu trang đã chỉ định layout, thì dùng layout đó
+        if (routeData.PageType?.GetCustomAttributes(typeof(LayoutAttribute), true).Any() == true)
+            return null;
+
         var path = routeData.PageType?.FullName ?? "";
 
         if (path.Contains(".Admin."))
-            return typeof(AdminLayout); 
+            return typeof(AdminLayout);
         if (path.Contains(".NhanVien."))
-        {
-            return typeof(NhanVienLayout); 
-        }
-        return typeof(MainLayout); 
+            return typeof(NhanVienLayout);
+        return typeof(MainLayout);
     }
+
 }
