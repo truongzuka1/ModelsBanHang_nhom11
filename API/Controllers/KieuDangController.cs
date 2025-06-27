@@ -10,10 +10,12 @@ namespace API.Controllers
     public class KieuDangController : ControllerBase
     {
         private readonly IKieuDangRepository _repo;
+        private readonly IThongBaoRepository _thongBaoRepo; // ✅ Inject repo thông báo
 
-        public KieuDangController(IKieuDangRepository repo)
+        public KieuDangController(IKieuDangRepository repo, IThongBaoRepository thongBaoRepo)
         {
             _repo = repo;
+            _thongBaoRepo = thongBaoRepo;
         }
 
         [HttpGet]
@@ -71,6 +73,10 @@ namespace API.Controllers
             };
 
             var created = await _repo.AddAsync(kieuDang);
+
+            // ✅ Thêm thông báo
+            await _thongBaoRepo.ThemThongBaoAsync($"🆕 Đã thêm kiểu dáng: {created.TenKieuDang}");
+
             return Ok(created);
         }
 
@@ -89,14 +95,25 @@ namespace API.Controllers
 
             var updated = await _repo.UpdateAsync(kieuDang);
             if (updated == null) return NotFound();
+
+            // ✅ Thêm thông báo
+            await _thongBaoRepo.ThemThongBaoAsync($"✏️ Đã cập nhật kiểu dáng: {updated.TenKieuDang}");
+
             return Ok(updated);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
+            var kieuDang = await _repo.GetByIdAsync(id);
+            if (kieuDang == null) return NotFound();
+
             var result = await _repo.DeleteAsync(id);
             if (!result) return NotFound();
+
+            // ✅ Thêm thông báo
+            await _thongBaoRepo.ThemThongBaoAsync($"🗑️ Đã xoá kiểu dáng: {kieuDang.TenKieuDang}");
+
             return NoContent();
         }
     }

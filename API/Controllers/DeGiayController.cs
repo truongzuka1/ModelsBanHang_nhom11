@@ -10,13 +10,14 @@ namespace API.Controllers
     public class DeGiayController : ControllerBase
     {
         private readonly IDeGiayRepository _deGiayRepository;
+        private readonly IThongBaoRepository _thongBaoRepository; // ✅ Thêm
 
-        public DeGiayController(IDeGiayRepository deGiayRepository)
+        public DeGiayController(IDeGiayRepository deGiayRepository, IThongBaoRepository thongBaoRepository)
         {
             _deGiayRepository = deGiayRepository;
+            _thongBaoRepository = thongBaoRepository;
         }
 
-        // GET: api/DeGiays
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DeGiayDTO>>> GetAll()
         {
@@ -33,7 +34,6 @@ namespace API.Controllers
             return Ok(dtos);
         }
 
-        // GET: api/DeGiays/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<DeGiayDTO>> GetById(Guid id)
         {
@@ -52,23 +52,25 @@ namespace API.Controllers
             return Ok(dto);
         }
 
-        // POST: api/DeGiays
         [HttpPost]
         public async Task<ActionResult> Create(DeGiayDTO dto)
         {
             var entity = new DeGiay
             {
-                DeGiayId = Guid.NewGuid(), // hoặc để DB tự sinh nếu dùng EF Identity
+                DeGiayId = Guid.NewGuid(),
                 TenDeGiay = dto.TenDeGiay,
                 MoTa = dto.MoTa,
                 TrangThai = dto.TrangThai
             };
 
             await _deGiayRepository.CreateDeGiay(entity);
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"➕ Đã thêm đế giày: {dto.TenDeGiay}");
+
             return Ok();
         }
 
-        // PUT: api/DeGiays
         [HttpPut]
         public async Task<ActionResult> Update(DeGiayDTO dto)
         {
@@ -81,10 +83,13 @@ namespace API.Controllers
             entity.TrangThai = dto.TrangThai;
 
             await _deGiayRepository.UpdateDeGiay(entity);
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"✏️ Đã cập nhật đế giày: {dto.TenDeGiay}");
+
             return Ok();
         }
 
-        // DELETE: api/DeGiays/{id}
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(Guid id)
         {
@@ -93,6 +98,10 @@ namespace API.Controllers
                 return NotFound();
 
             await _deGiayRepository.DeleteDeGiay(id);
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"🗑️ Đã xoá đế giày: {entity.TenDeGiay}");
+
             return Ok();
         }
     }

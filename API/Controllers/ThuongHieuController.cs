@@ -11,10 +11,14 @@ namespace API.Controllers
     public class ThuongHieuController : ControllerBase
     {
         private readonly IThuongHieuRepository _thuongHieuRepository;
+        private readonly IThongBaoRepository _thongBaoRepository; // ✅ Thêm
 
-        public ThuongHieuController(IThuongHieuRepository thuongHieuRepository)
+        public ThuongHieuController(
+            IThuongHieuRepository thuongHieuRepository,
+            IThongBaoRepository thongBaoRepository) // ✅ Inject
         {
             _thuongHieuRepository = thuongHieuRepository;
+            _thongBaoRepository = thongBaoRepository;
         }
 
         // GET: api/ThuongHieu
@@ -40,6 +44,10 @@ namespace API.Controllers
         {
             thuongHieu.ThuongHieuId = Guid.NewGuid();
             await _thuongHieuRepository.AddAsync(thuongHieu);
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"🏷️ Thêm thương hiệu mới: {thuongHieu.TenThuongHieu}");
+
             return Ok();
         }
 
@@ -58,6 +66,10 @@ namespace API.Controllers
             existing.TrangThai = thuongHieu.TrangThai;
 
             await _thuongHieuRepository.UpdateAsync(existing);
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"✏️ Cập nhật thương hiệu: {thuongHieu.TenThuongHieu}");
+
             return Ok();
         }
 
@@ -65,7 +77,14 @@ namespace API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
+            var entity = await _thuongHieuRepository.GetByIdAsync(id);
+            if (entity == null) return NotFound();
+
             await _thuongHieuRepository.DeleteAsync(id);
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"🗑️ Đã xoá thương hiệu: {entity.TenThuongHieu}");
+
             return Ok();
         }
     }

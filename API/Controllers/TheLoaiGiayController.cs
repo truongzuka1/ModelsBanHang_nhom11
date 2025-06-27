@@ -2,6 +2,8 @@
 using Data.IRepository;
 using Data.Models;
 using Microsoft.AspNetCore.Mvc;
+using API.IRepository; // ✅ Thêm using
+using Microsoft.Extensions.Logging;
 
 namespace API.Controllers
 {
@@ -10,11 +12,16 @@ namespace API.Controllers
     public class TheLoaiGiayController : ControllerBase
     {
         private readonly ITheLoaiGiayRepository _repository;
+        private readonly IThongBaoRepository _thongBaoRepository; // ✅ Thêm
         private readonly ILogger<TheLoaiGiayController> _logger;
 
-        public TheLoaiGiayController(ITheLoaiGiayRepository repository, ILogger<TheLoaiGiayController> logger)
+        public TheLoaiGiayController(
+            ITheLoaiGiayRepository repository,
+            IThongBaoRepository thongBaoRepository,
+            ILogger<TheLoaiGiayController> logger)
         {
             _repository = repository;
+            _thongBaoRepository = thongBaoRepository;
             _logger = logger;
         }
 
@@ -58,7 +65,12 @@ namespace API.Controllers
                 MoTa = dto.MoTa,
                 TrangThai = dto.TrangThai
             };
+
             var created = await _repository.AddAsync(model);
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"👟 Thêm thể loại giày mới: {created.TenTheLoai}");
+
             dto.TheLoaiGiayId = created.TheLoaiGiayId;
             return CreatedAtAction(nameof(GetById), new { id = dto.TheLoaiGiayId }, dto);
         }
@@ -76,6 +88,10 @@ namespace API.Controllers
             existing.TrangThai = dto.TrangThai;
 
             var updated = await _repository.UpdateAsync(existing);
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"✏️ Cập nhật thể loại giày: {updated.TenTheLoai}");
+
             return Ok(new TheLoaiGiayDTO
             {
                 TheLoaiGiayId = updated.TheLoaiGiayId,
@@ -88,8 +104,15 @@ namespace API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
+            var entity = await _repository.GetByIdAsync(id);
+            if (entity == null) return NotFound();
+
             var result = await _repository.DeleteAsync(id);
-            if (!result) return NotFound();
+            if (!result) return BadRequest();
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"🗑️ Đã xoá thể loại giày: {entity.TenTheLoai}");
+
             return NoContent();
         }
 

@@ -3,13 +3,15 @@
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthProvider
 @inject IJSRuntime JSRuntime
+@inject IThongBaoService ThongBaoService
 
 <link href="css/Sidebar.css" rel="stylesheet" />
 <style>
     .dropdown-avatar {
         padding: 12px 18px;
         cursor: pointer;
-        transition: background 0.2s;}
+        transition: background 0.2s;
+    }
 
     .dropdown-item {
         padding: 12px 18px;
@@ -17,6 +19,7 @@
         transition: background 0.2s;
     }
 </style>
+
 <div class="page">
     <div class="sidebar">
         <NavAdmin />
@@ -28,17 +31,30 @@
 
             <div class="user-area d-flex align-items-center gap-3">
                 <span class="bell" @onclick="ToggleBellDropdown">
-                    🔔<span class="badge">2</span>
+                    🔔<span class="badge">@thongBaos.Count</span>
                     @if (showBellDropdown)
                     {
                         <div class="dropdown-bell">
                             <div class="bell-title">Thông báo mới</div>
-                            <hr>
-                            <div class="dropdown-item">Thông báo 1</div>
-                            <div class="dropdown-item">Thông báo 2</div>
+                            <hr />
+                            @if (thongBaos.Count == 0)
+                            {
+                                <div class="dropdown-item text-muted">Không có thông báo mới</div>
+                            }
+                            else
+                            {
+                                @foreach (var tb in thongBaos)
+                                {
+                                    <div class="dropdown-item">
+                                        <div>@tb.NoiDung</div>
+                                        <small class="text-muted">@tb.ThoiGian.ToString("dd/MM/yyyy HH:mm")</small>
+                                    </div>
+                                }
+                            }
                         </div>
                     }
                 </span>
+
 
                 <img class="avatar" @onclick="ToggleAvatarDropdown"
                      src="https://preview.redd.it/can-someone-give-the-the-fish-for-calm-zone-i-only-need-v0-ke9mz4262ase1.jpeg?width=640&crop=smart&auto=webp&s=2f1bab5cdbf8a2bab087b716d46f3eecd7044917"
@@ -86,8 +102,9 @@
 @code {
     private bool showBellDropdown = false;
     private bool showAvatarDropdown = false;
-    private bool showLogoutConfirm = false; // Biến trạng thái cho modal xác nhận
+    private bool showLogoutConfirm = false;
     private string breadcrumbText = "Dashboard";
+    private List<ThongBaoDTO> thongBaos = new();
 
     protected override void OnInitialized()
     {
@@ -122,14 +139,24 @@
                char.ToUpper(input[0]) + input.Substring(1).ToLower();
     }
 
-    // ✅ Đã cập nhật ID theo yêu cầu
     private Guid LoggedInUserId = Guid.Parse("99999999-9999-9999-9999-999999999999");
 
-
-    private void ToggleBellDropdown()
+    private async void ToggleBellDropdown()
     {
         showBellDropdown = !showBellDropdown;
-        if (showBellDropdown) showAvatarDropdown = false;
+
+        if (showBellDropdown)
+        {
+            showAvatarDropdown = false;
+            thongBaos = await ThongBaoService.GetThongBaoMoiAsync();
+            StateHasChanged(); // cập nhật UI sau khi fetch
+        }
+    }
+
+    private void ToggleAvatarDropdown()
+    {
+        showAvatarDropdown = !showAvatarDropdown;
+        if (showAvatarDropdown) showBellDropdown = false;
     }
 
     private void ShowLogoutConfirm()
@@ -145,7 +172,6 @@
 
     private async Task Logout()
     {
-        // Nếu có authToken đang lưu
         await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "authToken");
 
         if (AuthProvider is CustomAuthenticationStateProvider customProvider)
@@ -154,15 +180,7 @@
         }
 
         showLogoutConfirm = false;
-
-        // Reload toàn trang để reset interop và renderer
         NavigationManager.NavigateTo("/", true);
-    }
-
-    private void ToggleAvatarDropdown()
-    {
-        showAvatarDropdown = !showAvatarDropdown;
-        if (showAvatarDropdown) showBellDropdown = false;
     }
 
     private void GotoProfile()

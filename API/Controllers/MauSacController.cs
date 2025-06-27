@@ -10,10 +10,12 @@ namespace API.Controllers
     public class MauSacController : ControllerBase
     {
         private readonly IMauSacRepository _mauSacRepo;
+        private readonly IThongBaoRepository _thongBaoRepo; // ✅ Thêm repo thông báo
 
-        public MauSacController(IMauSacRepository mauSacRepo)
+        public MauSacController(IMauSacRepository mauSacRepo, IThongBaoRepository thongBaoRepo)
         {
             _mauSacRepo = mauSacRepo;
+            _thongBaoRepo = thongBaoRepo;
         }
 
         private MauSacDTO MapToDTO(MauSac ms) => new MauSacDTO
@@ -50,6 +52,10 @@ namespace API.Controllers
             };
 
             var created = await _mauSacRepo.AddAsync(entity);
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepo.ThemThongBaoAsync($"🎨 Đã thêm màu sắc: {created.TenMau}");
+
             return CreatedAtAction(nameof(GetById), new { id = created.MauSacId }, MapToDTO(created));
         }
 
@@ -66,14 +72,22 @@ namespace API.Controllers
 
             var updated = await _mauSacRepo.UpdateAsync(entity);
             if (updated == null) return NotFound();
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepo.ThemThongBaoAsync($"✏️ Đã cập nhật màu sắc: {updated.TenMau}");
+
             return Ok(MapToDTO(updated));
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var result = await _mauSacRepo.DeleteAsync(id);
-            if (!result) return NotFound();
+            var deleted = await _mauSacRepo.DeleteAsync(id);
+            if (!deleted) return NotFound();
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepo.ThemThongBaoAsync($"🗑️ Đã xoá màu sắc có ID: {id}");
+
             return NoContent();
         }
 
