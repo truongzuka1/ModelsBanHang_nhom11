@@ -100,6 +100,8 @@ builder.Services.AddScoped<IMauSacService, MauSacService>();
 builder.Services.AddScoped<IKichCoService, KichCoService>();
 builder.Services.AddScoped<IKhachHangService, KhachHangService>();
 builder.Services.AddScoped<IReturnService, ReturnService>();
+builder.Services.AddScoped<IThongBaoService, ThongBaoService>();
+
 var app = builder.Build();
 
 

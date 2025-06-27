@@ -34,6 +34,8 @@ builder.Services.AddScoped<IChatLieuRepository, ChatLieuRepository>();
 builder.Services.AddScoped<IDeGiayRepository, DeGiayRepository>();
 builder.Services.AddScoped<IGiamGiaRepository, GiamGiaRepository>();
 builder.Services.AddScoped<IGiayRepository, GiayRepository>();
+builder.Services.AddScoped<IThongBaoRepository, ThongBaoRepository>();
+
 builder.Services.AddScoped<IGiayChiTietRepository, GiayChiTietRepository>();
 builder.Services.AddScoped<IGioHangRepository, GioHangRepository>();
 builder.Services.AddScoped<IGioHangChiTietRepository, GioHangChiTietRepository>();

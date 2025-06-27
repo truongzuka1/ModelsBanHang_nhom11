@@ -1,4 +1,5 @@
-﻿using Data.Models;
+﻿using API.Models;
+using Data.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -170,6 +171,7 @@ namespace Data.Models
         public DbSet<GioHangChiTiet> GioHangChiTiets { get; set; }
         public DbSet<HinhThucThanhToan> hinhThucThanhToans { get; set; }
         public DbSet<DiaChiKhachHang> diaChiKhachHangs { get; set; }
+        public DbSet<ThongBao> ThongBaos { get; set; }
 
 
     }

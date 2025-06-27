@@ -9,10 +9,12 @@ namespace API.Controllers
     public class VoucherController : ControllerBase
     {
         private readonly IVoucherRepo _voucherRepo;
+        private readonly IThongBaoRepository _thongBaoRepository; // ✅ Inject repo thông báo
 
-        public VoucherController(IVoucherRepo voucherRepo)
+        public VoucherController(IVoucherRepo voucherRepo, IThongBaoRepository thongBaoRepository)
         {
             _voucherRepo = voucherRepo;
+            _thongBaoRepository = thongBaoRepository;
         }
 
         [HttpGet]
@@ -34,7 +36,12 @@ namespace API.Controllers
         public async Task<ActionResult<Voucher>> CreateVoucher(Voucher voucher)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
+
             await _voucherRepo.Create(voucher);
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"🎁 Thêm voucher mới: {voucher.TenVoucher}");
+
             return CreatedAtAction(nameof(GetVoucherById), new { id = voucher.VoucherId }, voucher);
         }
 
@@ -43,7 +50,12 @@ namespace API.Controllers
         {
             if (id != voucher.VoucherId) return BadRequest("ID mismatch");
             if (!ModelState.IsValid) return BadRequest(ModelState);
+
             await _voucherRepo.Update(voucher);
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"✏️ Cập nhật voucher: {voucher.TenVoucher}");
+
             return NoContent();
         }
 
@@ -52,6 +64,10 @@ namespace API.Controllers
         {
             var result = await _voucherRepo.Delete(id);
             if (!result) return NotFound();
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"🗑️ Đã xoá voucher có ID: {id}");
+
             return NoContent();
         }
     }

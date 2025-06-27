@@ -4,7 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using Data.Models;
+using System.Linq;
+using API.IRepository; // 👈 Thêm using này để dùng _thongBaoRepository
+
 namespace API.Controllers
 {
     [Route("api/[controller]")]
@@ -12,10 +14,12 @@ namespace API.Controllers
     public class KhachHangController : ControllerBase
     {
         private readonly DbContextApp _context;
+        private readonly IThongBaoRepository _thongBaoRepository; // 👈 Inject repo
 
-        public KhachHangController(DbContextApp context)
+        public KhachHangController(DbContextApp context, IThongBaoRepository thongBaoRepository)
         {
             _context = context;
+            _thongBaoRepository = thongBaoRepository;
         }
 
         // GET: api/KhachHang
@@ -60,6 +64,9 @@ namespace API.Controllers
             _context.KhachHangs.Add(khachHang);
             await _context.SaveChangesAsync();
 
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"👤 Thêm khách hàng mới: {khachHang.HoTen}");
+
             return CreatedAtAction(nameof(GetKhachHang), new { id = khachHang.KhachHangId }, khachHang);
         }
 
@@ -88,6 +95,10 @@ namespace API.Controllers
             khachHangExist.NgayCapNhatCuoiCung = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"✏️ Cập nhật khách hàng: {khachHang.HoTen}");
+
             return NoContent();
         }
 
@@ -96,7 +107,6 @@ namespace API.Controllers
         {
             if (string.IsNullOrWhiteSpace(keyword))
             {
-                // Trả về danh sách đầy đủ (nếu không truyền keyword)
                 return Ok(await _context.KhachHangs
                     .Include(kh => kh.TaiKhoan)
                     .Include(kh => kh.HoaDons)
@@ -105,7 +115,6 @@ namespace API.Controllers
                     .ToListAsync());
             }
 
-            // Tìm theo Họ tên (lowercase)
             keyword = keyword.ToLower();
 
             var result = await _context.KhachHangs
@@ -120,4 +129,3 @@ namespace API.Controllers
         }
     }
 }
-
