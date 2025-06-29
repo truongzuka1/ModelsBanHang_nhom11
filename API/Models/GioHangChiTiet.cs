@@ -18,7 +18,6 @@ namespace Data.Models
       
         public decimal Gia { get; set; }
 
-        // Tính toán tự động tránh lưu dữ liệu thừa hoặc sai lệch
         public decimal ThanhTien => Gia * SoLuongSanPham;
 
         public DateTime NgayTao { get; set; } = DateTime.Now;
