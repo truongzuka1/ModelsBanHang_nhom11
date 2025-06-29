@@ -80,6 +80,14 @@ builder.Services.AddHttpClient("giay", client =>
 {
     client.BaseAddress = new Uri("https://localhost:7246/"); // thay đổi tùy theo API của bạn
 });
+builder.Services.AddHttpClient<IMauSacService, MauSacService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7246/");
+});
+builder.Services.AddHttpClient<IAnhService, AnhService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7246/"); // Đảm bảo đúng địa chỉ API backend
+});
 
 builder.Services.AddScoped<IHoaDonChiTietService, HoaDonChiTietService>();
 builder.Services.AddScoped<INhanVienService, NhanVienService>();

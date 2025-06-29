@@ -1,20 +1,21 @@
-﻿
-using Data.Models;
+﻿using Data.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
 namespace API.IRepository.Repository
 {
     public class AnhRepository : IAnhRepository
     {
         private readonly DbContextApp _context;
-        private readonly string _uploadsFolder;
         private readonly IWebHostEnvironment _env;
+        private readonly string _uploadFolderPath;
+        private const string _relativePath = "/uploads/images";
 
         public AnhRepository(DbContextApp context, IWebHostEnvironment env)
         {
             _context = context;
             _env = env;
-            _uploadsFolder = Path.Combine(_env.ContentRootPath, "Uploads", "Images");
+            _uploadFolderPath = Path.Combine(_env.ContentRootPath, "Uploads", "Images");
         }
 
         public async Task<IEnumerable<Anh>> GetAllAsync()
@@ -22,35 +23,38 @@ namespace API.IRepository.Repository
             return await _context.Anhs.ToListAsync();
         }
 
-        public async Task<Anh> GetByIdAsync(Guid id)
+        public async Task<Anh?> GetByIdAsync(Guid id)
         {
             return await _context.Anhs.FindAsync(id);
         }
 
-        public async Task<Anh> UploadAsync(IFormFile file, string tenAnh)
+        public async Task<Anh?> UploadAsync(IFormFile file, string tenAnh)
         {
             if (file == null || file.Length == 0) return null;
 
-            Directory.CreateDirectory(_uploadsFolder);
-            var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
-            var filePath = Path.Combine(_uploadsFolder, fileName);
+            Directory.CreateDirectory(_uploadFolderPath);
 
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+            var fullPath = Path.Combine(_uploadFolderPath, fileName);
+
+            using (var stream = new FileStream(fullPath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
             }
 
             var anh = new Anh
             {
-                DuongDan = Path.Combine("Uploads/Images", fileName).Replace("\\", "/"),
-                TenAnh = tenAnh
+                TenAnh = tenAnh,
+                DuongDan = $"{_relativePath}/{fileName}".Replace("\\", "/"),
+                TrangThai = true
             };
+
             _context.Anhs.Add(anh);
             await _context.SaveChangesAsync();
             return anh;
         }
 
-        public async Task<Anh> UpdateAsync(Anh anh)
+        public async Task<Anh?> UpdateAsync(Anh anh)
         {
             var existing = await _context.Anhs.FindAsync(anh.AnhId);
             if (existing == null) return null;
@@ -61,28 +65,29 @@ namespace API.IRepository.Repository
             return existing;
         }
 
-        public async Task<Anh> UpdateFileAsync(Guid id, IFormFile file, string tenAnh)
+        public async Task<Anh?> UpdateFileAsync(Guid id, IFormFile file, string tenAnh)
         {
             var existing = await _context.Anhs.FindAsync(id);
             if (existing == null || file == null || file.Length == 0) return null;
 
-            // Xóa file cũ
-            var oldPath = Path.Combine(_env.ContentRootPath, existing.DuongDan);
-            if (File.Exists(oldPath))
-                File.Delete(oldPath);
+            // Xóa ảnh cũ nếu tồn tại
+            var oldFullPath = Path.Combine(_env.ContentRootPath, existing.DuongDan.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
+            if (File.Exists(oldFullPath))
+                File.Delete(oldFullPath);
 
-            // Lưu file mới
-            Directory.CreateDirectory(_uploadsFolder);
+            // Lưu ảnh mới
+            Directory.CreateDirectory(_uploadFolderPath);
             var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
-            var filePath = Path.Combine(_uploadsFolder, fileName);
+            var fullPath = Path.Combine(_uploadFolderPath, fileName);
 
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            using (var stream = new FileStream(fullPath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
             }
 
-            existing.DuongDan = Path.Combine("Uploads/Images", fileName).Replace("\\", "/");
+            existing.DuongDan = $"{_relativePath}/{fileName}".Replace("\\", "/");
             existing.TenAnh = tenAnh ?? existing.TenAnh;
+
             await _context.SaveChangesAsync();
             return existing;
         }
@@ -92,8 +97,7 @@ namespace API.IRepository.Repository
             var anh = await _context.Anhs.FindAsync(id);
             if (anh == null) return false;
 
-            // Xóa file vật lý
-            var fullPath = Path.Combine(_env.ContentRootPath, anh.DuongDan);
+            var fullPath = Path.Combine(_env.ContentRootPath, anh.DuongDan.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
             if (File.Exists(fullPath))
                 File.Delete(fullPath);
 

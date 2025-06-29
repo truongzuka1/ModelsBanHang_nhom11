@@ -8,10 +8,11 @@ namespace BlazorAdmin.Service
     {
         private readonly HttpClient _httpClient;
 
-        public MauSacService(IHttpClientFactory httpClientFactory)
+        public MauSacService(HttpClient httpClient)
         {
-            _httpClient = httpClientFactory.CreateClient("mausac");
+            _httpClient = httpClient;
         }
+
 
         public async Task<List<MauSacDTO>> GetAllAsync()
         {
