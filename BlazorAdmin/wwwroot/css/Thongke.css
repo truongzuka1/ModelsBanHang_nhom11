@@ -135,6 +135,17 @@
     gap: 24px;
     margin-bottom: 24px;
     align-items: stretch;
+    flex-wrap: !important unset;
+}
+
+@media (max-width: 1600px) {
+    .dashboard-table-chart {
+        flex-wrap: wrap;
+    }
+
+    .table-area {
+        max-width: 100%;
+    }
 }
 
 .table-area {
@@ -148,7 +159,7 @@
     flex-direction: column;
     position: relative;
     padding-bottom: 65px;
-    max-width: 1000px;
+    max-width: 60%;
     width: 100%;
     margin: 0 auto;
 }
@@ -257,9 +268,15 @@
     }
 
 .chart-area {
-    width: 100%;
-    min-width: 0;
-    overflow-x: hidden;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px #0001;
+    padding: 18px 12px 12px 12px;
+    flex: 1;
+    min-width: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .chart-title {
@@ -280,23 +297,17 @@
 }
 
 .chart-legend {
+    font-size: 13px;
+    margin-top: 8px;
     width: 100%;
-    overflow-x: auto; 
-    word-break: break-word;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
 }
 
     .chart-legend div {
-        max-width: 100%;
-        display: flex;
+        display: inline-block;
         align-items: center;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        margin-bottom: 3px;
+        gap: 6px;
     }
-
 
 .legend-color {
     display: inline-block;
@@ -305,11 +316,7 @@
     border-radius: 2px;
     margin-right: 4px;
 }
-.dashboard-table-chart {
-    flex-wrap: wrap;
-    overflow-x: hidden;
-    max-width: 100%;
-}
+
 @media (max-width: 1100px) {
     .dashboard-table-chart {
         flex-direction: column;
@@ -322,25 +329,27 @@
 }
 
 .stats-right {
-    overflow-x: hidden;
-    width: 100%;
-    min-width: 0;
+    background: none;
+    display: block;
+    flex-direction: column;
+    gap: 8px;
+    width: 30%;
+    flex: 1;
+    height: 100%;
 }
 
 .stats-card {
+    background: #18191a;
+    color: #fff;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 2px;
     display: flex;
     align-items: center;
+    font-size: 15px;
     justify-content: space-between;
-    overflow: hidden;
-    min-width: 0;
     gap: 6px;
-}
-
-.stats-card > * {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    box-shadow: 0 2px 8px #0002;
 }
 
 .stats-icon {
@@ -380,3 +389,4 @@
     font-size: 13px;
     color: #888;
 }
+sss

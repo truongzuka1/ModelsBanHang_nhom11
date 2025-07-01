@@ -70,7 +70,7 @@
 			<input type="date" @bind="StartDate" @bind:format="yyyy-MM-dd" />
 			<label>Đến ngày:</label>
 			<input type="date" @bind="EndDate" @bind:format="yyyy-MM-dd" />
-			<button @onclick="ApplyCustomFilter">Áp dụng</button>
+			<button class="filter-btn" @onclick="ApplyCustomFilter">Áp dụng</button>
 		</div>
 	}
 	<button class="export-btn">EXPORT TO EXCEL</button>
