@@ -1,6 +1,8 @@
 ﻿@page "/banhang"
+@layout AdminLayout
 @using API.Models.DTO.BanHang
-<link href="~/css/BanHang.css" rel="stylesheet" />
+@using API.Models.DTO
+<link href="css/BanHang.css" rel="stylesheet" />
 <div class="sell-container">
     <!-- Tabs đơn hàng -->
     <div class="order-tabs">
@@ -12,55 +14,84 @@
                 {
                     <span class="order-qty-badge">@order.value.Products.Sum(p => p.Quantity)</span>
                 }
-                <span class="close" @onclick="() => RemoveOrder(order.index)">×</span>
+                <span class="close" @onclick="() => RemoveOrderSafe(order.index)">×</span>
             </div>
         }
 
         <button class="create-order-btn" @onclick="CreateOrder">+ Tạo đơn hàng</button>
     </div>
+    @if (Orders.Count == 0)
+    {
+        <div class="empty-order-notice">
+            Bạn chưa có đơn hàng nào.
+            <button class="create-order-btn" @onclick="CreateOrder">+ Tạo đơn hàng đầu tiên</button>
+        </div>
+    }
 
     <!-- Thanh công cụ sản phẩm -->
-    @if (CurrentOrder.Products.Count > 0)
+    @if (CurrentOrder != null)
     {
         <div class="order-actions">
             <div class="order-list-title">Sản phẩm</div>
             <div class="order-actions-buttons">
                 <button class="qr-btn" @onclick="ScanQRCode">📷 Quét QR sản phẩm</button>
                 <button class="add-btn" @onclick="() => IsProductModalVisible = true">Thêm sản phẩm</button>
+                    <ProductSelect Visible="@IsProductModalVisible"
+                                   OnAddProduct="HandleAddProduct"
+                                   OnClose="@(() => IsProductModalVisible = false)" />
             </div>
         </div>
     }
-
+    @if (CurrentOrder != null)
+    {
     <!-- Danh sách sản phẩm trong đơn hàng -->
-    <div class="order-list @(CurrentOrder.Products.Count == 0 ? "empty" : "")">
-        @if (CurrentOrder.Products.Count == 0)
-        {
-            <div>Chưa có sản phẩm nào trong đơn hàng</div>
-        }
-        else
-        {
-            <!-- Chỉ render 1 lần ngoài vòng foreach -->
-            <ProductSelect Visible="@IsProductModalVisible"
-                           OnAddProduct="HandleAddProduct"
-                           OnClose="@(() => IsProductModalVisible = false)" />
+        <div class="order-list @OrderListClass">
+            @if (CurrentOrder?.Products.Count == 0)
+            {
+                <div>Chưa có sản phẩm nào trong đơn hàng</div>
+            }
+            else
+            {
+                @foreach (var product in CurrentOrder.Products)
+                {
+                    <div class="order-item">
+                        <img src="@product.Img" class="order-img" />
+                        <div class="item-info">
+                            <div class="order-name">@product.TenGiay</div>
+                            <div class="order-price">
+                                <span class="old-price">@FormatMoney((int)product.OldPrice)</span>
+                                <span class="new-price">@FormatMoney((int)product.NewPrice)</span>
+                            </div>
+                            <div class="order-size">Size: @product.Size</div>
+                        </div>
+                        <div class="order-qty">
+                            <button class="decrease-btn" @onclick="() => DecreaseQuantity(product)">-</button>
+                            <input class="qty-input" type="number" value="@product.Quantity" readonly />
+                            <button class="increase-btn" @onclick="() => IncreaseQuantity(product)">+</button>
+                        </div>
+                        <div class="order-total">@FormatMoney(product.Quantity * (int)product.NewPrice)</div>
+                        <button class="order-remove" @onclick="() => RemoveProduct(product)">×</button>
+                    </div>
+                }
 
-        }
-    </div>
+            }
+        </div>
+    }
 
     <!-- Khách hàng -->
-    @if (CurrentOrder.Products.Count > 0)
+    @if (CurrentOrder != null)
     {
-        <!-- Trong giao diện, bạn nên có nút mở modal -->
         <button @onclick="() => IsCustomerModalVisible = true">+ CHỌN KHÁCH HÀNG</button>
         <CustomerSelect Visible="@IsCustomerModalVisible"
                         OnCustomerSelected="HandleCustomerSelected"
                         OnClose="@(() => IsCustomerModalVisible = false)" />
     }
 
+
     <!-- Footer đặt hàng -->
-    @if (CurrentOrder.Products.Count > 0)
+    @if (CurrentOrder?.Products?.Count > 0 && CurrentOrder != null)
     {
-        @if (CurrentOrder.Customer != null && IsDelivery)
+        @if (CurrentOrder?.Customer != null && IsDelivery)
         {
             <button class="address-change-btn" @onclick="() => IsProductModalVisible = true">Chọn địa chỉ</button>
         }
@@ -133,10 +164,16 @@
 
 @code {
 
+    private string OrderListClass => CurrentOrder?.Products?.Count == 0 ? "empty" : "";
+
     // 📦 Dữ liệu đơn hàng
-    private List<Order> Orders = new() { new Order() };
+    private List<Order> Orders = new(); 
     private int CurrentOrderIndex = 0;
-    private Order CurrentOrder => Orders[CurrentOrderIndex];
+    private Order? CurrentOrder =>
+    Orders != null && Orders.Count > 0 && CurrentOrderIndex < Orders.Count
+    ? Orders[CurrentOrderIndex]
+    : null;
+
 
     // 📞 Thông tin nhận hàng
     private string ReceiverName { get; set; } = "";
@@ -149,7 +186,7 @@
     private int DiscountPercent { get; set; } = 0;
     private int CustomerPay { get; set; } = 0;
 
-    private int Subtotal => CurrentOrder.Products.Sum(p => p.Quantity * (int)p.NewPrice);
+    private int Subtotal => CurrentOrder?.Products?.Sum(p => p.Quantity * (int)p.NewPrice) ?? 0;
     private int ShippingFee => IsDelivery ? 0 : 0; 
     private int DiscountAmount => (Subtotal * DiscountPercent) / 100;
     private int TotalAmount => Subtotal + ShippingFee - DiscountAmount;
@@ -158,6 +195,7 @@
     // 🛒 Hành động
     private void CreateOrder()
     {
+        
         if (Orders.Count >= 5)
         {
             // Hiển thị thông báo nếu cần
@@ -165,15 +203,43 @@
         }
         Orders.Add(new Order());
         CurrentOrderIndex = Orders.Count - 1;
+        StateHasChanged();
     }
 
     private void RemoveOrder(int index)
     {
-        if (Orders.Count <= 1) return;
+        if (Orders.Count < 1)
+        {
+            Orders = new() { new Order() };
+            CurrentOrderIndex = 0;
+            return;
+        }
+
         Orders.RemoveAt(index);
+
+        if (index <= CurrentOrderIndex && CurrentOrderIndex > 0)
+        {
+            CurrentOrderIndex--;
+        }
+
         if (CurrentOrderIndex >= Orders.Count)
+        {
             CurrentOrderIndex = Orders.Count - 1;
+        }
     }
+
+    private bool IsRemovingOrder = false;
+
+    private async Task RemoveOrderSafe(int index)
+    {
+        if (IsRemovingOrder) return;
+        IsRemovingOrder = true;
+
+        RemoveOrder(index);
+        await Task.Delay(200); 
+        IsRemovingOrder = false;
+    }
+
 
     private void SwitchOrder(int index)
     {
@@ -195,6 +261,12 @@
     {
         CurrentOrder.Products.Remove(product);
     }
+
+    protected override void OnInitialized()
+    {
+        Orders ??= new();
+    }
+
 
 
     private void ScanQRCode()
@@ -243,16 +315,19 @@
     }
     private bool IsProductModalVisible = false;
 
-    private void HandleAddProduct(GioHangChiTiet item)
+    private void HandleAddProduct(GiayChiTietDTO item)
     {
+        if (CurrentOrder == null) return;
+        
         CurrentOrder.Products.Add(new ProductOrder
         {
             GiayChiTietId = item.GiayId,
-            TenGiay = item.Giays.TenGiay, 
-            Quantity = item.SoLuongSanPham,
+            TenGiay = item.TenGiay ?? "Không tên",
+            Quantity = item.SoLuongCon,
             Price = item.Gia
         });
     }
+
     private bool IsCustomerModalVisible = false;
 
     private void HandleCustomerSelected(KhachHang kh)
