@@ -40,12 +40,15 @@
                     <tr>
                         <td>@((CurrentPage - 1) * PageSize + index + 1)</td>
                         <td>@item.TenVoucher</td>
-                        <td>@item.NgayBatDau:dd/MM/yyyy</td>
-                        <td>@item.NgayKetThuc:dd/MM/yyyy</td>
+                        <td>@item.NgayBatDau.ToString("dd/MM/yyyy")</td>
+                        <td>@item.NgayKetThuc.ToString("dd/MM/yyyy")</td>
                         <td>@item.PhanTram%</td>
                         <td>
-                            <span class="badge @(item.TrangThai ? "bg-warning text-dark" : "bg-secondary")">
-                                @(item.TrangThai ? "Đang diễn ra" : "Hết hạn")
+                            @{
+                                var isExpired = item.NgayKetThuc < DateTime.Now;
+                            }
+                            <span class="badge @(isExpired ? "bg-secondary" : "bg-warning text-dark")">
+                                @(isExpired ? "Hết hạn" : "Đang diễn ra")
                             </span>
                         </td>
                         <td>@item.SoLuong</td>

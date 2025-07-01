@@ -79,7 +79,9 @@
 							@onclick="() => ToggleTrangThai(item.NhanVienId)">
 						🔄
 					</button>
-					<span>@(item.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")</span>
+					 <span class="badge @(item.TrangThai ? "bg-success" : "bg-danger")">
+						@(item.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")
+                </span>
 				</td>
 				<td>
 					<button class="btn btn-primary" @onclick="() => NavigateToEdit(item.NhanVienId)">Edit</button>

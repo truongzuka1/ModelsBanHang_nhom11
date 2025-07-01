@@ -74,11 +74,13 @@
 				<td>@item.NgayTao.ToString("dd/MM/yyyy")</td>
 				<td>@item.NgayCapNhatCuoiCung.ToString("dd/MM/yyyy")</td>
 				<td>
-					<button class="btn btn-sm @(item.TrangThai ? "btn-success" : "btn-danger") me-2"
+					<button class="btn btn-sm @(item.TrangThai ? "btn-danger" : "btn-success") me-2"
 							@onclick="() => ToggleTrangThai(item.KhachHangId)">
 						🔄
 					</button>
-					<span>@(item.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")</span>
+					<span class="badge @(item.TrangThai ? "bg-success" : "bg-danger")">
+						@(item.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")
+					</span>
 				</td>
 				<td>
 					<button class="btn btn-primary" @onclick="() => NavigateToEdit(item.KhachHangId)">Edit</button>

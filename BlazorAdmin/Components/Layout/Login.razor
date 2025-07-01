@@ -106,7 +106,7 @@
                 }
 
                 Navigation.NavigateTo(loginResponseDto.Role == "Admin" ? "/thongke" :
-                                      loginResponseDto.Role == "NhanVien" ? "/banhang" : "/");
+                                      loginResponseDto.Role == "NhanVien" ? "/TraHang" : "/");
                 thongBao.Thoigian = DateTime.Now;
                 thongBao.Mota = "Đăng nhập thành công";
                 thongBao.trangthai = true;
