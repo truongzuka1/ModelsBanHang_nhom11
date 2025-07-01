@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @using API.IService
 @using API.Models.DTO
+@using Microsoft.AspNetCore.StaticFiles
 @using Microsoft.AspNetCore.Components.Forms
 @inject IMauSacService mauSacService
 @inject IGiayChiTietService giayChiTietService
@@ -161,13 +162,7 @@
 </div>
 
 @code {
-    private GiayDTO giayModel = new()
-        {
-            NgayTao = DateTime.Now,
-            TrangThai = true,
-            ChiTietGiays = new()
-        };
-
+    private GiayDTO giayModel = new() { NgayTao = DateTime.Now, TrangThai = true, ChiTietGiays = new() };
     private List<ThuongHieu> thuongHieuOptions = new();
     private List<ChatLieu> chatLieuOptions = new();
     private List<KieuDangDTO> kieuDangOptions = new();
@@ -176,7 +171,6 @@
     private List<MauSacDTO> danhSachMauCoBan = new();
     private List<KichCoDTO> danhSachKichCo = new();
     private List<GiayChiTietTheoMauDTO> danhSachChiTiet = new();
-
     private bool isLoading = true;
     private bool isSubmitting = false;
 
@@ -199,37 +193,7 @@
     private async Task HandleLuuToanBo()
     {
         isSubmitting = true;
-
-        var validGiay = !string.IsNullOrWhiteSpace(giayModel.TenGiay) &&
-                        giayModel.ThuongHieuId != Guid.Empty &&
-                        giayModel.ChatLieuId != Guid.Empty &&
-                        giayModel.KieuDangId != Guid.Empty &&
-                        giayModel.DeGiayId != Guid.Empty &&
-                        giayModel.TheLoaiGiayId != Guid.Empty;
-
-        if (!validGiay)
-        {
-            await JS.InvokeVoidAsync("Swal.fire", "Thiếu thông tin", "Vui lòng điền đầy đủ thông tin sản phẩm!", "error");
-            isSubmitting = false;
-            return;
-        }
-
-        if (danhSachChiTiet.Count == 0 || !danhSachChiTiet.Any(m => m.ChiTietSizes.Count > 0))
-        {
-            await JS.InvokeVoidAsync("Swal.fire", "Thiếu chi tiết", "Bạn chưa chọn màu hoặc chưa thêm size!", "error");
-            isSubmitting = false;
-            return;
-        }
-
-        var result = await giayService.CreateAsync(giayModel);
-        if (result == null || result.GiayId == Guid.Empty)
-        {
-            await JS.InvokeVoidAsync("Swal.fire", "Lỗi", "Không lưu được thông tin giày!", "error");
-            isSubmitting = false;
-            return;
-        }
-
-        giayModel.GiayId = result.GiayId;
+        await EnsureGiayIsCreated();
 
         var danhSachGiayChiTiet = danhSachChiTiet
             .SelectMany(m => m.ChiTietSizes.Select(size => new GiayChiTietDTO
@@ -244,15 +208,31 @@
                     TrangThai = true,
                     size = danhSachKichCo.FirstOrDefault(k => k.KichCoId == size.KichCoId)?.size.ToString(),
                     AnhGiay = size.AnhGiay
-                }))
-            .Where(ct => ct.KichCoId != Guid.Empty && ct.SoLuongCon > 0 && ct.Gia > 0)
-            .ToList();
+                })).Where(ct => ct.KichCoId != Guid.Empty && ct.SoLuongCon > 0 && ct.Gia > 0).ToList();
 
         await giayChiTietService.CreateMultipleAsync(danhSachGiayChiTiet);
-        await JS.InvokeVoidAsync("Swal.fire", "Thành công", "Đã lưu giày và các biến thể chi tiết!", "success");
+        await JS.InvokeVoidAsync("Swal.fire", "Thành công", "Đã lưu các biến thể sản phẩm!", "success");
         NavigationManager.NavigateTo($"/Giay/{giayModel.GiayId}");
-
         isSubmitting = false;
+    }
+
+    private async Task EnsureGiayIsCreated()
+    {
+        if (giayModel.GiayId == Guid.Empty)
+        {
+            var result = await giayService.CreateAsync(giayModel);
+            if (result == null || result.GiayId == Guid.Empty)
+            {
+                await JS.InvokeVoidAsync("Swal.fire", "Lỗi", "Không tạo được giày ban đầu!", "error");
+                return;
+            }
+            giayModel.GiayId = result.GiayId;
+        }
+    }
+
+    private void AddSize(GiayChiTietTheoMauDTO mau)
+    {
+        mau.ChiTietSizes.Add(new GiayChiTietSizeDTO { GiayChiTietId = Guid.NewGuid() });
     }
 
     private void ToggleMau(MauSacDTO mau)
@@ -269,20 +249,9 @@
                 });
     }
 
-    private void RemoveSize(GiayChiTietTheoMauDTO mau, GiayChiTietSizeDTO size)
-    {
-        mau.ChiTietSizes.Remove(size);
-    }
-
-    private void RemoveMau(GiayChiTietTheoMauDTO mau)
-    {
-        danhSachChiTiet.Remove(mau);
-    }
-
-    private void HuyBo()
-    {
-        NavigationManager.NavigateTo("/SanPham");
-    }
+    private void RemoveSize(GiayChiTietTheoMauDTO mau, GiayChiTietSizeDTO size) => mau.ChiTietSizes.Remove(size);
+    private void RemoveMau(GiayChiTietTheoMauDTO mau) => danhSachChiTiet.Remove(mau);
+    private void HuyBo() => NavigationManager.NavigateTo("/SanPham");
 
     private async Task UploadAnh(InputFileChangeEventArgs e, GiayChiTietSizeDTO size, Guid giayChiTietId)
     {
@@ -308,14 +277,6 @@
             return brightness < 128;
         }
         catch { return false; }
-    }
-
-    private void AddSize(GiayChiTietTheoMauDTO mau)
-    {
-        mau.ChiTietSizes.Add(new GiayChiTietSizeDTO
-            {
-                GiayChiTietId = Guid.NewGuid()
-            });
     }
 
     private class GiayChiTietTheoMauDTO

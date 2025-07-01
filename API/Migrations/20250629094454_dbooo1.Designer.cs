@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(DbContextApp))]
-    [Migration("20250629015538_truong1")]
-    partial class truong1
+    [Migration("20250629094454_dbooo1")]
+    partial class dbooo1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -589,7 +589,7 @@ namespace API.Migrations
                     b.HasData(
                         new
                         {
-                            KichCoId = new Guid("931f3fc3-3690-4b54-bb5d-8909f45eb293"),
+                            KichCoId = new Guid("e976685a-6ba7-4699-b8f9-71806acf2eea"),
                             MoTa = "Cỡ giày 35",
                             TenKichCo = "Size 35",
                             TrangThai = true,
@@ -597,7 +597,7 @@ namespace API.Migrations
                         },
                         new
                         {
-                            KichCoId = new Guid("13a526da-9496-4428-9000-322088f44632"),
+                            KichCoId = new Guid("269bb493-f4f2-4843-804b-a867b481eb2d"),
                             MoTa = "Cỡ giày 36",
                             TenKichCo = "Size 36",
                             TrangThai = true,
@@ -605,7 +605,7 @@ namespace API.Migrations
                         },
                         new
                         {
-                            KichCoId = new Guid("ad56c6c8-0dab-4445-bf69-9298496a7a9c"),
+                            KichCoId = new Guid("0218fa8d-53e8-45a9-8842-704419a50fca"),
                             MoTa = "Cỡ giày 37",
                             TenKichCo = "Size 37",
                             TrangThai = true,
@@ -613,7 +613,7 @@ namespace API.Migrations
                         },
                         new
                         {
-                            KichCoId = new Guid("1d244ee9-3d0b-42df-a14f-b9365bc78d64"),
+                            KichCoId = new Guid("99e9b480-b76c-463d-9021-6651c8760d6f"),
                             MoTa = "Cỡ giày 38",
                             TenKichCo = "Size 38",
                             TrangThai = true,
@@ -621,7 +621,7 @@ namespace API.Migrations
                         },
                         new
                         {
-                            KichCoId = new Guid("bcaaf72d-9711-4229-9c8d-263ab0117380"),
+                            KichCoId = new Guid("ec5fad5e-437c-4d36-b694-3dbd00f34852"),
                             MoTa = "Cỡ giày 39",
                             TenKichCo = "Size 39",
                             TrangThai = true,
@@ -629,7 +629,7 @@ namespace API.Migrations
                         },
                         new
                         {
-                            KichCoId = new Guid("61619795-ca5d-4afb-a92c-fa9b59d9499a"),
+                            KichCoId = new Guid("ac3dfd0e-011b-4483-95b3-d49838d9662c"),
                             MoTa = "Cỡ giày 40",
                             TenKichCo = "Size 40",
                             TrangThai = true,
@@ -637,7 +637,7 @@ namespace API.Migrations
                         },
                         new
                         {
-                            KichCoId = new Guid("5ede428c-428b-4e45-a7ca-8e9f5b4bfe3f"),
+                            KichCoId = new Guid("f3a8f862-8f7c-45ae-a690-43b73a4d4fa1"),
                             MoTa = "Cỡ giày 41",
                             TenKichCo = "Size 41",
                             TrangThai = true,
@@ -645,7 +645,7 @@ namespace API.Migrations
                         },
                         new
                         {
-                            KichCoId = new Guid("b12554a4-41d5-456c-88ec-a33617d20f19"),
+                            KichCoId = new Guid("2bd46cb3-9d2f-4242-a445-b1685e388e66"),
                             MoTa = "Cỡ giày 42",
                             TenKichCo = "Size 42",
                             TrangThai = true,
@@ -653,7 +653,7 @@ namespace API.Migrations
                         },
                         new
                         {
-                            KichCoId = new Guid("43d51a61-22e8-4835-9ed8-36481a30a94a"),
+                            KichCoId = new Guid("4d58ce46-6c2a-4a08-8bef-345dfd9ebd50"),
                             MoTa = "Cỡ giày 43",
                             TenKichCo = "Size 43",
                             TrangThai = true,
@@ -661,7 +661,7 @@ namespace API.Migrations
                         },
                         new
                         {
-                            KichCoId = new Guid("0e5f10f1-c427-4134-83b7-159d80d094b9"),
+                            KichCoId = new Guid("9140eee5-e606-4f0b-93c3-08a0a136289d"),
                             MoTa = "Cỡ giày 44",
                             TenKichCo = "Size 44",
                             TrangThai = true,
@@ -669,7 +669,7 @@ namespace API.Migrations
                         },
                         new
                         {
-                            KichCoId = new Guid("61e214a1-4cd2-41df-bc4d-fb945d56214d"),
+                            KichCoId = new Guid("fa44b653-321f-4e4e-bfde-dfa792ab8e64"),
                             MoTa = "Cỡ giày 45",
                             TenKichCo = "Size 45",
                             TrangThai = true,
@@ -677,7 +677,7 @@ namespace API.Migrations
                         },
                         new
                         {
-                            KichCoId = new Guid("14612d61-d644-4e5e-9bd6-1f76a1e5e02e"),
+                            KichCoId = new Guid("193df30a-1774-40ba-a03e-e276f1ae63ab"),
                             MoTa = "Cỡ giày 46",
                             TenKichCo = "Size 46",
                             TrangThai = true,
@@ -685,7 +685,7 @@ namespace API.Migrations
                         },
                         new
                         {
-                            KichCoId = new Guid("c710e171-1698-4b42-94fe-63944eabbfa7"),
+                            KichCoId = new Guid("40375225-5dd8-41aa-8e11-fea3d00ebd74"),
                             MoTa = "Cỡ giày 47",
                             TenKichCo = "Size 47",
                             TrangThai = true,
@@ -693,7 +693,7 @@ namespace API.Migrations
                         },
                         new
                         {
-                            KichCoId = new Guid("0c99a2e4-bbe5-4939-8117-6d013ef40dd8"),
+                            KichCoId = new Guid("6a5573e3-cfa7-495d-86b8-f6108b6fac64"),
                             MoTa = "Cỡ giày 48",
                             TenKichCo = "Size 48",
                             TrangThai = true,
@@ -701,7 +701,7 @@ namespace API.Migrations
                         },
                         new
                         {
-                            KichCoId = new Guid("8f7da370-e255-4b23-bcdb-408a4f8dce56"),
+                            KichCoId = new Guid("9b922ef1-e3e3-41f8-9851-dc22df4e4dfd"),
                             MoTa = "Cỡ giày 49",
                             TenKichCo = "Size 49",
                             TrangThai = true,
@@ -709,7 +709,7 @@ namespace API.Migrations
                         },
                         new
                         {
-                            KichCoId = new Guid("71364d86-fc7b-441e-8a3d-856af5fbb3a9"),
+                            KichCoId = new Guid("f1456bf0-d9d2-4f80-a18d-2fee43735a85"),
                             MoTa = "Cỡ giày 50",
                             TenKichCo = "Size 50",
                             TrangThai = true,
@@ -769,7 +769,7 @@ namespace API.Migrations
                     b.HasData(
                         new
                         {
-                            MauSacId = new Guid("9e20c281-2da9-494d-a28e-97e1190c18c9"),
+                            MauSacId = new Guid("b5904028-2027-4870-97f2-d81e71ce6986"),
                             Color = "#FF0000",
                             MoTa = "Màu đỏ cơ bản",
                             TenMau = "Đỏ",
@@ -777,7 +777,7 @@ namespace API.Migrations
                         },
                         new
                         {
-                            MauSacId = new Guid("5a036adc-7108-4229-8eab-42f001dc1497"),
+                            MauSacId = new Guid("af04b66c-4c23-4497-9f47-2f2e97cb771b"),
                             Color = "#0000FF",
                             MoTa = "Màu xanh dương cơ bản",
                             TenMau = "Xanh dương",
@@ -785,7 +785,7 @@ namespace API.Migrations
                         },
                         new
                         {
-                            MauSacId = new Guid("e6c83121-8043-4bb6-b6c4-d956035fc326"),
+                            MauSacId = new Guid("e1ef3e76-61b5-4733-8380-b239e356f4d3"),
                             Color = "#00FF00",
                             MoTa = "Màu xanh lá cây",
                             TenMau = "Xanh lá",
@@ -793,7 +793,7 @@ namespace API.Migrations
                         },
                         new
                         {
-                            MauSacId = new Guid("b5503ad1-5c5b-4702-b995-1fbc2b878268"),
+                            MauSacId = new Guid("72cb2e32-03e6-44ad-a64f-ec515cd68ec3"),
                             Color = "#FFFF00",
                             MoTa = "Màu vàng",
                             TenMau = "Vàng",
@@ -801,7 +801,7 @@ namespace API.Migrations
                         },
                         new
                         {
-                            MauSacId = new Guid("a4a0a79b-5547-4b7f-b2e2-86cafb1b1f37"),
+                            MauSacId = new Guid("6c511023-6021-4bd3-a3dd-d7e1cc55e068"),
                             Color = "#000000",
                             MoTa = "Màu đen",
                             TenMau = "Đen",
@@ -809,7 +809,7 @@ namespace API.Migrations
                         },
                         new
                         {
-                            MauSacId = new Guid("a8a683a6-3bb1-479f-9bf4-724c716034aa"),
+                            MauSacId = new Guid("c618e460-616d-47d9-b930-50dad0b84ce5"),
                             Color = "#FFFFFF",
                             MoTa = "Màu trắng",
                             TenMau = "Trắng",
@@ -868,7 +868,7 @@ namespace API.Migrations
                             ChucVuId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Email = "admin@shop.com",
                             HoTen = "Nguyễn Văn Quản Trị",
-                            NgayCapNhatCuoiCung = new DateTime(2025, 6, 29, 8, 55, 37, 176, DateTimeKind.Local).AddTicks(67),
+                            NgayCapNhatCuoiCung = new DateTime(2025, 6, 29, 16, 44, 53, 761, DateTimeKind.Local).AddTicks(2477),
                             NgaySinh = new DateTime(1995, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             SoDienThoai = "0987654321",
                             TaikhoanId = new Guid("99999999-9999-9999-9999-999999999999"),
@@ -901,7 +901,7 @@ namespace API.Migrations
                         new
                         {
                             TaikhoanId = new Guid("99999999-9999-9999-9999-999999999999"),
-                            Ngaytaotaikhoan = new DateTime(2025, 6, 29, 8, 55, 37, 175, DateTimeKind.Local).AddTicks(9985),
+                            Ngaytaotaikhoan = new DateTime(2025, 6, 29, 16, 44, 53, 761, DateTimeKind.Local).AddTicks(2400),
                             Password = "admin123",
                             Username = "admin"
                         });

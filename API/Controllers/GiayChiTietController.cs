@@ -85,22 +85,30 @@ namespace API.Controllers
         [HttpPost("multiple")]
         public async Task<IActionResult> AddMultiple([FromBody] List<GiayChiTietDTO> listDto)
         {
-            var entities = listDto.Select(dto => new GiayChiTiet
+            try
             {
-                GiayId = dto.GiayId,
-                KichCoId = dto.KichCoId,
-                MauSacId = dto.MauSacId,
-                Gia = dto.Gia,
-                SoLuongCon = dto.SoLuongCon,
-                MoTa = dto.MoTa,
-                TrangThai = dto.TrangThai,
-                AnhGiay = dto.AnhGiay,
-                NgayTao = DateTime.Now,
-                NgaySua = DateTime.Now
-            }).ToList();
+                var entities = listDto.Select(dto => new GiayChiTiet
+                {
+                    GiayId = dto.GiayId,
+                    KichCoId = dto.KichCoId,
+                    MauSacId = dto.MauSacId,
+                    Gia = dto.Gia,
+                    SoLuongCon = dto.SoLuongCon,
+                    MoTa = dto.MoTa,
+                    TrangThai = dto.TrangThai,
+                    AnhGiay = dto.AnhGiay,
+                    NgayTao = DateTime.Now,
+                    NgaySua = DateTime.Now
+                }).ToList();
 
-            var result = await _repo.AddMultipleAsync(entities);
-            return result ? Ok() : StatusCode(500, "Không thêm được danh sách");
+                var result = await _repo.AddMultipleAsync(entities);
+                if (result) return Ok();
+                return StatusCode(500, "Không thêm được danh sách");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi hệ thống: {ex.Message}");
+            }
         }
 
         [HttpDelete("{id}")]

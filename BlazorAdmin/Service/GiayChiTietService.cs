@@ -9,9 +9,9 @@ namespace BlazorAdmin.Service
     {
         private readonly HttpClient _httpClient;
 
-        public GiayChiTietService(IHttpClientFactory httpClientFactory)
+        public GiayChiTietService(HttpClient httpClient)
         {
-            _httpClient = httpClientFactory.CreateClient("giaychitiet");
+            _httpClient = httpClient;
         }
 
         public async Task<List<GiayChiTietDTO>> GetAllAsync()
@@ -37,12 +37,12 @@ namespace BlazorAdmin.Service
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task CreateMultipleAsync(List<GiayChiTietDTO> list)
+        public async Task<bool> CreateMultipleAsync(List<GiayChiTietDTO> list)
         {
             var response = await _httpClient.PostAsJsonAsync("api/GiayChiTiet/multiple", list);
-            response.EnsureSuccessStatusCode();
+            return response.IsSuccessStatusCode;
         }
-       
+
 
         public async Task DeleteAsync(Guid id)
         {

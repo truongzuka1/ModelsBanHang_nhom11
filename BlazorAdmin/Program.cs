@@ -84,6 +84,14 @@ builder.Services.AddHttpClient<IMauSacService, MauSacService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7246/");
 });
+builder.Services.AddHttpClient<IGiayService, GiayService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7246/");
+});
+builder.Services.AddHttpClient<IGiayChiTietService, GiayChiTietService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7246/");
+});
 builder.Services.AddHttpClient<IAnhService, AnhService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7246/"); // Đảm bảo đúng địa chỉ API backend
