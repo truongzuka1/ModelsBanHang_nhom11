@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(DbContextApp))]
-    [Migration("20250618035009_ver1")]
-    partial class ver1
+    [Migration("20250629094454_dbooo1")]
+    partial class dbooo1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,27 @@ namespace API.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("API.Models.ThongBao", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("DaXem")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("NoiDung")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ThoiGian")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ThongBaos");
+                });
 
             modelBuilder.Entity("Data.Models.Anh", b =>
                 {
@@ -121,10 +142,6 @@ namespace API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("KichCo")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("MoTa")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -186,7 +203,6 @@ namespace API.Migrations
                         .HasColumnType("real");
 
                     b.Property<string>("SanPhamKhuyenMai")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TenGiamGia")
@@ -208,15 +224,43 @@ namespace API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("ChatLieuId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("DeGiayId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("KieuDangId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("NgayTao")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("TenGiay")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<Guid?>("TheLoaiGiayId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ThuongHieuId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<bool>("TrangThai")
                         .HasColumnType("bit");
 
                     b.HasKey("GiayId");
+
+                    b.HasIndex("ChatLieuId");
+
+                    b.HasIndex("DeGiayId");
+
+                    b.HasIndex("KieuDangId");
+
+                    b.HasIndex("TheLoaiGiayId");
+
+                    b.HasIndex("ThuongHieuId");
 
                     b.ToTable("Giays");
                 });
@@ -231,12 +275,6 @@ namespace API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("ChatLieuId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("DeGiayId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<float>("Gia")
                         .HasColumnType("real");
 
@@ -244,9 +282,6 @@ namespace API.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("KichCoId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("KieuDangId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("MauSacId")
@@ -264,32 +299,16 @@ namespace API.Migrations
                     b.Property<int>("SoLuongCon")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("TheLoaiGiayId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ThuongHieuId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<bool>("TrangThai")
                         .HasColumnType("bit");
 
                     b.HasKey("GiayChiTietId");
 
-                    b.HasIndex("ChatLieuId");
-
-                    b.HasIndex("DeGiayId");
-
                     b.HasIndex("GiayId");
 
                     b.HasIndex("KichCoId");
 
-                    b.HasIndex("KieuDangId");
-
                     b.HasIndex("MauSacId");
-
-                    b.HasIndex("TheLoaiGiayId");
-
-                    b.HasIndex("ThuongHieuId");
 
                     b.ToTable("GiayChiTiets");
                 });
@@ -466,6 +485,10 @@ namespace API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("GhiChu")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
                     b.Property<decimal>("Gia")
                         .HasColumnType("decimal(18,2)");
 
@@ -475,11 +498,18 @@ namespace API.Migrations
                     b.Property<Guid>("HoaDonId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime?>("NgayTraHang")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("SoLuongSanPham")
                         .HasColumnType("int");
 
                     b.Property<bool>("TrangThai")
                         .HasColumnType("bit");
+
+                    b.Property<string>("TrangThaiChiTiet")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("HoaDonChiTietId");
 
@@ -518,7 +548,7 @@ namespace API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("TaiKhoanId")
+                    b.Property<Guid?>("TaiKhoanId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("TrangThai")
@@ -549,9 +579,142 @@ namespace API.Migrations
                     b.Property<bool>("TrangThai")
                         .HasColumnType("bit");
 
+                    b.Property<int>("size")
+                        .HasColumnType("int");
+
                     b.HasKey("KichCoId");
 
                     b.ToTable("KichCos");
+
+                    b.HasData(
+                        new
+                        {
+                            KichCoId = new Guid("e976685a-6ba7-4699-b8f9-71806acf2eea"),
+                            MoTa = "Cỡ giày 35",
+                            TenKichCo = "Size 35",
+                            TrangThai = true,
+                            size = 35
+                        },
+                        new
+                        {
+                            KichCoId = new Guid("269bb493-f4f2-4843-804b-a867b481eb2d"),
+                            MoTa = "Cỡ giày 36",
+                            TenKichCo = "Size 36",
+                            TrangThai = true,
+                            size = 36
+                        },
+                        new
+                        {
+                            KichCoId = new Guid("0218fa8d-53e8-45a9-8842-704419a50fca"),
+                            MoTa = "Cỡ giày 37",
+                            TenKichCo = "Size 37",
+                            TrangThai = true,
+                            size = 37
+                        },
+                        new
+                        {
+                            KichCoId = new Guid("99e9b480-b76c-463d-9021-6651c8760d6f"),
+                            MoTa = "Cỡ giày 38",
+                            TenKichCo = "Size 38",
+                            TrangThai = true,
+                            size = 38
+                        },
+                        new
+                        {
+                            KichCoId = new Guid("ec5fad5e-437c-4d36-b694-3dbd00f34852"),
+                            MoTa = "Cỡ giày 39",
+                            TenKichCo = "Size 39",
+                            TrangThai = true,
+                            size = 39
+                        },
+                        new
+                        {
+                            KichCoId = new Guid("ac3dfd0e-011b-4483-95b3-d49838d9662c"),
+                            MoTa = "Cỡ giày 40",
+                            TenKichCo = "Size 40",
+                            TrangThai = true,
+                            size = 40
+                        },
+                        new
+                        {
+                            KichCoId = new Guid("f3a8f862-8f7c-45ae-a690-43b73a4d4fa1"),
+                            MoTa = "Cỡ giày 41",
+                            TenKichCo = "Size 41",
+                            TrangThai = true,
+                            size = 41
+                        },
+                        new
+                        {
+                            KichCoId = new Guid("2bd46cb3-9d2f-4242-a445-b1685e388e66"),
+                            MoTa = "Cỡ giày 42",
+                            TenKichCo = "Size 42",
+                            TrangThai = true,
+                            size = 42
+                        },
+                        new
+                        {
+                            KichCoId = new Guid("4d58ce46-6c2a-4a08-8bef-345dfd9ebd50"),
+                            MoTa = "Cỡ giày 43",
+                            TenKichCo = "Size 43",
+                            TrangThai = true,
+                            size = 43
+                        },
+                        new
+                        {
+                            KichCoId = new Guid("9140eee5-e606-4f0b-93c3-08a0a136289d"),
+                            MoTa = "Cỡ giày 44",
+                            TenKichCo = "Size 44",
+                            TrangThai = true,
+                            size = 44
+                        },
+                        new
+                        {
+                            KichCoId = new Guid("fa44b653-321f-4e4e-bfde-dfa792ab8e64"),
+                            MoTa = "Cỡ giày 45",
+                            TenKichCo = "Size 45",
+                            TrangThai = true,
+                            size = 45
+                        },
+                        new
+                        {
+                            KichCoId = new Guid("193df30a-1774-40ba-a03e-e276f1ae63ab"),
+                            MoTa = "Cỡ giày 46",
+                            TenKichCo = "Size 46",
+                            TrangThai = true,
+                            size = 46
+                        },
+                        new
+                        {
+                            KichCoId = new Guid("40375225-5dd8-41aa-8e11-fea3d00ebd74"),
+                            MoTa = "Cỡ giày 47",
+                            TenKichCo = "Size 47",
+                            TrangThai = true,
+                            size = 47
+                        },
+                        new
+                        {
+                            KichCoId = new Guid("6a5573e3-cfa7-495d-86b8-f6108b6fac64"),
+                            MoTa = "Cỡ giày 48",
+                            TenKichCo = "Size 48",
+                            TrangThai = true,
+                            size = 48
+                        },
+                        new
+                        {
+                            KichCoId = new Guid("9b922ef1-e3e3-41f8-9851-dc22df4e4dfd"),
+                            MoTa = "Cỡ giày 49",
+                            TenKichCo = "Size 49",
+                            TrangThai = true,
+                            size = 49
+                        },
+                        new
+                        {
+                            KichCoId = new Guid("f1456bf0-d9d2-4f80-a18d-2fee43735a85"),
+                            MoTa = "Cỡ giày 50",
+                            TenKichCo = "Size 50",
+                            TrangThai = true,
+                            size = 50
+                        });
                 });
 
             modelBuilder.Entity("Data.Models.KieuDang", b =>
@@ -583,6 +746,10 @@ namespace API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("MoTa")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -598,6 +765,56 @@ namespace API.Migrations
                     b.HasKey("MauSacId");
 
                     b.ToTable("MauSacs");
+
+                    b.HasData(
+                        new
+                        {
+                            MauSacId = new Guid("b5904028-2027-4870-97f2-d81e71ce6986"),
+                            Color = "#FF0000",
+                            MoTa = "Màu đỏ cơ bản",
+                            TenMau = "Đỏ",
+                            TrangThai = true
+                        },
+                        new
+                        {
+                            MauSacId = new Guid("af04b66c-4c23-4497-9f47-2f2e97cb771b"),
+                            Color = "#0000FF",
+                            MoTa = "Màu xanh dương cơ bản",
+                            TenMau = "Xanh dương",
+                            TrangThai = true
+                        },
+                        new
+                        {
+                            MauSacId = new Guid("e1ef3e76-61b5-4733-8380-b239e356f4d3"),
+                            Color = "#00FF00",
+                            MoTa = "Màu xanh lá cây",
+                            TenMau = "Xanh lá",
+                            TrangThai = true
+                        },
+                        new
+                        {
+                            MauSacId = new Guid("72cb2e32-03e6-44ad-a64f-ec515cd68ec3"),
+                            Color = "#FFFF00",
+                            MoTa = "Màu vàng",
+                            TenMau = "Vàng",
+                            TrangThai = true
+                        },
+                        new
+                        {
+                            MauSacId = new Guid("6c511023-6021-4bd3-a3dd-d7e1cc55e068"),
+                            Color = "#000000",
+                            MoTa = "Màu đen",
+                            TenMau = "Đen",
+                            TrangThai = true
+                        },
+                        new
+                        {
+                            MauSacId = new Guid("c618e460-616d-47d9-b930-50dad0b84ce5"),
+                            Color = "#FFFFFF",
+                            MoTa = "Màu trắng",
+                            TenMau = "Trắng",
+                            TrangThai = true
+                        });
                 });
 
             modelBuilder.Entity("Data.Models.NhanVien", b =>
@@ -651,7 +868,7 @@ namespace API.Migrations
                             ChucVuId = new Guid("11111111-1111-1111-1111-111111111111"),
                             Email = "admin@shop.com",
                             HoTen = "Nguyễn Văn Quản Trị",
-                            NgayCapNhatCuoiCung = new DateTime(2025, 6, 18, 10, 49, 32, 774, DateTimeKind.Local).AddTicks(5075),
+                            NgayCapNhatCuoiCung = new DateTime(2025, 6, 29, 16, 44, 53, 761, DateTimeKind.Local).AddTicks(2477),
                             NgaySinh = new DateTime(1995, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             SoDienThoai = "0987654321",
                             TaikhoanId = new Guid("99999999-9999-9999-9999-999999999999"),
@@ -684,7 +901,7 @@ namespace API.Migrations
                         new
                         {
                             TaikhoanId = new Guid("99999999-9999-9999-9999-999999999999"),
-                            Ngaytaotaikhoan = new DateTime(2025, 6, 18, 10, 49, 32, 774, DateTimeKind.Local).AddTicks(5003),
+                            Ngaytaotaikhoan = new DateTime(2025, 6, 29, 16, 44, 53, 761, DateTimeKind.Local).AddTicks(2400),
                             Password = "admin123",
                             Username = "admin"
                         });
@@ -769,7 +986,7 @@ namespace API.Migrations
                     b.Property<int>("SoLuong")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("TaikhoanId")
+                    b.Property<Guid?>("TaikhoanId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("TenVoucher")
@@ -809,16 +1026,41 @@ namespace API.Migrations
                     b.Navigation("KhachHang");
                 });
 
-            modelBuilder.Entity("Data.Models.GiayChiTiet", b =>
+            modelBuilder.Entity("Data.Models.Giay", b =>
                 {
                     b.HasOne("Data.Models.ChatLieu", "ChatLieu")
-                        .WithMany("GiayChiTiets")
+                        .WithMany("Giays")
                         .HasForeignKey("ChatLieuId");
 
                     b.HasOne("Data.Models.DeGiay", "DeGiay")
-                        .WithMany("GiayChiTiets")
+                        .WithMany("Giays")
                         .HasForeignKey("DeGiayId");
 
+                    b.HasOne("Data.Models.KieuDang", "KieuDang")
+                        .WithMany("Giays")
+                        .HasForeignKey("KieuDangId");
+
+                    b.HasOne("Data.Models.TheLoaiGiay", "TheLoaiGiay")
+                        .WithMany("Giays")
+                        .HasForeignKey("TheLoaiGiayId");
+
+                    b.HasOne("Data.Models.ThuongHieu", "ThuongHieu")
+                        .WithMany("Giays")
+                        .HasForeignKey("ThuongHieuId");
+
+                    b.Navigation("ChatLieu");
+
+                    b.Navigation("DeGiay");
+
+                    b.Navigation("KieuDang");
+
+                    b.Navigation("TheLoaiGiay");
+
+                    b.Navigation("ThuongHieu");
+                });
+
+            modelBuilder.Entity("Data.Models.GiayChiTiet", b =>
+                {
                     b.HasOne("Data.Models.Giay", "Giay")
                         .WithMany("GiayChiTiets")
                         .HasForeignKey("GiayId")
@@ -829,37 +1071,15 @@ namespace API.Migrations
                         .WithMany("GiayChiTiets")
                         .HasForeignKey("KichCoId");
 
-                    b.HasOne("Data.Models.KieuDang", "KieuDang")
-                        .WithMany("GiayChiTiets")
-                        .HasForeignKey("KieuDangId");
-
                     b.HasOne("Data.Models.MauSac", "MauSac")
                         .WithMany("GiayChiTiets")
                         .HasForeignKey("MauSacId");
-
-                    b.HasOne("Data.Models.TheLoaiGiay", "TheLoaiGiay")
-                        .WithMany("GiayChiTiets")
-                        .HasForeignKey("TheLoaiGiayId");
-
-                    b.HasOne("Data.Models.ThuongHieu", "ThuongHieu")
-                        .WithMany("GiayChiTiets")
-                        .HasForeignKey("ThuongHieuId");
-
-                    b.Navigation("ChatLieu");
-
-                    b.Navigation("DeGiay");
 
                     b.Navigation("Giay");
 
                     b.Navigation("KichCo");
 
-                    b.Navigation("KieuDang");
-
                     b.Navigation("MauSac");
-
-                    b.Navigation("TheLoaiGiay");
-
-                    b.Navigation("ThuongHieu");
                 });
 
             modelBuilder.Entity("Data.Models.GiayDotGiamGia", b =>
@@ -949,7 +1169,7 @@ namespace API.Migrations
                         .IsRequired();
 
                     b.HasOne("Data.Models.HoaDon", "HoaDons")
-                        .WithMany("HoaDonChiTietsId")
+                        .WithMany("HoaDonChiTiets")
                         .HasForeignKey("HoaDonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -964,8 +1184,7 @@ namespace API.Migrations
                     b.HasOne("Data.Models.TaiKhoan", "TaiKhoan")
                         .WithMany()
                         .HasForeignKey("TaiKhoanId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("TaiKhoan");
                 });
@@ -990,16 +1209,14 @@ namespace API.Migrations
                 {
                     b.HasOne("Data.Models.TaiKhoan", "TaiKhoan")
                         .WithMany()
-                        .HasForeignKey("TaikhoanId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TaikhoanId");
 
                     b.Navigation("TaiKhoan");
                 });
 
             modelBuilder.Entity("Data.Models.ChatLieu", b =>
                 {
-                    b.Navigation("GiayChiTiets");
+                    b.Navigation("Giays");
                 });
 
             modelBuilder.Entity("Data.Models.ChucVu", b =>
@@ -1009,7 +1226,7 @@ namespace API.Migrations
 
             modelBuilder.Entity("Data.Models.DeGiay", b =>
                 {
-                    b.Navigation("GiayChiTiets");
+                    b.Navigation("Giays");
                 });
 
             modelBuilder.Entity("Data.Models.GiamGia", b =>
@@ -1045,7 +1262,7 @@ namespace API.Migrations
 
             modelBuilder.Entity("Data.Models.HoaDon", b =>
                 {
-                    b.Navigation("HoaDonChiTietsId");
+                    b.Navigation("HoaDonChiTiets");
                 });
 
             modelBuilder.Entity("Data.Models.KhachHang", b =>
@@ -1064,7 +1281,7 @@ namespace API.Migrations
 
             modelBuilder.Entity("Data.Models.KieuDang", b =>
                 {
-                    b.Navigation("GiayChiTiets");
+                    b.Navigation("Giays");
                 });
 
             modelBuilder.Entity("Data.Models.MauSac", b =>
@@ -1081,12 +1298,12 @@ namespace API.Migrations
 
             modelBuilder.Entity("Data.Models.TheLoaiGiay", b =>
                 {
-                    b.Navigation("GiayChiTiets");
+                    b.Navigation("Giays");
                 });
 
             modelBuilder.Entity("Data.Models.ThuongHieu", b =>
                 {
-                    b.Navigation("GiayChiTiets");
+                    b.Navigation("Giays");
                 });
 
             modelBuilder.Entity("Data.Models.Voucher", b =>

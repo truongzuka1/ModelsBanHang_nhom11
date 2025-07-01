@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Data.Models;
 using Data.Models;
 using API.IRepository;
 
@@ -16,10 +13,12 @@ namespace API.Controllers
     public class NhanViensController : ControllerBase
     {
         private readonly INhanVienRepository _repository;
+        private readonly IThongBaoRepository _thongBaoRepository; // ✅ Thêm
 
-        public NhanViensController(INhanVienRepository context)
+        public NhanViensController(INhanVienRepository context, IThongBaoRepository thongBaoRepository)
         {
             _repository = context;
+            _thongBaoRepository = thongBaoRepository;
         }
 
         // GET: api/NhanViens
@@ -37,7 +36,6 @@ namespace API.Controllers
         }
 
         // PUT: api/NhanViens/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutNhanVien(Guid id, [FromBody] NhanVien nhanVien)
         {
@@ -49,6 +47,10 @@ namespace API.Controllers
             try
             {
                 await _repository.UpdateNhanVienAsync(nhanVien);
+
+                // ✅ Ghi thông báo
+                await _thongBaoRepository.ThemThongBaoAsync($"✏️ Cập nhật nhân viên: {nhanVien.HoTen}");
+
                 return Ok();
             }
             catch (Exception ex)
@@ -57,9 +59,7 @@ namespace API.Controllers
             }
         }
 
-
         // POST: api/NhanViens
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<NhanVien>> PostNhanVien([FromBody] NhanVien nhanVien)
         {
@@ -69,15 +69,25 @@ namespace API.Controllers
             }
 
             await _repository.CreateNhanVien(nhanVien);
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"👤 Thêm nhân viên mới: {nhanVien.HoTen}");
+
             return Ok();
         }
-
 
         // DELETE: api/NhanViens/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteNhanVien(Guid id)
         {
+            var nv = await _repository.GetByIdNhanVienAsync(id);
+            if (nv == null) return NotFound();
+
             await _repository.DeleteNhanVienAsync(id);
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"🗑️ Đã xoá nhân viên: {nv.HoTen}");
+
             return Ok();
         }
 
@@ -91,6 +101,16 @@ namespace API.Controllers
             }
 
             return Ok(nhanVien);
+        }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<NhanVien>>> Search(string keyword)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+                return Ok(await _repository.GetAllNhanVienAsync());
+
+            var result = await _repository.SearchNhanVienAsync(keyword);
+            return Ok(result);
         }
     }
 }

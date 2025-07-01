@@ -24,8 +24,10 @@ namespace Data.Repositories
 				.Include(kh => kh.GioHangs)
 				.ToListAsync();
 		}
+        
 
-		public async Task AddAsync(KhachHang khachhang)
+
+        public async Task AddAsync(KhachHang khachhang)
 		{
 			try
 			{
@@ -77,5 +79,24 @@ namespace Data.Repositories
 				throw;
 			}
 		}
-	}
+        public async Task<List<KhachHang>> SearchKhachHangAsync(string keyword)
+        {
+            keyword = keyword.ToLower();
+            return await _db.KhachHangs
+                .Where(nv => nv.HoTen.ToLower().Contains(keyword))
+                .ToListAsync();
+        }
+
+        public async Task<KhachHang> GetByIdAsync(Guid id)
+        {
+            try
+            {
+                return await _db.KhachHangs.FindAsync(id);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+    }
 }

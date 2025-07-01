@@ -1,5 +1,184 @@
-﻿<h3>Thuonghieu</h3>
+﻿@page "/ThuongHieu"
+@using Data.Models
+@using BlazorAdmin.Service.IService
+@inject IJSRuntime JS
+@inject IThuongHieuService ThuongHieuService
+<link href="/css/site.css" rel="stylesheet" />
+
+<div class="container mt-5">
+    <h4 class="mb-3">🏢 Quản lý thương hiệu</h4>
+
+    <div class="card shadow-sm p-4">
+        <!-- Tìm kiếm & nút -->
+        <div class="d-flex justify-content-between mb-3">
+            <input type="text" class="form-control w-50" placeholder="🔍 Tìm kiếm thương hiệu..." @bind="SearchText" @bind:event="oninput" />
+            <button class="btn btn-outline-primary" @onclick="ShowAddModal">➕ Thêm thương hiệu</button>
+        </div>
+
+        <!-- Bảng dữ liệu -->
+        <table class="table table-bordered table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 60px;">STT</th>
+                    <th>Tên thương hiệu</th>
+                    <th>Email</th>
+                    <th>SĐT</th>
+                    <th>Địa chỉ</th>
+                    <th>Trạng thái</th>
+                    <th style="width: 120px;">Chức năng</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!FilteredThuongHieus.Any())
+                {
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">Không tìm thấy thương hiệu nào.</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var (item, index) in FilteredThuongHieus.Select((x, i) => (x, i + 1)))
+                    {
+                        <tr>
+                            <td>@index</td>
+                            <td>@item.TenThuongHieu</td>
+                            <td>@item.Email</td>
+                            <td>@item.SDT</td>
+                            <td>@item.DiaChi</td>
+                            <td>
+                                <span class="badge bg-@(item.TrangThai ? "success" : "secondary")">
+                                    @(item.TrangThai ? "Hoạt động" : "Ngừng")
+                                </span>
+                            </td>
+                            <td>
+                                <i class="bi bi-pencil-square text-primary" style="cursor: pointer;" title="Sửa" @onclick="() => Edit(item)"></i>
+                                <i class="bi bi-trash text-danger ms-2" style="cursor: pointer;" title="Xóa" @onclick="() => Delete(item.ThuongHieuId)"></i>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal Inline -->
+    @if (IsModalVisible)
+    {
+        <div class="popup-overlay">
+            <div class="popup-form">
+                <EditForm Model="Model" OnValidSubmit="HandleValidSubmit">
+                    <div class="modal-header">
+                        <h5 class="modal-title">@ModalTitle</h5>
+                        <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Tên thương hiệu</label>
+                            <InputText class="form-control" @bind-Value="Model.TenThuongHieu" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <InputText type="email" class="form-control" @bind-Value="Model.Email" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">SĐT</label>
+                            <InputText class="form-control" @bind-Value="Model.SDT" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Địa chỉ</label>
+                            <InputText class="form-control" @bind-Value="Model.DiaChi" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mô tả</label>
+                            <InputTextArea class="form-control" @bind-Value="Model.MoTa" rows="2" />
+                        </div>
+                        <div class="form-check mb-3">
+                            <InputCheckbox class="form-check-input" @bind-Value="Model.TrangThai" />
+                            <label class="form-check-label">Đang hoạt động</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success"><i class="bi bi-save"></i> Lưu</button>
+                        <button type="button" class="btn btn-secondary" @onclick="CloseModal">Hủy</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    }
+</div>
 
 @code {
+    private List<ThuongHieu> ThuongHieus = new();
+    private ThuongHieu Model = new();
+    private string ModalTitle = "Thêm Thương Hiệu";
+    private bool IsModalVisible = false;
 
+    private string SearchText = string.Empty;
+
+    private IEnumerable<ThuongHieu> FilteredThuongHieus =>
+        string.IsNullOrWhiteSpace(SearchText)
+            ? ThuongHieus
+            : ThuongHieus.Where(x =>
+                (x.TenThuongHieu ?? "").Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                (x.Email ?? "").Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                (x.SDT ?? "").Contains(SearchText));
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        ThuongHieus = await ThuongHieuService.GetAllAsync();
+    }
+
+    private void ShowAddModal()
+    {
+        Model = new ThuongHieu();
+        ModalTitle = "Thêm Thương Hiệu";
+        IsModalVisible = true;
+    }
+
+    private void Edit(ThuongHieu item)
+    {
+        Model = new ThuongHieu
+        {
+            ThuongHieuId = item.ThuongHieuId,
+            TenThuongHieu = item.TenThuongHieu,
+            Email = item.Email,
+            SDT = item.SDT,
+            DiaChi = item.DiaChi,
+            MoTa = item.MoTa,
+            TrangThai = item.TrangThai
+        };
+        ModalTitle = "Sửa Thương Hiệu";
+        IsModalVisible = true;
+    }
+
+    private async Task Delete(Guid id)
+    {
+        await ThuongHieuService.DeleteAsync(id);
+        await LoadDataAsync();
+    }
+
+    private void CloseModal()
+    {
+        IsModalVisible = false;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (Model.ThuongHieuId == Guid.Empty)
+        {
+            await ThuongHieuService.CreateAsync(Model);
+        }
+        else
+        {
+            await ThuongHieuService.UpdateAsync(Model);
+        }
+
+        IsModalVisible = false;
+        await LoadDataAsync();
+    }
 }

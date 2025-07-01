@@ -1,8 +1,9 @@
-﻿using BlazorAdmin.Service.IService;
-using Data.Models;
+﻿using API.IService;
+using API.Models.DTO;
+using BlazorAdmin.Service.IService;
 using Microsoft.AspNetCore.Components.Forms;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using API.IService;
 
 namespace BlazorAdmin.Service
 {
@@ -10,57 +11,67 @@ namespace BlazorAdmin.Service
     {
         private readonly HttpClient _httpClient;
 
-        public AnhService(IHttpClientFactory httpClientFactory)
+        public AnhService(HttpClient httpClient)
         {
-            _httpClient = httpClientFactory.CreateClient("anh");
+            _httpClient = httpClient;
         }
 
-        public async Task<List<Anh>> GetAllAsync() =>
-            await _httpClient.GetFromJsonAsync<List<Anh>>("api/Anh");
 
-        public async Task<Anh> GetByIdAsync(Guid id) =>
-            await _httpClient.GetFromJsonAsync<Anh>($"api/Anh/{id}");
+        public async Task<List<AnhDTO>> GetAllAsync() =>
+            await _httpClient.GetFromJsonAsync<List<AnhDTO>>("api/AnhApi");
 
-        public async Task<Anh> UploadAsync(IBrowserFile file, string tenAnh)
+        public async Task<AnhDTO> GetByIdAsync(Guid id) =>
+            await _httpClient.GetFromJsonAsync<AnhDTO>($"api/AnhApi/{id}");
+
+        public async Task<AnhDTO> UploadAsync(IBrowserFile file, string tenAnh, Guid giayChiTietId)
         {
             var content = new MultipartFormDataContent();
-            var streamContent = new StreamContent(file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024));
-            streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+
+            var stream = file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+            var streamContent = new StreamContent(stream);
+            streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
             content.Add(streamContent, "file", file.Name);
+
             content.Add(new StringContent(tenAnh ?? ""), "tenAnh");
+            content.Add(new StringContent(giayChiTietId.ToString()), "giayChiTietId");
 
-            var response = await _httpClient.PostAsync("api/Anh/upload", content);
+            var response = await _httpClient.PostAsync("api/AnhApi/upload", content);
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<Anh>();
+
+            return await response.Content.ReadFromJsonAsync<AnhDTO>();
         }
 
-        public async Task<Anh> UpdateAsync(Anh anh)
+        public async Task<AnhDTO> UpdateAsync(AnhDTO dto)
         {
-            var response = await _httpClient.PutAsJsonAsync($"api/Anh/{anh.AnhId}", anh);
+            var response = await _httpClient.PutAsJsonAsync($"api/AnhApi/{dto.AnhId}", dto);
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<Anh>();
+
+            return await response.Content.ReadFromJsonAsync<AnhDTO>();
         }
 
-        public async Task<Anh> UpdateFileAsync(Guid id, IBrowserFile file, string tenAnh)
+        public async Task<AnhDTO> UpdateFileAsync(Guid id, IBrowserFile file, string tenAnh, Guid giayChiTietId)
         {
             var content = new MultipartFormDataContent();
-            var streamContent = new StreamContent(file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024));
-            streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
-            content.Add(streamContent, "file", file.Name);
-            content.Add(new StringContent(tenAnh ?? ""), "tenAnh");
 
-            var response = await _httpClient.PutAsync($"api/Anh/update-file/{id}", content);
+            var stream = file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+            var streamContent = new StreamContent(stream);
+            streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+            content.Add(streamContent, "file", file.Name);
+
+            content.Add(new StringContent(tenAnh ?? ""), "tenAnh");
+            content.Add(new StringContent(giayChiTietId.ToString()), "giayChiTietId");
+
+            var response = await _httpClient.PutAsync($"api/AnhApi/update-file/{id}", content);
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<Anh>();
+
+            return await response.Content.ReadFromJsonAsync<AnhDTO>();
         }
 
         public async Task<bool> DeleteAsync(Guid id)
         {
-            var response = await _httpClient.DeleteAsync($"api/Anh/{id}");
+            var response = await _httpClient.DeleteAsync($"api/AnhApi/{id}");
             response.EnsureSuccessStatusCode();
             return true;
         }
-
-        
     }
 }

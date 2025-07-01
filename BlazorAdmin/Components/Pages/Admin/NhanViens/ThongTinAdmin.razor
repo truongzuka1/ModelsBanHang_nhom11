@@ -1,0 +1,67 @@
+﻿@page "/ThongTinAdmin"
+@layout Layout.EmptyLayout
+@rendermode InteractiveServer
+@using Data.Models
+@inject INhanVienService service
+@inject NavigationManager NavigationManager
+
+<link rel="stylesheet" href="/css/Profile.css" />
+<link rel="stylesheet" href="/css/Form.css" />
+
+@if (admin == null)
+{
+    <div class="text-center text-danger mt-5 fs-5">❌ Không tìm thấy thông tin Admin.</div>
+}
+else
+{
+    <div class="mt-5 px-5 position-relative">
+        <button class="btn btn-outline-secondary mb-3" @onclick='() => NavigationManager.NavigateTo("/thongke")'>
+            Quay về
+        </button>
+
+        <div class="d-flex flex-column align-items-center text-center mb-4">
+            <img src="https://preview.redd.it/can-someone-give-the-the-fish-for-calm-zone-i-only-need-v0-ke9mz4262ase1.jpeg?width=640&crop=smart&auto=webp&s=2f1bab5cdbf8a2bab087b716d46f3eecd7044917"
+                 class="rounded-circle" style="width: 120px; height: 120px;" alt="Avatar" />
+            <h2 class="mt-3">@admin.HoTen <span class="badge bg-success"><i class="bi bi-check2"></i></span></h2>
+            <div class="text-muted small">@admin.NhanVienId</div>
+        </div>
+
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Thông tin cá nhân</h5>
+                <p>📞 Số điện thoại: <strong>@admin.SoDienThoai</strong></p>
+                <p>📧 Email: <strong>@admin.Email</strong></p>
+                <p>🎂 Ngày sinh: <strong>@admin.NgaySinh.ToString("dd/MM/yyyy")</strong></p>
+                <p>🛡️ Chức vụ: <strong>@(admin.ChucVu?.MotaChucVu ?? "Không có chức vụ")</strong></p>
+                <p>
+                    🔄 Trạng thái:
+                    <span class="badge @(admin.TrangThai ? "bg-success" : "bg-danger")">
+                        @(admin.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")
+                    </span>
+                </p>
+                <p>📅 Ngày cập nhật cuối: <strong>@admin.NgayCapNhatCuoiCung.ToString("dd/MM/yyyy")</strong></p>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Thông tin tài khoản</h5>
+                <p>👨‍💻 Tên tài khoản: <strong>@(admin.TaiKhoan?.Username ?? "Không có tài khoản")</strong></p>
+                <p>
+                    🕓 Ngày tạo tài khoản:
+                    <strong>@(admin.TaiKhoan?.Ngaytaotaikhoan.ToString("dd/MM/yyyy") ?? "Không có")</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private NhanVien? admin;
+    private readonly Guid adminId = Guid.Parse("88888888-8888-8888-8888-888888888888");
+
+    protected override async Task OnInitializedAsync()
+    {
+        admin = await service.GetByIdNhanVienAsync(adminId);
+    }
+}

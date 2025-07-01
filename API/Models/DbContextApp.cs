@@ -1,4 +1,5 @@
-﻿using Data.Models;
+﻿using API.Models;
+using Data.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -18,17 +19,17 @@ namespace Data.Models
         public DbContextApp(DbContextOptions options) : base(options)
         {
         }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 
         {
-    
 
-            optionsBuilder.UseSqlServer(@"Data Source=.;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
+
+            optionsBuilder.UseSqlServer(@"Data Source=DELL\SQLEXPRESS;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
 
 
 
         }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -99,19 +100,40 @@ namespace Data.Models
             });
 
 
+            // Dữ liệu mẫu kích cỡ từ 35 đến 50
+            var kichCoList = new List<KichCo>();
+            for (int size = 35; size <= 50; size++)
+            {
+                kichCoList.Add(new KichCo
+                {
+                    KichCoId = Guid.NewGuid(),
+                    TenKichCo = $"Size {size}",
+                    size = size,
+                    MoTa = $"Cỡ giày {size}",
+                    TrangThai = true
+                });
+            }
+            modelBuilder.Entity<KichCo>().HasData(kichCoList.ToArray());
 
-
+            modelBuilder.Entity<MauSac>().HasData(
+                new MauSac { MauSacId = Guid.NewGuid(), TenMau = "Đỏ", Color = "#FF0000", MoTa = "Màu đỏ cơ bản", TrangThai = true },
+                new MauSac { MauSacId = Guid.NewGuid(), TenMau = "Xanh dương", Color = "#0000FF", MoTa = "Màu xanh dương cơ bản", TrangThai = true },
+                new MauSac { MauSacId = Guid.NewGuid(), TenMau = "Xanh lá", Color = "#00FF00", MoTa = "Màu xanh lá cây", TrangThai = true },
+                new MauSac { MauSacId = Guid.NewGuid(), TenMau = "Vàng", Color = "#FFFF00", MoTa = "Màu vàng", TrangThai = true },
+                new MauSac { MauSacId = Guid.NewGuid(), TenMau = "Đen", Color = "#000000", MoTa = "Màu đen", TrangThai = true },
+                new MauSac { MauSacId = Guid.NewGuid(), TenMau = "Trắng", Color = "#FFFFFF", MoTa = "Màu trắng", TrangThai = true }
+            );
 
             // NhanVien - ChucVu
             modelBuilder.Entity<NhanVien>()
-                .HasOne(nv => nv.ChucVu)
-                .WithMany(cv => cv.nhanViens)
-                .HasForeignKey(nv => nv.ChucVuId)
-                .OnDelete(DeleteBehavior.Restrict);
+      .HasOne(nv => nv.ChucVu)
+      .WithMany(cv => cv.nhanViens)
+      .HasForeignKey(nv => nv.ChucVuId);
+
 
 
             // NhanVien - TaiKhoan
-         
+
 
             //hoadon-taikhoan
 
@@ -179,6 +201,7 @@ namespace Data.Models
         public DbSet<GioHangChiTiet> GioHangChiTiets { get; set; }
         public DbSet<HinhThucThanhToan> hinhThucThanhToans { get; set; }
         public DbSet<DiaChiKhachHang> diaChiKhachHangs { get; set; }
+        public DbSet<ThongBao> ThongBaos { get; set; }
 
 
     }

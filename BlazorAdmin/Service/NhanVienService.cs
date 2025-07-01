@@ -2,9 +2,11 @@
 using BlazorAdmin.Service.IService;
 using BlazorAdmin.Service.IService;
 using Data.Models;
+using System.Net.Http;
 
 namespace BlazorAdmin.Service
 {
+    /// hahahaha 
     public class NhanVienService : INhanVienService
     {
         private readonly HttpClient _httpClient;
@@ -38,5 +40,12 @@ namespace BlazorAdmin.Service
             var response = await _httpClient.PutAsJsonAsync($"/api/NhanViens/{nhanVien.NhanVienId}", nhanVien);
             response.EnsureSuccessStatusCode();
         }
+        public async Task<List<NhanVien>> SearchNhanVien(string keyword)
+        {
+            var result = await _httpClient.GetFromJsonAsync<List<NhanVien>>(
+                $"api/NhanViens/search?keyword={Uri.EscapeDataString(keyword)}");
+            return result ?? new List<NhanVien>();
+        }
+
     }
 }

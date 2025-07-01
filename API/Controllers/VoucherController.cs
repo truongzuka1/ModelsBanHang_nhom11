@@ -9,13 +9,14 @@ namespace API.Controllers
     public class VoucherController : ControllerBase
     {
         private readonly IVoucherRepo _voucherRepo;
+        private readonly IThongBaoRepository _thongBaoRepository; // ✅ Inject repo thông báo
 
-        public VoucherController(IVoucherRepo voucherRepo)
+        public VoucherController(IVoucherRepo voucherRepo, IThongBaoRepository thongBaoRepository)
         {
             _voucherRepo = voucherRepo;
+            _thongBaoRepository = thongBaoRepository;
         }
 
-        // GET: api/Voucher
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Voucher>>> GetAllVouchers()
         {
@@ -23,43 +24,49 @@ namespace API.Controllers
             return Ok(vouchers);
         }
 
-        // GET: api/Voucher/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<Voucher>> GetVoucherById(Guid id)
         {
             var voucher = await _voucherRepo.GetById(id);
-            if (voucher == null)
-                return NotFound();
-
+            if (voucher == null) return NotFound();
             return Ok(voucher);
         }
 
-        // POST: api/Voucher
         [HttpPost]
         public async Task<ActionResult<Voucher>> CreateVoucher(Voucher voucher)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
             await _voucherRepo.Create(voucher);
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"🎁 Thêm voucher mới: {voucher.TenVoucher}");
+
             return CreatedAtAction(nameof(GetVoucherById), new { id = voucher.VoucherId }, voucher);
         }
 
-        // PUT: api/Voucher/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateVoucher(Guid id, Voucher voucher)
         {
-            if (id != voucher.VoucherId)
-                return BadRequest("ID mismatch");
+            if (id != voucher.VoucherId) return BadRequest("ID mismatch");
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
             await _voucherRepo.Update(voucher);
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"✏️ Cập nhật voucher: {voucher.TenVoucher}");
+
             return NoContent();
         }
 
-        // DELETE: api/Voucher/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteVoucher(Guid id)
         {
             var result = await _voucherRepo.Delete(id);
-            if (!result)
-                return NotFound();
+            if (!result) return NotFound();
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"🗑️ Đã xoá voucher có ID: {id}");
 
             return NoContent();
         }

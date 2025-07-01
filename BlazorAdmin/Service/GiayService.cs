@@ -1,5 +1,5 @@
-﻿using BlazorAdmin.Service.IService;
-using Data.Models;
+﻿using API.Models.DTO;
+using BlazorAdmin.Service.IService;
 using System.Net.Http.Json;
 
 namespace BlazorAdmin.Service
@@ -13,24 +13,27 @@ namespace BlazorAdmin.Service
             _httpClient = httpClientFactory.CreateClient("giay");
         }
 
-        public async Task<List<Giay>> GetAllAsync()
+        public async Task<List<GiayDTO>> GetAllAsync()
         {
-            return await _httpClient.GetFromJsonAsync<List<Giay>>("api/Giay")
-                   ?? new List<Giay>();
+            return await _httpClient.GetFromJsonAsync<List<GiayDTO>>("api/Giay")
+                   ?? new List<GiayDTO>();
         }
 
-        public async Task<Giay> GetByIdAsync(Guid id)
+        public async Task<GiayDTO> GetByIdAsync(Guid id)
         {
-            return await _httpClient.GetFromJsonAsync<Giay>($"api/Giay/{id}");
+            return await _httpClient.GetFromJsonAsync<GiayDTO>($"api/Giay/{id}");
         }
 
-        public async Task CreateAsync(Giay obj)
+        public async Task<GiayDTO> CreateAsync(GiayDTO obj)
         {
             var response = await _httpClient.PostAsJsonAsync("api/Giay", obj);
             response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadFromJsonAsync<GiayDTO>();
         }
 
-        public async Task UpdateAsync(Giay obj)
+
+        public async Task UpdateAsync(GiayDTO obj)
         {
             var response = await _httpClient.PutAsJsonAsync($"api/Giay/{obj.GiayId}", obj);
             response.EnsureSuccessStatusCode();
@@ -40,6 +43,12 @@ namespace BlazorAdmin.Service
         {
             var response = await _httpClient.DeleteAsync($"api/Giay/{id}");
             response.EnsureSuccessStatusCode();
+        }
+
+        public async Task<List<GiayDTO>> SearchAsync(string keyword)
+        {
+            return await _httpClient.GetFromJsonAsync<List<GiayDTO>>($"api/Giay/search?keyword={keyword}")
+                   ?? new List<GiayDTO>();
         }
     }
 }

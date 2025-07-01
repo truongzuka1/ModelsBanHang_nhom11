@@ -2,16 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Data.Models;
 using API.IRepository;
-using NuGet.Protocol.Core.Types;
-using API.IRepository.Repository;
-using Microsoft.AspNetCore.Identity.Data;
 using API.Models.DTO;
-
 
 namespace API.Controllers
 {
@@ -22,53 +16,65 @@ namespace API.Controllers
         private readonly ITaiKhoanRepository _context;
         private readonly INhanVienRepository _nhanVienRepository;
         private readonly IChucVuRepository _chucVuRepository;
+        private readonly IThongBaoRepository _thongBaoRepository; // ✅ thêm
 
-        public TaiKhoansController(ITaiKhoanRepository context, INhanVienRepository nhanVienRepository, IChucVuRepository chucVuRepository)
+        public TaiKhoansController(
+            ITaiKhoanRepository context,
+            INhanVienRepository nhanVienRepository,
+            IChucVuRepository chucVuRepository,
+            IThongBaoRepository thongBaoRepository) // ✅ inject
         {
             _context = context;
             _nhanVienRepository = nhanVienRepository;
             _chucVuRepository = chucVuRepository;
+            _thongBaoRepository = thongBaoRepository;
         }
 
-
-
-        // GET: api/TaiKhoans
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TaiKhoan>>> GetTaiKhoans()
         {
             return Ok(await _context.GetAllTaiKhoanAsync());
         }
 
-        // GET: api/TaiKhoans/5
         [HttpGet("{id}")]
         public async Task<ActionResult<TaiKhoan>> GetTaiKhoan(Guid id)
         {
             return Ok(await _context.GetByIdTaiKhoanAsync(id));
         }
 
-        // PUT: api/TaiKhoans/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTaiKhoan(Guid id, TaiKhoan taiKhoan)
         {
             await _context.UpdateTaiKhoanAsync(taiKhoan);
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"✏️ Đã cập nhật tài khoản: {taiKhoan.Username}");
+
             return Ok();
         }
 
-        // POST: api/TaiKhoans
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<TaiKhoan>> PostTaiKhoan(TaiKhoan taiKhoan)
         {
             await _context.CreateTaiKhoanAsync(taiKhoan);
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"👤 Tạo tài khoản mới: {taiKhoan.Username}");
+
             return Ok();
         }
 
-        // DELETE: api/TaiKhoans/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTaiKhoan(Guid id)
         {
+            var taiKhoan = await _context.GetByIdTaiKhoanAsync(id);
+            if (taiKhoan == null) return NotFound();
+
             await _context.DeleteTaiKhoanAsync(id);
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"🗑️ Đã xoá tài khoản: {taiKhoan.Username}");
+
             return Ok();
         }
 
@@ -91,9 +97,10 @@ namespace API.Controllers
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values
-                                       .SelectMany(v => v.Errors)
-                                        .Select(e => e.ErrorMessage)
-                                       .ToList();
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
                 return BadRequest(new LoginResponseDto
                 {
                     IsSuccess = false,
@@ -101,30 +108,30 @@ namespace API.Controllers
                 });
             }
 
-
-            var userChucVu = await _context.GetByIdChucVuAsync(username,pass);
+            var userChucVu = await _context.GetByIdChucVuAsync(username, pass);
 
             if (userChucVu != null)
             {
+                string role = _chucVuRepository
+                    .GetByIdChucVuAsync(
+                        _nhanVienRepository
+                            .GetIdNhanVienTaiKhoan(userChucVu.TaikhoanId).Result.ChucVuId.Value
+                    ).Result.TenChucVu;
 
-                    string role = _chucVuRepository.GetByIdChucVuAsync(_nhanVienRepository.GetIdNhanVienTaiKhoan(userChucVu.TaikhoanId).Result.ChucVuId.Value).Result.TenChucVu;
-
-                ;
                 return Ok(new LoginResponseDto
                 {
                     IsSuccess = true,
                     Username = username,
-                    Role = role, 
+                    Role = role,
                     Message = "Đăng nhập thành công!"
                 });
             }
             else
             {
-
                 return Unauthorized(new LoginResponseDto
                 {
                     IsSuccess = false,
-                    Username = username, 
+                    Username = username,
                     Role = null,
                     Message = "Tên đăng nhập hoặc mật khẩu không đúng."
                 });

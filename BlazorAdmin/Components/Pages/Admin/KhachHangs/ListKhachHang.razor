@@ -1,108 +1,161 @@
 @page "/KhachHang"
 @rendermode InteractiveServer
-@layout MainLayout;
-@using Data.Models;
-@using BlazorAdmin.Service;
+
+@using Data.Models
+@using BlazorAdmin.Service
 @using BlazorAdmin.Service.IService
-@inject IKhachHangService service;
-@inject NavigationManager manager;
-@inject IJSRuntime JS;
+@inject IKhachHangService service
+@inject NavigationManager manager
+@inject IJSRuntime JS
+<link href="/css/site.css" rel="stylesheet" />
 
-<h3>Danh Sách Khách Hàng</h3>
-@{
-	int stt = 1;
-}
-<button class="btn btn-primary" @onclick="NavigateToCreate">Tạo mới +</button>
+<div class="container mt-5">
+    <h4 class="mb-3">👥 Danh sách khách hàng</h4>
 
-<table class="table">
-	<thead>
-		<tr>
-			<td>STT</td>
-			<td>HoTen</td>
-			<td>Số điện thoại</td>
-			<td>Email</td>
-			<td>Ngày sinh</td>
-			<td>Ngày tạo</td>
-			<td>Ngày cập nhật cuối</td>
-			<td>Trạng Thái</td>
-			<td>Hanh Dong</td>
-		</tr>
-	</thead>
-	<tbody>
-		@foreach (var item in khachHangs)
-		{
-			<tr>
-				<td>@stt</td>
-				<td>@item.HoTen</td>
-				<td>@item.SoDienThoai</td>
-				<td>@item.Email</td>
-				<td>@item.NgaySinh.ToString("dd/MM/yyyy")</td>
-				<td>@item.NgayTao.ToString("dd/MM/yyyy")</td>
-				<td>@item.NgayCapNhatCuoiCung.ToString("dd/MM/yyyy")</td>
-				<td>
-					<button class="btn btn-sm @(item.TrangThai ? "btn-success" : "btn-danger") me-2"
-							@onclick="() => ToggleTrangThai(item.KhachHangId)">
-						🔄
-					</button>
-					<span>@(item.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")</span>
-				</td>
-				<td>
-					<button class="btn btn-primary" @onclick="() => NavigateToEdit(item.KhachHangId)">Edit</button>
-					<button class="btn btn-danger" @onclick="() => DeleteKhachHangAsync(item.KhachHangId)">Delete</button>
-				</td>
-			</tr>
-			stt++;
-		}
-	</tbody>
-</table>
+    <div class="card shadow-sm p-4">
+        <!-- Tìm kiếm & nút -->
+        <div class="d-flex justify-content-between mb-3">
+            <div class="input-group rounded shadow-sm" style="max-width: 500px; border: 1px solid #ced4da;">
+                <span class="input-group-text bg-white border-0">
+                    <i class="bi bi-search text-secondary"></i>
+                </span>
+                <input type="text"
+                       class="form-control border-0 shadow-none"
+                       placeholder="🔍 Nhập tên khách hàng để tìm kiếm..."
+                       @bind="searchKeyword"
+                       @bind:event="oninput"
+                       style="font-size: 1rem;" />
+                <button class="btn btn-outline-primary rounded-end" @onclick="Search" type="button">
+                    <i class="bi bi-arrow-right-circle me-1"></i> Tìm
+                </button>
+            </div>
+            <button class="btn btn-outline-primary" @onclick="NavigateToCreate">➕ Tạo mới</button>
+        </div>
+
+        <!-- Bảng dữ liệu -->
+        <table class="table table-bordered table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 60px;">STT</th>
+                    <th>Họ tên</th>
+                    <th>Số điện thoại</th>
+                    <th>Email</th>
+                    <th>Ngày sinh</th>
+                    <th>Ngày tạo</th>
+                    <th>Ngày cập nhật</th>
+                    <th>Trạng thái</th>
+                    <th style="width: 120px;">Chức năng</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!khachHangs.Any())
+                {
+                    <tr>
+                        <td colspan="9" class="text-center text-muted">Không tìm thấy khách hàng nào.</td>
+                    </tr>
+                }
+                else
+                {
+                    int stt = 1;
+                    <!-- Sửa lỗi RZ1010: Xóa @{
+                    } -->
+                    @foreach (var item in khachHangs)
+                    {
+                        <tr>
+                            <td>@stt</td>
+                            <td>@item.HoTen</td>
+                            <td>@item.SoDienThoai</td>
+                            <td>@item.Email</td>
+                            <td>@item.NgaySinh.ToString("dd/MM/yyyy")</td>
+                            <td>@item.NgayTao.ToString("dd/MM/yyyy")</td>
+                            <td>@item.NgayCapNhatCuoiCung.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <i class="bi bi-arrow-repeat @(item.TrangThai ? "text-danger" : "text-success") me-2" style="cursor: pointer;" title="Chuyển trạng thái" @onclick="() => ToggleTrangThai(item.KhachHangId)"></i>
+                                <span>@(item.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")</span>
+                            </td>
+                            <td>
+                                <i class="bi bi-pencil-square text-primary me-2" style="cursor: pointer;" title="Sửa" @onclick="() => NavigateToEdit(item.KhachHangId)"></i>
+                                <i class="bi bi-trash text-danger" style="cursor: pointer;" title="Xóa" @onclick="() => DeleteKhachHangAsync(item.KhachHangId)"></i>
+                            </td>
+                        </tr>
+                        stt++;
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .input-group .form-control:focus {
+        box-shadow: none;
+    }
+
+    .btn-primary, .btn-outline-primary {
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+        .btn-primary:hover, .btn-outline-primary:hover {
+            background-color: #0b5ed7;
+            transform: translateY(-1px);
+        }
+
+    .input-group-text {
+        background-color: #f8f9fa;
+    }
+</style>
 
 @code {
-	private List<KhachHang> khachHangs;
-	protected override async Task OnInitializedAsync()
-	{
-		if (khachHangs == null)
-		{
-			khachHangs = new List<KhachHang>();
+    private List<KhachHang> khachHangs;
+    private string searchKeyword = "";
+    protected override async Task OnInitializedAsync()
+    {
+        if (khachHangs == null)
+        {
+            khachHangs = new List<KhachHang>();
+        }
+        khachHangs = await service.GetAll();
+    }
 
-		}
-		khachHangs = await service.GetAll();
-	}
+    protected void NavigateToCreate()
+    {
+        manager.NavigateTo("/AddKhachHang");
+    }
+    protected void NavigateToEdit(Guid id)
+    {
+        manager.NavigateTo($"/EditKhachHang/{id}");
+    }
 
-
-
-	protected void NavigateToCreate()
-	{
-		manager.NavigateTo("/AddKhachHang");
-	}
-	protected void NavigateToEdit(Guid id)
-	{
-		manager.NavigateTo($"/EditKhachHang/{id}");
-	}
-
-	private async Task DeleteKhachHangAsync(Guid id)
-	{
-		var deleKhacHang = await JS.InvokeAsync<bool>("confirm", $"Bạn có chắc chắn muốn xóa không?");
-		if (deleKhacHang)
-		{
-			await service.Delete(id);
-		
-			StateHasChanged();
-		}
-	}
-	private async Task ToggleTrangThai(Guid id)
-	{
-		var khachHang = khachHangs.FirstOrDefault(x => x.KhachHangId == id);
-		if (khachHang != null)
-		{
-
-			khachHang.TrangThai = !khachHang.TrangThai;
-			khachHang.NgayCapNhatCuoiCung = DateTime.Now;
-
-
-			await service.Update(khachHang);
-			StateHasChanged();
-		}
-	}
-
-
+    private async Task DeleteKhachHangAsync(Guid id)
+    {
+        var deleKhacHang = await JS.InvokeAsync<bool>("confirm", $"Bạn có chắc chắn muốn xóa không?");
+        if (deleKhacHang)
+        {
+            await service.Delete(id);
+            khachHangs = await service.GetAll();
+            StateHasChanged();
+        }
+    }
+    private async Task ToggleTrangThai(Guid id)
+    {
+        var khachHang = khachHangs.FirstOrDefault(x => x.KhachHangId == id);
+        if (khachHang != null)
+        {
+            khachHang.TrangThai = !khachHang.TrangThai;
+            khachHang.NgayCapNhatCuoiCung = DateTime.Now;
+            await service.Update(khachHang);
+            StateHasChanged();
+        }
+    }
+    private async Task Search()
+    {
+        if (string.IsNullOrWhiteSpace(searchKeyword))
+        {
+            khachHangs = await service.GetAll();
+        }
+        else
+        {
+            khachHangs = await service.SearchKhachHangAsync(searchKeyword);
+        }
+    }
 }

@@ -2,16 +2,14 @@
 
 using API.IService;
 using BlazorAdmin.Components;
+using BlazorAdmin.Service.IService;
 using BlazorAdmin.Service;
 using BlazorAdmin.Service.IService;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Http; 
-using Microsoft.AspNetCore.Identity; 
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddBlazorBootstrap();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -82,17 +80,38 @@ builder.Services.AddHttpClient("giay", client =>
 {
     client.BaseAddress = new Uri(url); // thay đổi tùy theo API của bạn
 });
+
+builder.Services.AddHttpClient<IVoucherService, VoucherService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7246"); // đúng base URL API
+});
+builder.Services.AddHttpClient<IGiamGiaService, GiamGiaService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7246/"); // hoặc địa chỉ backend của bạn
+});
+builder.Services.AddHttpClient<IKichCoService, KichCoService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7246/"); // hoặc địa chỉ backend của bạn
+});
+builder.Services.AddHttpClient("giay", client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7246/"); // thay đổi tùy theo API của bạn
+});
 builder.Services.AddHttpClient<IMauSacService, MauSacService>(client =>
 {
-    client.BaseAddress = new Uri(url);
+    client.BaseAddress = new Uri("https://localhost:7246/");
 });
-builder.Services.AddHttpClient<IAnhService, AnhService>(client =>
+builder.Services.AddHttpClient<IGiayService, GiayService>(client =>
 {
-    client.BaseAddress = new Uri(url); // Đảm bảo đúng địa chỉ API backend
+    client.BaseAddress = new Uri("https://localhost:7246/");
 });
 builder.Services.AddHttpClient<IGiayChiTietService, GiayChiTietService>(client =>
 {
-    client.BaseAddress = new Uri(url); 
+    client.BaseAddress = new Uri("https://localhost:7246/");
+});
+builder.Services.AddHttpClient<IAnhService, AnhService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7246/"); // Đảm bảo đúng địa chỉ API backend
 });
 
 
@@ -106,12 +125,16 @@ builder.Services.AddScoped<IGiamGiaService, GiamGiaService>();
 builder.Services.AddScoped<IGiayChiTietService, GiayChiTietService>();
 builder.Services.AddScoped<IGiayService, GiayService>();
 builder.Services.AddScoped<IHoaDonService, HoaDonService>();
-builder.Services.AddScoped<IKichCoService, KichCoService>();
 builder.Services.AddScoped<ITheLoaiGiayService, TheLoaiGiayService>();
 builder.Services.AddScoped<IThuongHieuService, ThuongHieuService>();
 builder.Services.AddScoped<IVoucherService, VoucherService>();
 builder.Services.AddScoped<ITaiKhoanService, TaiKhoanService>();
+builder.Services.AddScoped<IKieuDangService, KieuDangService>();
+builder.Services.AddScoped<IMauSacService, MauSacService>();
+builder.Services.AddScoped<IKichCoService, KichCoService>();
 builder.Services.AddScoped<IKhachHangService, KhachHangService>();
+builder.Services.AddScoped<IReturnService, ReturnService>();
+builder.Services.AddScoped<IThongBaoService, ThongBaoService>();
 
 var app = builder.Build();
 

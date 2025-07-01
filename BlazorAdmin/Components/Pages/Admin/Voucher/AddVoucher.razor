@@ -1,106 +1,82 @@
 ﻿@page "/Admin/AddVoucher"
 @rendermode InteractiveServer
-@inject IVoucherService service
+
+@using Data.Models
+@using BlazorAdmin.Service.IService
 @using System.ComponentModel.DataAnnotations
-@using API.Models.DTO
-@inject ITaiKhoanService taiKhoanService
+
+@inject IVoucherService service
 @inject NavigationManager manager
-<h3>AddVoucher</h3>
-<EditForm Model="Input" OnValidSubmit="SubmitFormCreate" FormName="AddVoucher">
+
+<h3>Thêm Voucher mới</h3>
+
+<EditForm Model="Input" OnValidSubmit="SubmitFormCreate">
     <DataAnnotationsValidator />
     <ValidationSummary />
+
     <div class="mb-3">
-        <label for="TenVoucher" class="form-label">Tên Voucher:</label>
-        <InputText id="tenvoucher" class="form-control" @bind-Value="Input.TenVoucher" />
-    </div>
-    <div class="mb-3">
-        <label for="ngaybatdau" class="form-label">Ngày bắt đầu:</label>
-        <InputDate id="ngaybatdau" class="form-control" @bind-Value="Input.NgayBatDau" />
-    </div>
-    <div class="mb-3">
-        <label for="ngayketthuc" class="form-label">Ngày kết thúc:</label>
-        <InputDate id="ngayketthuc" class="form-control" @bind-Value="Input.NgayKetThuc" />
-    </div>
-    <div class="mb-3">
-        <label for="phantramgiam" class="form-label">Phần trăm giảm:</label>
-        <InputNumber id="phantramgiam" class="form-control" @bind-Value="Input.PhanTram" />
+        <label class="form-label">Tên Voucher:</label>
+        <InputText class="form-control" @bind-Value="Input.TenVoucher" />
     </div>
 
     <div class="mb-3">
-        <label for="soluong" class="form-label">Số lượng:</label>
-        <InputNumber id="soluong" class="form-control" @bind-Value="Input.SoLuong" />
+        <label class="form-label">Ngày bắt đầu:</label>
+        <InputDate class="form-control" @bind-Value="Input.NgayBatDau" />
     </div>
 
-    <button type="submit" class="btn btn-primary">Thêm</button>
+    <div class="mb-3">
+        <label class="form-label">Ngày kết thúc:</label>
+        <InputDate class="form-control" @bind-Value="Input.NgayKetThuc" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Phần trăm giảm:</label>
+        <InputNumber class="form-control" @bind-Value="Input.PhanTram" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Số lượng:</label>
+        <InputNumber class="form-control" @bind-Value="Input.SoLuong" />
+    </div>
+
+    <button type="submit" class="btn btn-success">Thêm mới</button>
 </EditForm>
+
 @code {
-
-    [SupplyParameterFromForm]
     private InputModel Input { get; set; } = new();
-
-    private Voucher std = new Voucher
-        {
-            TrangThai = true
-        };
 
     private async Task SubmitFormCreate()
     {
-        var std = new Voucher
-            {
-                VoucherId = Guid.NewGuid(),
-                TenVoucher = Input.TenVoucher,
-                NgayBatDau = Input.NgayBatDau,
-                NgayKetThuc = Input.NgayKetThuc,
-                PhanTram = Input.PhanTram,
-                TrangThai = true,
-                SoLuong = Input.SoLuong,
-                IdTaiKhoan = null // nếu bạn không chọn tài khoản
-            };
-
-        std.Validate();
-        await service.Add(std);
-
-        var danhSachTaiKhoan = await taiKhoanService.GetAllTaiKhoanAsync();
-
-        var loaiTruChucVuIds = new List<Guid>
-    {
-        Guid.Parse("11111111-1111-1111-1111-111111111111"), // Admin
-        Guid.Parse("22222222-2222-2222-2222-222222222222")  // Nhân viên
-    };
-
-        var taiKhoanCanApDung = danhSachTaiKhoan
-            .Where(tk => tk.NhanVien != null
-                         && tk.NhanVien.ChucVuId.HasValue
-                         && !loaiTruChucVuIds.Contains(tk.NhanVien.ChucVuId.Value))
-            .ToList();
-
-        foreach (var tk in taiKhoanCanApDung)
+        var newVoucher = new Voucher
         {
-            Console.WriteLine($"Gán voucher cho tài khoản: {tk.Username}");
-        }
+            VoucherId = Guid.NewGuid(),
+            TenVoucher = Input.TenVoucher,
+            NgayBatDau = Input.NgayBatDau,
+            NgayKetThuc = Input.NgayKetThuc,
+            PhanTram = Input.PhanTram,
+            TrangThai = true,
+            SoLuong = Input.SoLuong
+        };
 
+        await service.Add(newVoucher);
         manager.NavigateTo("/Admin/voucher");
     }
 
-
     private sealed class InputModel
     {
-        [Required(ErrorMessage = "Chưa nhập tên voucher")]
-        [Display(Name = "")]
+        [Required(ErrorMessage = "Tên voucher không được bỏ trống")]
         public string TenVoucher { get; set; } = string.Empty;
 
-        [Required]
-        public DateTime NgayBatDau { get; set; }
+        [Required(ErrorMessage = "Vui lòng chọn ngày bắt đầu")]
+        public DateTime NgayBatDau { get; set; } = DateTime.Today;
 
-        [Required]
-        public DateTime NgayKetThuc { get; set; }
+        [Required(ErrorMessage = "Vui lòng chọn ngày kết thúc")]
+        public DateTime NgayKetThuc { get; set; } = DateTime.Today.AddDays(7);
 
-        [Range(0, 100)]
+        [Range(0, 100, ErrorMessage = "Phần trăm giảm phải từ 0 đến 100")]
         public float PhanTram { get; set; }
 
+        [Range(1, int.MaxValue, ErrorMessage = "Số lượng phải lớn hơn 0")]
         public int SoLuong { get; set; }
     }
-
 }
-
-

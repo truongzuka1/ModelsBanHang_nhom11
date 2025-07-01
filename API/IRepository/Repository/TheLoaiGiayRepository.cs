@@ -1,8 +1,8 @@
-﻿using API.IRepository;
+﻿using Data.IRepository;
 using Data.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace API.Repository
+namespace Data.Repository
 {
     public class TheLoaiGiayRepository : ITheLoaiGiayRepository
     {
@@ -21,7 +21,7 @@ namespace API.Repository
         public async Task<TheLoaiGiay> GetByIdAsync(Guid id)
         {
             return await _context.TheLoaiGiays
-                .Include(t => t.GiayChiTiets)
+                .Include(t => t.Giays)
                 .FirstOrDefaultAsync(t => t.TheLoaiGiayId == id);
         }
 
@@ -55,13 +55,20 @@ namespace API.Repository
         }
 
         // (Tuỳ chọn) Lấy thể loại của một giày chi tiết
-        public async Task<TheLoaiGiay> GetTheLoaiByGiayChiTietIdAsync(Guid giayChiTietId)
+        public async Task<TheLoaiGiay> GetTheLoaiByGiayChiTietIdAsync(Guid giayId)
         {
-            var giayChiTiet = await _context.GiayChiTiets
+            var giay = await _context.Giays
                 .Include(g => g.TheLoaiGiay)
-                .FirstOrDefaultAsync(g => g.GiayChiTietId == giayChiTietId);
+                .FirstOrDefaultAsync(g => g.GiayId == giayId);
 
-            return giayChiTiet?.TheLoaiGiay;
+            return giay?.TheLoaiGiay;
         }
+        public async Task<IEnumerable<TheLoaiGiay>> SearchByNameAsync(string keyword)
+        {
+            return await _context.TheLoaiGiays
+                .Where(t => t.TenTheLoai.Contains(keyword))
+                .ToListAsync();
+        }
+
     }
 }

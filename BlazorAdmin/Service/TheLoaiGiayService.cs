@@ -1,7 +1,7 @@
-﻿using API.IService;
+﻿
+using API.Models.DTO;
 using BlazorAdmin.Service.IService;
-using Data.Models;
-using System.Net.Http.Json;
+
 
 namespace BlazorAdmin.Service
 {
@@ -9,43 +9,48 @@ namespace BlazorAdmin.Service
     {
         private readonly HttpClient _httpClient;
 
-        public TheLoaiGiayService(IHttpClientFactory httpClientFactory)
+        public TheLoaiGiayService(HttpClient httpClient)
         {
-            _httpClient = httpClientFactory.CreateClient("theloaigiay");
+            _httpClient = httpClient;
         }
 
-        public async Task<IEnumerable<TheLoaiGiay>> GetAllAsync()
+        public async Task<IEnumerable<TheLoaiGiayDTO>> GetAllAsync()
         {
-            return await _httpClient.GetFromJsonAsync<IEnumerable<TheLoaiGiay>>("api/TheLoaiGiay")
-                   ?? new List<TheLoaiGiay>();
+            return await _httpClient.GetFromJsonAsync<IEnumerable<TheLoaiGiayDTO>>("api/TheLoaiGiay");
         }
 
-        public async Task<TheLoaiGiay> GetByIdAsync(Guid id)
+        public async Task<TheLoaiGiayDTO> GetByIdAsync(Guid id)
         {
-            return await _httpClient.GetFromJsonAsync<TheLoaiGiay>($"api/TheLoaiGiay/{id}");
+            return await _httpClient.GetFromJsonAsync<TheLoaiGiayDTO>($"api/TheLoaiGiay/{id}");
         }
-        public async Task<TheLoaiGiay> AddAsync(TheLoaiGiay theLoaiGiay)
+
+        public async Task<TheLoaiGiayDTO> AddAsync(TheLoaiGiayDTO dto)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/TheLoaiGiay", theLoaiGiay);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<TheLoaiGiay>();
+            var response = await _httpClient.PostAsJsonAsync("api/TheLoaiGiay", dto);
+            if (!response.IsSuccessStatusCode) return null;
+            return await response.Content.ReadFromJsonAsync<TheLoaiGiayDTO>();
         }
-        public async Task<TheLoaiGiay> UpdateAsync(TheLoaiGiay theLoaiGiay)
+
+        public async Task<TheLoaiGiayDTO> UpdateAsync(TheLoaiGiayDTO dto)
         {
-            var response = await _httpClient.PutAsJsonAsync($"api/TheLoaiGiay/{theLoaiGiay.TheLoaiGiayId}", theLoaiGiay);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<TheLoaiGiay>();
+            var response = await _httpClient.PutAsJsonAsync($"api/TheLoaiGiay/{dto.TheLoaiGiayId}", dto);
+            if (!response.IsSuccessStatusCode) return null;
+            return await response.Content.ReadFromJsonAsync<TheLoaiGiayDTO>();
         }
+
         public async Task<bool> DeleteAsync(Guid id)
         {
             var response = await _httpClient.DeleteAsync($"api/TheLoaiGiay/{id}");
-            response.EnsureSuccessStatusCode();
-            return true;
+            return response.IsSuccessStatusCode;
         }
 
-        public async Task<TheLoaiGiay> GetTheLoaiByGiayChiTietIdAsync(Guid giayChiTietId)
+        public async Task<IEnumerable<TheLoaiGiayDTO>> SearchByNameAsync(string keyword)
         {
-            return await _httpClient.GetFromJsonAsync<TheLoaiGiay>($"api/TheLoaiGiay/giaychitiet/{giayChiTietId}");
+            if (string.IsNullOrWhiteSpace(keyword))
+                return Enumerable.Empty<TheLoaiGiayDTO>();
+
+            return await _httpClient.GetFromJsonAsync<IEnumerable<TheLoaiGiayDTO>>(
+                $"api/TheLoaiGiay/search?keyword={Uri.EscapeDataString(keyword)}");
         }
     }
 }

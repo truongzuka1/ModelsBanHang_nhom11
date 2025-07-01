@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ namespace Data.Models
 {
     public class Anh
     {
+        [Key]
         public Guid AnhId { get; set; }
 		public Guid  GiayChiTietId { get; set; }
 		public string DuongDan { get; set; }

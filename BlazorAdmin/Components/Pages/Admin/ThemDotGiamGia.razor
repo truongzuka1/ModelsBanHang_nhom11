@@ -1,0 +1,115 @@
+﻿@page "/ThemDotGiamGia"
+@page "/ThemDotGiamGia/{Id:guid}"
+@using Data.Models
+@using BlazorAdmin.Service.IService
+@inject IGiamGiaService GiamGiaService
+@inject NavigationManager Navigation
+
+@rendermode InteractiveServer
+
+<h3 class="mb-3">
+    <i class="bi bi-plus-circle"></i> @(Id.HasValue ? "Chỉnh sửa Đợt Giảm Giá" : "Thêm Đợt Giảm Giá")
+</h3>
+
+<div class="card shadow-sm p-4">
+    <EditForm Model="dot" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger">@errorMessage</div>
+        }
+
+        <div class="mb-3">
+            <label class="form-label">Tên đợt</label>
+            <InputText class="form-control" @bind-Value="dot.TenGiamGia" />
+            <ValidationMessage For="@(() => dot.TenGiamGia)" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Giảm (%)</label>
+            <InputNumber class="form-control" @bind-Value="dot.PhanTramKhuyenMai" />
+            <ValidationMessage For="@(() => dot.PhanTramKhuyenMai)" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Thời gian áp dụng</label>
+            <div class="d-flex gap-2">
+                <div class="flex-fill">
+                    <InputDate class="form-control" @bind-Value="dot.NgayBatDau" />
+                    <ValidationMessage For="@(() => dot.NgayBatDau)" />
+                </div>
+                <div class="flex-fill">
+                    <InputDate class="form-control" @bind-Value="dot.NgayKetThuc" />
+                    <ValidationMessage For="@(() => dot.NgayKetThuc)" />
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-3">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Lưu
+            </button>
+            <button type="button" class="btn btn-secondary ms-2" @onclick='() => Navigation.NavigateTo("/DotGiamGia")'>
+                <i class="bi bi-arrow-left-circle"></i> Quay lại
+            </button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter]
+    public Guid? Id { get; set; }
+
+    private GiamGia dot = new();
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id.HasValue)
+        {
+            var existing = await GiamGiaService.GetByIdAsync(Id.Value);
+            if (existing != null)
+            {
+                dot = existing;
+            }
+        }
+        else
+        {
+            dot = new GiamGia
+            {
+                NgayBatDau = DateTime.Today,
+                NgayKetThuc = DateTime.Today.AddDays(7),
+                TrangThai = true,
+                SanPhamKhuyenMai = "Tất cả sản phẩm"
+            };
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        errorMessage = null;
+
+        HttpResponseMessage response;
+
+        if (Id.HasValue)
+        {
+            response = await GiamGiaService.UpdateAsyncReturnResponse(dot);
+        }
+        else
+        {
+            response = await GiamGiaService.AddAsync(dot);
+        }
+
+        if (response.IsSuccessStatusCode)
+        {
+            Navigation.NavigateTo("/DotGiamGia");
+        }
+        else
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            errorMessage = $"Không lưu được: {content}";
+        }
+    }
+}

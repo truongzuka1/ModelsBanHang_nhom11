@@ -4,7 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using Data.Models;
+using System.Linq;
+using API.IRepository; // 👈 Thêm using này để dùng _thongBaoRepository
+
 namespace API.Controllers
 {
     [Route("api/[controller]")]
@@ -12,10 +14,12 @@ namespace API.Controllers
     public class KhachHangController : ControllerBase
     {
         private readonly DbContextApp _context;
+        private readonly IThongBaoRepository _thongBaoRepository; // 👈 Inject repo
 
-        public KhachHangController(DbContextApp context)
+        public KhachHangController(DbContextApp context, IThongBaoRepository thongBaoRepository)
         {
             _context = context;
+            _thongBaoRepository = thongBaoRepository;
         }
 
         // GET: api/KhachHang
@@ -60,6 +64,9 @@ namespace API.Controllers
             _context.KhachHangs.Add(khachHang);
             await _context.SaveChangesAsync();
 
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"👤 Thêm khách hàng mới: {khachHang.HoTen}");
+
             return CreatedAtAction(nameof(GetKhachHang), new { id = khachHang.KhachHangId }, khachHang);
         }
 
@@ -88,24 +95,37 @@ namespace API.Controllers
             khachHangExist.NgayCapNhatCuoiCung = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"✏️ Cập nhật khách hàng: {khachHang.HoTen}");
+
             return NoContent();
         }
 
-        // DELETE: api/KhachHang/{id}
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteKhachHang(Guid id)
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<KhachHang>>> SearchKhachHang(string keyword)
         {
-            var khachHang = await _context.KhachHangs.FindAsync(id);
-            if (khachHang == null)
+            if (string.IsNullOrWhiteSpace(keyword))
             {
-                return NotFound();
+                return Ok(await _context.KhachHangs
+                    .Include(kh => kh.TaiKhoan)
+                    .Include(kh => kh.HoaDons)
+                    .Include(kh => kh.GioHangs)
+                    .Include(kh => kh.DiaChiKhachHangs)
+                    .ToListAsync());
             }
 
-            _context.KhachHangs.Remove(khachHang);
-            await _context.SaveChangesAsync();
+            keyword = keyword.ToLower();
 
-            return NoContent();
+            var result = await _context.KhachHangs
+                .Include(kh => kh.TaiKhoan)
+                .Include(kh => kh.HoaDons)
+                .Include(kh => kh.GioHangs)
+                .Include(kh => kh.DiaChiKhachHangs)
+                .Where(kh => kh.HoTen.ToLower().Contains(keyword))
+                .ToListAsync();
+
+            return Ok(result);
         }
     }
 }
-

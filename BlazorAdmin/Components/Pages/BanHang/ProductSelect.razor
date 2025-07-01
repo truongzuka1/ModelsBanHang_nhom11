@@ -48,7 +48,9 @@
 
     protected override async Task OnInitializedAsync()
     {
+
         Products = await GiayChiTietService.GetAllAsync();
+
     }
 
     private void ChangeQty(GiayChiTietDTO g, int delta)
