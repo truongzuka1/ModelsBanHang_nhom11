@@ -1,24 +1,27 @@
-﻿@using Data.Models
-@inject IGiayChiTietService GiayChiTietService
-
+﻿@inject IGiayChiTietService GiayChiTietService
+@using API.Models.DTO
 @if (Visible)
 {
-    <div class="product-select-overlay"></div>
-    <div class="product-select-box">
-        <div class="product-select-list">
+    <div class="product-select-list">
+        @if (Products.Count == 0)
+        {
+            <div class="empty-notice">Không có sản phẩm nào để hiển thị.</div>
+        }
+        else
+        {
             @foreach (var product in Products)
             {
                 <div class="product-select-item">
-                    <img src="@product.AnhGiay" class="order-img" alt="@product.Giay?.TenGiay" />
+                    <img src="@product.AnhGiay" class="order-img" alt="@product.TenGiay" />
                     <div class="item-info">
-                        <div class="order-name">@product.Giay?.TenGiay</div>
+                        <div class="order-name">@product.TenGiay</div>
                         <div class="order-price">
                             <span class="old-price">@FormatMoney(product.Gia)</span>
                         </div>
                         <div class="order-size">
                             Size:
-                            <select @bind="@product.KichCo">
-                                <option value="@product.KichCo?.KichCoId">@product.KichCo?.ToString()</option>
+                            <select @bind="@product.size">
+                                <option value="@product.size">@product.size</option>
                             </select>
                         </div>
                     </div>
@@ -31,37 +34,38 @@
                     <button class="add-to-order" @onclick="@(() => AddToOrder(product))">Thêm vào đơn</button>
                 </div>
             }
-        </div>
-        <button class="close-product-select" @onclick="Close">Đóng</button>
+        }
     </div>
+
 }
 
 @code {
     [Parameter] public bool Visible { get; set; }
-    [Parameter] public EventCallback<GioHangChiTiet> OnAddProduct { get; set; }
+    [Parameter] public EventCallback<GiayChiTietDTO> OnAddProduct { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
 
-    private List<GiayChiTiet> Products = new();
+    private List<GiayChiTietDTO> Products = new();
 
     protected override async Task OnInitializedAsync()
     {
-        var all = await GiayChiTietService.GetAllAsync();
+
+        Products = await GiayChiTietService.GetAllAsync();
 
     }
 
-    private void ChangeQty(GiayChiTiet g, int delta)
+    private void ChangeQty(GiayChiTietDTO g, int delta)
     {
         g.SoLuongCon += delta;
         if (g.SoLuongCon < 1) g.SoLuongCon = 1;
     }
 
-    private async Task AddToOrder(GiayChiTiet g)
+    private async Task AddToOrder(GiayChiTietDTO g)
     {
-        var item = new GioHangChiTiet
+        var item = new GiayChiTietDTO
         {
             GiayId = g.GiayId,
-            Gia = (decimal)g.Gia,
-            SoLuongSanPham = g.SoLuongCon,
+            Gia = (float)g.Gia,
+            SoLuongCon = g.SoLuongCon,
             TrangThai = true
         };
         await OnAddProduct.InvokeAsync(item);
