@@ -119,6 +119,7 @@ builder.Services.AddScoped<IHoaDonChiTietService, HoaDonChiTietService>();
 builder.Services.AddScoped<INhanVienService, NhanVienService>();
 builder.Services.AddScoped<IAnhService, AnhService>();
 builder.Services.AddScoped<IChatLieuService, ChatLieuService>();
+builder.Services.AddScoped<IDiaChiKhachHangService, DiaChiKhachHangService>();
 builder.Services.AddScoped<IChiTietHoaDonService, ChiTietHoaDonService>();
 builder.Services.AddScoped<IDeGiayService, DeGiayService>();
 builder.Services.AddScoped<IGiamGiaService, GiamGiaService>();

@@ -4,10 +4,8 @@ using API.IService;
 using BlazorKhachHang.Components;
 using BlazorKhachHang.Service.IService;
 using BlazorKhachHang.Service;
-using BlazorKhachHang.Service.IService;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using BlazorAdmin.Service.IService;
-using BlazorAdmin.Service;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -116,7 +114,7 @@ builder.Services.AddHttpClient<IAnhService, AnhService>(client =>
     client.BaseAddress = new Uri("https://localhost:7246/"); // Đảm bảo đúng địa chỉ API backend
 });
 
-
+builder.Services.AddScoped<IDiaChiKhachHangService, DiaChiKhachHangService>();
 builder.Services.AddScoped<IHoaDonChiTietService, HoaDonChiTietService>();
 builder.Services.AddScoped<INhanVienService, NhanVienService>();
 builder.Services.AddScoped<IAnhService, AnhService>();
