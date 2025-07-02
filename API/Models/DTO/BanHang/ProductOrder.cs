@@ -2,7 +2,7 @@
 {
     public class ProductOrder
     {
-        public Guid GiayChiTietId { get; set; }
+        public Guid GiayId { get; set; }
         public string TenGiay { get; set; } = "";
         public string? Size { get; set; }
         public string? Img { get; set; }

@@ -12,10 +12,10 @@ namespace BlazorAdmin.Service
             _httpClient = httpClient;
         }
 
-        public async Task Add(HoaDon hoaDon)
+        public async Task<bool> Add(HoaDon hoaDon)
         {
             var response = await _httpClient.PostAsJsonAsync("api/HoaDon", hoaDon);
-            response.EnsureSuccessStatusCode();
+            return response.IsSuccessStatusCode;
         }
 
         public async Task<List<HoaDon>> GetAll() =>
