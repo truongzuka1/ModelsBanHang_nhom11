@@ -1,5 +1,5 @@
-﻿using System.Net.Http.Json;
-using API.Models.DTO;
+﻿using API.Models.DTO;
+using BlazorKhachHang.Service.IService;
 
 namespace BlazorKhachHang.Service
 {

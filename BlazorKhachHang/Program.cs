@@ -6,6 +6,8 @@ using BlazorKhachHang.Service.IService;
 using BlazorKhachHang.Service;
 using BlazorKhachHang.Service.IService;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using BlazorAdmin.Service.IService;
+using BlazorAdmin.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 

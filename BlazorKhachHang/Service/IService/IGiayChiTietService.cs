@@ -1,5 +1,4 @@
 ﻿using API.Models.DTO;
-using static BlazorAdmin.Components.Pages.Admin.SanPham.SanPhamChiTiet;
 
 namespace BlazorKhachHang.Service.IService
 {

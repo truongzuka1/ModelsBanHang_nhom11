@@ -1,7 +1,6 @@
 ﻿using API.Models.DTO;
 using BlazorKhachHang.Service.IService;
 using System.Net.Http.Json;
-using static BlazorAdmin.Components.Pages.Admin.SanPham.SanPhamChiTiet;
 
 namespace BlazorKhachHang.Service
 {
