@@ -1,10 +1,10 @@
 ﻿using Data.Models;
-using BlazorAdmin.Service.IService;
-using BlazorAdmin.Service.IService;
+using BlazorKhachHang.Service.IService;
+using BlazorKhachHang.Service.IService;
 using Data.Models;
 using System.Net.Http;
 
-namespace BlazorAdmin.Service
+namespace BlazorKhachHang.Service
 {
     /// hahahaha 
     public class NhanVienService : INhanVienService

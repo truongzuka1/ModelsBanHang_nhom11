@@ -1,9 +1,9 @@
 ﻿using API.Models.DTO;
-using BlazorAdmin.Service.IService;
+using BlazorKhachHang.Service.IService;
 using System.Net.Http.Json;
 using static BlazorAdmin.Components.Pages.Admin.SanPham.SanPhamChiTiet;
 
-namespace BlazorAdmin.Service
+namespace BlazorKhachHang.Service
 {
     public class GiayChiTietService : IGiayChiTietService
     {

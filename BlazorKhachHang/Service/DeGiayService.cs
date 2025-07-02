@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Json;
 using API.Models.DTO;
 
-namespace BlazorAdmin.Service
+namespace BlazorKhachHang.Service
 {
     public class DeGiayService : IDeGiayService
     {

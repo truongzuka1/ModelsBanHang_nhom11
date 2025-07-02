@@ -1,8 +1,8 @@
 ﻿using Data.Models;
-using BlazorAdmin.Service.IService;
-using BlazorAdmin.Components.Pages;
+using BlazorKhachHang.Service.IService;
+using BlazorKhachHang.Components.Pages;
 
-namespace BlazorAdmin.Service
+namespace BlazorKhachHang.Service
 {
     // hahaha
     public class KhachHangService : IKhachHangService

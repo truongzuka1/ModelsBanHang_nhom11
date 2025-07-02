@@ -2,7 +2,7 @@
 using API.Models.DTO;
 using Data.Models;
 
-namespace BlazorAdmin.Service.IService
+namespace BlazorKhachHang.Service.IService
 {
     public interface ITaiKhoanService
     {

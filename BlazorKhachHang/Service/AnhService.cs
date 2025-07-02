@@ -1,11 +1,11 @@
 ﻿using API.IService;
 using API.Models.DTO;
-using BlazorAdmin.Service.IService;
+using BlazorKhachHang.Service.IService;
 using Microsoft.AspNetCore.Components.Forms;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
-namespace BlazorAdmin.Service
+namespace BlazorKhachHang.Service
 {
     public class AnhService : IAnhService
     {

@@ -1,9 +1,9 @@
 ﻿
 using API.Models.DTO;
-using BlazorAdmin.Service.IService;
+using BlazorKhachHang.Service.IService;
 
 
-namespace BlazorAdmin.Service
+namespace BlazorKhachHang.Service
 {
     public class TheLoaiGiayService : ITheLoaiGiayService
     {

@@ -1,7 +1,7 @@
 ﻿using API.Models.DTO;
 using static BlazorAdmin.Components.Pages.Admin.SanPham.SanPhamChiTiet;
 
-namespace BlazorAdmin.Service.IService
+namespace BlazorKhachHang.Service.IService
 {
     public interface IGiayChiTietService
     {

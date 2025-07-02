@@ -1,5 +1,5 @@
 ﻿using API.Models.DTO.TraHang;
-using BlazorAdmin.Service.IService;
+using BlazorKhachHang.Service.IService;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BlazorAdmin.Service
+namespace BlazorKhachHang.Service
 {
     public class ReturnService : IReturnService
     {
