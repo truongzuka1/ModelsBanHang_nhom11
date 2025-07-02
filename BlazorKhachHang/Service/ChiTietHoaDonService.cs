@@ -1,8 +1,8 @@
-﻿using BlazorAdmin.Service.IService;
+﻿using BlazorKhachHang.Service.IService;
 using Data.Models;
 using System.Net.Http.Json;
 
-namespace BlazorAdmin.Service
+namespace BlazorKhachHang.Service
 {
     public class ChiTietHoaDonService : IChiTietHoaDonService
     {

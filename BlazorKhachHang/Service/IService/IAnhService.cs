@@ -2,7 +2,7 @@
 using Data.Models;
 using Microsoft.AspNetCore.Components.Forms;
 
-namespace BlazorAdmin.Service.IService
+namespace BlazorKhachHang.Service.IService
 {
     public interface IAnhService
     {

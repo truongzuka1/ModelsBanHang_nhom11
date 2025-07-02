@@ -1,7 +1,7 @@
-﻿using BlazorAdmin.Service.IService;
+﻿using BlazorKhachHang.Service.IService;
 using Data.Models;
 
-namespace BlazorAdmin.Service
+namespace BlazorKhachHang.Service
 {
     public class HoaDonChiTietService : IHoaDonChiTietService
     {

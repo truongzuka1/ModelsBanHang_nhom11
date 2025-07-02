@@ -1,8 +1,8 @@
 ﻿using API.Models.DTO;
-using BlazorAdmin.Service.IService;
+using BlazorKhachHang.Service.IService;
 using System.Net.Http.Json;
 
-namespace BlazorAdmin.Service
+namespace BlazorKhachHang.Service
 {
     public class GiayService : IGiayService
     {

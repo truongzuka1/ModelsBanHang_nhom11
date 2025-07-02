@@ -1,6 +1,6 @@
 ﻿using API.Models.DTO;
 
-namespace BlazorAdmin.Service.IService
+namespace BlazorKhachHang.Service.IService
 {
     public interface IThongBaoService
     {

@@ -1,6 +1,6 @@
 ﻿using System.Net.Http.Json;
 using API.Models.DTO;
-using BlazorAdmin.Service.IService;
+using BlazorKhachHang.Service.IService;
 
 public class KieuDangService : IKieuDangService
 {
