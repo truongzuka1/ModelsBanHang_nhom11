@@ -2,40 +2,45 @@
 @using API.Models.DTO
 @if (Visible)
 {
-    <div class="product-select-list">
-        @if (Products.Count == 0)
-        {
-            <div class="empty-notice">Không có sản phẩm nào để hiển thị.</div>
-        }
-        else
-        {
-            @foreach (var product in Products)
+    <div class="customer-select-overlay"></div>
+    <div class="product-select-box" >
+        <div class="product-select-list">
+            @if (Products.Count == 0)
             {
-                <div class="product-select-item">
-                    <img src="@product.AnhGiay" class="order-img" alt="@product.TenGiay" />
-                    <div class="item-info">
-                        <div class="order-name">@product.TenGiay</div>
-                        <div class="order-price">
-                            <span class="old-price">@FormatMoney(product.Gia)</span>
-                        </div>
-                        <div class="order-size">
-                            Size:
-                            <select @bind="@product.size">
-                                <option value="@product.size">@product.size</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="order-qty">
-                        <button class="decrease-btn" @onclick="@(() => ChangeQty(product, -1))">-</button>
-                        <input type="number" class="qty-input" value="@product.SoLuongCon" readonly />
-                        <button class="increase-btn" @onclick="@(() => ChangeQty(product, 1))">+</button>
-                    </div>
-                    <div class="order-total">@FormatMoney(product.Gia * product.SoLuongCon)</div>
-                    <button class="add-to-order" @onclick="@(() => AddToOrder(product))">Thêm vào đơn</button>
-                </div>
+                <div class="empty-notice">Không có sản phẩm nào để hiển thị.</div>
             }
-        }
+            else
+            {
+                @foreach (var product in Products)
+                {
+                    <div class="product-select-item">
+                        <img src="@product.AnhGiay" class="order-img" alt="@product.TenGiay" />
+                        <div class="item-info">
+                            <div class="order-name">@product.TenGiay</div>
+                            <div class="order-price">
+                                <span class="old-price">@FormatMoney(product.Gia)</span>
+                            </div>
+                            <div class="order-size">
+                                Size:
+                                <select @bind="@product.size">
+                                    <option value="@product.size">@product.size</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="order-qty">
+                            <button class="decrease-btn" @onclick="@(() => ChangeQty(product, -1))">-</button>
+                            <input type="number" class="qty-input" value="@product.SoLuongCon" readonly />
+                            <button class="increase-btn" @onclick="@(() => ChangeQty(product, 1))">+</button>
+                        </div>
+                        <div class="order-total">@FormatMoney(product.Gia * product.SoLuongCon)</div>
+                        <button class="add-to-order" @onclick="@(() => AddToOrder(product))">Thêm vào đơn</button>
+                    </div>
+                }
+            }
+        </div>
+        <button class="close-customer-select" @onclick="Close">Đóng</button>
     </div>
+    
 
 }
 
