@@ -826,9 +826,30 @@
         background: #1976d2;
     }
 
-.order-info {
-    flex: 1;
+datalist {
+    position: absolute;
+    max-height: 20em;
+    border: 0 none;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
+
+    datalist option {
+        font-size: 0.8em;
+        padding: 0.3em 1em;
+        background-color: #ccc;
+        cursor: pointer;
+    }
+
+        datalist option:hover, datalist option:focus {
+            color: #fff;
+            background-color: #036;
+            outline: 0 none;
+        }
+
+    .order-info {
+        flex: 1;
+    }
 
     .order-info label {
         font-weight: 500;
@@ -877,6 +898,7 @@
     gap: 12px;
     margin: 12px 0;
 }
+
 
 .voucher-input,
 .discount-input {
