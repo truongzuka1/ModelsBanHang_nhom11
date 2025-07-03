@@ -136,6 +136,7 @@ builder.Services.AddScoped<IKichCoService, KichCoService>();
 builder.Services.AddScoped<IKhachHangService, KhachHangService>();
 builder.Services.AddScoped<IReturnService, ReturnService>();
 builder.Services.AddScoped<IThongBaoService, ThongBaoService>();
+builder.WebHost.UseWebRoot("wwwroot");
 
 var app = builder.Build();
 

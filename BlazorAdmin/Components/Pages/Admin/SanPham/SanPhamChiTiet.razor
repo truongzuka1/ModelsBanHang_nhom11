@@ -1,197 +1,233 @@
-﻿@page "/Giay/{GiayId}"
-@inject IGiayService giayService
+﻿@page "/giay/{giayid:guid}"
 @inject IGiayChiTietService giayChiTietService
+@inject IMauSacService mauSacService
+@inject IKichCoService kichCoService
+@inject IAnhService anhService
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@using API.IService
 @using API.Models.DTO
 @using System.Globalization
-
-<h4 class="mb-3 fw-bold">Sản phẩm / Chi tiết sản phẩm</h4>
-
-<div class="card p-3 mb-4 shadow-sm">
-    <div class="row g-3">
-        <div class="col-md-4">
-            <input type="text" class="form-control" placeholder="Nhập tên giày để tìm..." @bind="searchTerm" />
-        </div>
-        <div class="col-md-8 d-flex flex-wrap gap-2 align-items-center">
-            <select class="form-select w-auto" @bind="selectedDanhMuc">
-                <option value="">Danh mục: Tất cả</option>
-                @foreach (var item in danhMucOptions)
-                {
-                    <option value="@item">@item</option>
-                }
-            </select>
-
-            <select class="form-select w-auto" @bind="selectedThuongHieu">
-                <option value="">Thương hiệu: Tất cả</option>
-                @foreach (var item in thuongHieuOptions)
-                {
-                    <option value="@item">@item</option>
-                }
-            </select>
-
-            <select class="form-select w-auto" @bind="selectedMau">
-                <option value="">Màu sắc: Tất cả</option>
-                @foreach (var item in mauOptions)
-                {
-                    <option value="@item">@item</option>
-                }
-            </select>
-
-            <select class="form-select w-auto" @bind="selectedChatLieu">
-                <option value="">Chất liệu: Tất cả</option>
-                @foreach (var item in chatLieuOptions)
-                {
-                    <option value="@item">@item</option>
-                }
-            </select>
-
-            <select class="form-select w-auto" @bind="selectedDeGiay">
-                <option value="">Đế giày: Tất cả</option>
-                @foreach (var item in deGiayOptions)
-                {
-                    <option value="@item">@item</option>
-                }
-            </select>
-
-            <select class="form-select w-auto" @bind="selectedTrangThai">
-                <option value="">Trạng thái: Tất cả</option>
-                <option value="true">Đang bán</option>
-                <option value="false">Ngừng bán</option>
-            </select>
-        </div>
-    </div>
-</div>
-
-<div class="table-responsive">
-    <table class="table table-hover table-bordered">
-        <thead class="table-light">
-            <tr>
-                <th>Ảnh</th>
-                <th>Tên giày</th>
-                <th>Thương hiệu</th>
-                <th>Loại giày</th>
-                <th>Chất liệu</th>
-                <th>Màu sắc</th>
-                <th>Size</th>
-                <th>Cân nặng</th>
-                <th>Số lượng</th>
-                <th>Đơn giá</th>
-                <th>Trạng thái</th>
-                <th>Thao tác</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in filteredList)
-            {
-                <tr>
-                    <td><img src="@item.AnhGiay" width="60" /></td>
-                    <td>@item.TenGiay</td>
-                    <td>@item.TenThuongHieu</td>
-                    <td>@item.TenTheLoaiGiay</td>
-                    <td>@item.TenChatLieu</td>
-                    <td>@item.TenMau</td>
-                    <td>@item.Size</td>
-                    <td>800g</td>
-                    <td>@item.SoLuongCon</td>
-                    <td>@item.Gia.ToString("N0", CultureInfo.InvariantCulture) đ</td>
-                    <td>
-                        @if (item.TrangThai)
-                        {
-                            <span class="badge bg-success">Đang bán</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-secondary">Ngừng bán</span>
-                        }
-                    </td>
-                    <td>
-                        <button class="btn btn-sm btn-warning">
-                            <i class="bi bi-eye"></i>
-                        </button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
-
+@using Humanizer
+@using Microsoft.AspNetCore.Components.Forms
 @code {
-    private List<GiayChiTietViewDTO> danhSach = new();
-    private string searchTerm;
-    private string selectedDanhMuc;
-    private string selectedThuongHieu;
-    private string selectedMau;
-    private string selectedChatLieu;
-    private string selectedDeGiay;
-    private string selectedTrangThai;
+    [Parameter] public Guid giayid { get; set; }
 
-    private List<string> danhMucOptions = new();
-    private List<string> thuongHieuOptions = new();
-    private List<string> mauOptions = new();
-    private List<string> chatLieuOptions = new();
-    private List<string> deGiayOptions = new();
-
-    private List<GiayChiTietViewDTO> filteredList => danhSach
-        .Where(x => string.IsNullOrWhiteSpace(searchTerm) || x.TenGiay.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
-        .Where(x => string.IsNullOrEmpty(selectedDanhMuc) || x.TenTheLoaiGiay == selectedDanhMuc)
-        .Where(x => string.IsNullOrEmpty(selectedThuongHieu) || x.TenThuongHieu == selectedThuongHieu)
-        .Where(x => string.IsNullOrEmpty(selectedMau) || x.TenMau == selectedMau)
-        .Where(x => string.IsNullOrEmpty(selectedChatLieu) || x.TenChatLieu == selectedChatLieu)
-        .Where(x => string.IsNullOrEmpty(selectedDeGiay) || x.TenDeGiay == selectedDeGiay)
-        .Where(x => string.IsNullOrEmpty(selectedTrangThai) || x.TrangThai.ToString().ToLower() == selectedTrangThai.ToLower())
-        .ToList();
+    private GiayChiTietDTO currentItem = new();
+    private List<MauSacDTO> mauSacList = new();
+    private List<KichCoDTO> kichCoList = new();
+    private List<GiayChiTietDTO> danhSachChiTiet = new();
+    private bool isEditMode = false;
 
     protected override async Task OnInitializedAsync()
     {
-        var giays = await giayService.GetAllAsync();
-        var chiTiets = await giayChiTietService.GetAllAsync();
-
-        danhSach = (from giay in giays
-                    join ct in chiTiets on giay.GiayId equals ct.GiayId
-                    select new GiayChiTietViewDTO
-                        {
-                            GiayChiTietId = ct.GiayChiTietId,
-                            GiayId = giay.GiayId,
-                            TenGiay = giay.TenGiay,
-                            TenThuongHieu = giay.TenThuongHieu,
-                            TenChatLieu = giay.TenChatLieu,
-                            TenTheLoaiGiay = giay.TenTheLoaiGiay,
-                            TenDeGiay = giay.TenDeGiay,
-                            TenKieuDang = giay.TenKieuDang,
-                            TenMau = ct.TenMau,
-                            Size = ct.size,
-                            Gia = ct.Gia,
-                            SoLuongCon = ct.SoLuongCon,
-                            MoTa = ct.MoTa,
-                            TrangThai = ct.TrangThai,
-                            AnhGiay = ct.AnhGiay,
-                            NgayTao = ct.NgayTao
-                        }).ToList();
-
-        danhMucOptions = danhSach.Select(x => x.TenTheLoaiGiay).Distinct().ToList();
-        thuongHieuOptions = danhSach.Select(x => x.TenThuongHieu).Distinct().ToList();
-        mauOptions = danhSach.Select(x => x.TenMau).Distinct().ToList();
-        chatLieuOptions = danhSach.Select(x => x.TenChatLieu).Distinct().ToList();
-        deGiayOptions = danhSach.Select(x => x.TenDeGiay).Distinct().ToList();
+        currentItem.GiayId = giayid;
+        mauSacList = (await mauSacService.GetAllAsync()).ToList();
+        kichCoList = (await kichCoService.GetAllAsync()).ToList();
+        danhSachChiTiet = (await giayChiTietService.GetByGiayIdAsync(giayid)).ToList();
     }
 
-    public class GiayChiTietViewDTO
+    private async Task HandleSave()
     {
-        public Guid GiayChiTietId { get; set; }
-        public Guid GiayId { get; set; }
-        public string TenGiay { get; set; }
-        public string? AnhGiay { get; set; }
-        public string? TenThuongHieu { get; set; }
-        public string? TenChatLieu { get; set; }
-        public string? TenTheLoaiGiay { get; set; }
-        public string? TenDeGiay { get; set; }
-        public string? TenKieuDang { get; set; }
-        public string? TenMau { get; set; }
-        public string? Size { get; set; }
-        public float Gia { get; set; }
-        public int SoLuongCon { get; set; }
-        public string? MoTa { get; set; }
-        public bool TrangThai { get; set; }
-        public DateTime NgayTao { get; set; }
+        if (isEditMode)
+        {
+            await giayChiTietService.UpdateAsync(currentItem.GiayChiTietId, currentItem);
+        }
+        else
+        {
+            await giayChiTietService.CreateAsync(currentItem);
+        }
+
+        var jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Js/sanphamchitiet.js");
+        await jsModule.InvokeVoidAsync("hideModal", "#giayChiTietModal");
+
+        danhSachChiTiet = (await giayChiTietService.GetByGiayIdAsync(giayid)).ToList();
+        StateHasChanged();
     }
+
+    private async Task UploadAnh(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file != null)
+        {
+            var stream = file.OpenReadStream(10 * 1024 * 1024); // Max 10MB
+            var memoryStream = new MemoryStream();
+            await stream.CopyToAsync(memoryStream);
+            memoryStream.Position = 0;
+
+            var formFile = new FormFile(memoryStream, 0, memoryStream.Length, file.Name, file.Name)
+                {
+                    Headers = new HeaderDictionary(),
+                    ContentType = file.ContentType
+                };
+
+            var uploadDto = new AnhUploadDTO
+                {
+                    File = formFile,
+                    TenAnh = file.Name,
+                    GiayChiTietId = currentItem.GiayChiTietId
+                };
+
+            var anh = await anhService.UploadAsync(file, file.Name, currentItem.GiayChiTietId);
+            if (anh != null)
+            {
+                currentItem.AnhGiay = anh.DuongDan;
+            }
+        }
+    }
+
+    private async Task EditItem(GiayChiTietDTO item)
+    {
+        currentItem = new GiayChiTietDTO
+            {
+                GiayChiTietId = item.GiayChiTietId,
+                GiayId = item.GiayId,
+                MauSacId = item.MauSacId,
+                KichCoId = item.KichCoId,
+                Gia = item.Gia,
+                SoLuongCon = item.SoLuongCon,
+                MoTa = item.MoTa,
+                TrangThai = item.TrangThai,
+                AnhGiay = item.AnhGiay,
+                NgayTao = item.NgayTao,
+                NgaySua = item.NgaySua
+            };
+        isEditMode = true;
+
+        var jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Js/sanphamchitiet.js");
+        await jsModule.InvokeVoidAsync("showModal", "#giayChiTietModal");
+    }
+
+    private async Task DeleteItem(Guid id)
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", "Bạn có chắc muốn xoá chi tiết này?"))
+        {
+            await giayChiTietService.DeleteAsync(id);
+            danhSachChiTiet = (await giayChiTietService.GetByGiayIdAsync(giayid)).ToList();
+        }
+    }
+    private async Task ShowAddModal()
+    {
+        currentItem = new GiayChiTietDTO { GiayId = giayid, TrangThai = true };
+        isEditMode = false;
+
+        var jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Js/sanphamchitiet.js");
+        await jsModule.InvokeVoidAsync("showModal", "#giayChiTietModal");
+    }
+
 }
+
+<script src="./Js/sanphamchitiet.js"></script>
+
+<h4 class="mb-3 fw-bold">Sản phẩm / Chi tiết sản phẩm</h4>
+
+<button class="btn btn-primary mb-3" @onclick="ShowAddModal">Thêm chi tiết mới</button>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Màu sắc</th>
+            <th>Size</th>
+            <th>Giá</th>
+            <th>Số lượng</th>
+            <th>Ảnh</th>
+            <th>Trạng thái</th>
+            <th>Ngày tạo</th>
+            <th>Ngày sửa</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in danhSachChiTiet)
+        {
+            <tr>
+                <td>@item.TenMau</td>
+                <td>@item.size</td>
+                <td>@item.Gia.ToString("N0", new CultureInfo("vi-VN"))</td>
+                <td>@item.SoLuongCon</td>
+                <td><img src="@item.AnhGiay" style="height: 50px;" /></td>
+                <td>@(item.TrangThai ? "Đang bán" : "Ngừng bán")</td>
+                <td>@item.NgayTao.ToString("dd/MM/yyyy")</td>
+                <td>@item.NgaySua.ToString("dd/MM/yyyy")</td>
+                <td>
+                    <button class="btn btn-sm btn-warning me-1" @onclick="() => EditItem(item)">Sửa</button>
+                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteItem(item.GiayChiTietId)">Xoá</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Modal thêm/sửa -->
+<div class="modal fade" id="giayChiTietModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@(isEditMode ? "Cập nhật" : "Thêm mới") chi tiết giày</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="currentItem" OnValidSubmit="HandleSave">
+                    <DataAnnotationsValidator />
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Màu sắc</label>
+                            <InputSelect @bind-Value="currentItem.MauSacId" class="form-select">
+                                <option value="">Chọn màu sắc</option>
+                                @foreach (var item in mauSacList)
+                                {
+                                    <option value="@item.MauSacId">@item.TenMau</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(() => currentItem.MauSacId)" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Size</label>
+                            <InputSelect @bind-Value="currentItem.KichCoId" class="form-select">
+                                <option value="">Chọn size</option>
+                                @foreach (var item in kichCoList)
+                                {
+                                    <option value="@item.KichCoId">@item.size</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(() => currentItem.KichCoId)" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Giá</label>
+                            <InputNumber @bind-Value="currentItem.Gia" class="form-control" />
+                            <ValidationMessage For="@(() => currentItem.Gia)" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Số lượng</label>
+                            <InputNumber @bind-Value="currentItem.SoLuongCon" class="form-control" />
+                            <ValidationMessage For="@(() => currentItem.SoLuongCon)" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Mô tả</label>
+                            <InputTextArea @bind-Value="currentItem.MoTa" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Trạng thái</label>
+                            <div class="form-check form-switch">
+                                <InputCheckbox @bind-Value="currentItem.TrangThai" class="form-check-input" />
+                                <label class="form-check-label">@(currentItem.TrangThai ? "Đang bán" : "Ngừng bán")</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Ảnh sản phẩm</label>
+                            <InputFile OnChange="UploadAnh" accept="image/*" class="form-control" />
+                            @if (!string.IsNullOrEmpty(currentItem.AnhGiay))
+                            {
+                                <img src="@currentItem.AnhGiay" class="img-thumbnail mt-2" style="max-height: 100px" />
+                            }
+                        </div>
+                    </div>
+                    <div class="modal-footer mt-3">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary">Lưu</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>

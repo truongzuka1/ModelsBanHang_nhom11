@@ -25,7 +25,7 @@
                             <div class="order-size">
                                 Size:
                                 <select @bind="@product.size">
-                                    <option value="@product.size">@product.size?.ToString()</option>
+                                    <option value="@product.size">@product.size.ToString()</option>
                                 </select>
                             </div>
                         </div>
@@ -58,7 +58,7 @@
         Products = all.Select(g =>
         {
             g.SoLuongCon = 1;
-            g.size = g.size ?? "";
+            g.size = g.size =37;
             return g;
         }).ToList();
     }

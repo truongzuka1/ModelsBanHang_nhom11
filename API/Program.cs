@@ -52,6 +52,7 @@ builder.Services.AddScoped<ITaiKhoanRepository, TaiKhoanRepository>();
 builder.Services.AddScoped<IChucVuRepository, ChucVuRepository>();
 builder.Services.AddScoped<IReturnRepository, ReturnRepository>();
 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

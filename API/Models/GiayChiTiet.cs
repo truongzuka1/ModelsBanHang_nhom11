@@ -25,7 +25,6 @@ namespace Data.Models
     
 
         public int SoLuongCon { get; set; }
-        public string AnhGiay { get; set; }
         public DateTime NgayTao { get; set; }
         public DateTime NgaySua { get; set; }
         public float Gia { get; set; }
