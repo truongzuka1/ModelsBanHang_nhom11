@@ -14,12 +14,8 @@ namespace Data.Models
         public Guid DiaChiKhachHangId { get; set; } = Guid.NewGuid();
 
         [Required]
-        [StringLength(100)]
-        public string SoNha { get; set; }
-
-        [Required]
-        [StringLength(100)]
-        public string Duong { get; set; }
+        [StringLength(200)]
+        public string DiaChiCuThe { get; set; }
 
         [StringLength(100)]
         public string PhuongXa { get; set; }
@@ -34,11 +30,13 @@ namespace Data.Models
 
         public bool TrangThai { get; set; } = true;
 
-        public bool IsDefault { get; set; } = false; // <--- THÊM
+        public bool IsDefault { get; set; } = false;
 
         public virtual KhachHang KhachHang { get; set; }
 
-        public string DiaChiDayDu => $"{SoNha}, {Duong}, {PhuongXa}, {QuanHuyen}, {ThanhPho}".Trim(' ', ',');
+        public string DiaChiDayDu =>
+            $"{DiaChiCuThe}, {PhuongXa}, {QuanHuyen}, {ThanhPho}"
+            .Trim(' ', ',');
     }
 
 

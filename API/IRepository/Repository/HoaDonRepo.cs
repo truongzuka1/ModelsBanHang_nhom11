@@ -16,19 +16,18 @@ namespace API.IRepository.Repository
         {
             return await _context.HoaDons
                 .Include(h => h.voucher)
-                .Include(h => h.taiKhoan)
+                .Include(h => h.nhanVien)
                 .Include(h => h.hinhThucThanhToan)
                 .Include(h => h.khachHang)
-                .Include(h => h.HoaDonChiTiets) 
+                .Include(h => h.HoaDonChiTiets)
                 .ToListAsync();
         }
-
 
         public async Task<HoaDon> GetById(Guid id)
         {
             var hoaDon = await _context.HoaDons
                 .Include(h => h.voucher)
-                .Include(h => h.taiKhoan)
+                .Include(h => h.nhanVien) // Đã thay vì .taiKhoan
                 .Include(h => h.hinhThucThanhToan)
                 .Include(h => h.khachHang)
                 .Include(h => h.HoaDonChiTiets)

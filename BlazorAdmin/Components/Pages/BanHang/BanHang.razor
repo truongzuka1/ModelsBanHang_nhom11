@@ -1,4 +1,4 @@
-﻿@page "/banhang"
+﻿@* @page "/banhang"
 @layout AdminLayout
 @inject IXuLyDiaChi xuLyDiaChi
 @inject IVoucherService voucherService
@@ -518,7 +518,7 @@
         {
             ReceiverName = CurrentOrder.Customer?.HoTen ?? "";
             ReceiverPhone = CurrentOrder.Customer?.SoDienThoai ?? "";
-            AddressDetail = diaChi.DiaChiDayDu;
+            AddressDetail = diaChi.DiaChiCuThe;
         }
 
     }
@@ -560,3 +560,4 @@
     }
 
 }
+ *@
