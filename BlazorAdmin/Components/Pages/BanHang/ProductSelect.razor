@@ -1,33 +1,14 @@
-<<<<<<< HEAD
 ﻿@using API.Models.DTO
 @using Data.Models
 @inject IGiayChiTietService GiayChiTietService
 
-=======
-﻿@inject IGiayChiTietService GiayChiTietService
-@using API.Models.DTO
->>>>>>> fa69a0cad7bb0296815399ae9820deac07a40ec7
 @if (Visible)
 {
     <div class="customer-select-overlay"></div>
-    <div class="product-select-box" >
+    <div class="product-select-box">
         <div class="product-select-list">
             @if (Products.Count == 0)
             {
-<<<<<<< HEAD
-                <div class="product-select-item">
-                    <img src="@product.AnhGiay" class="order-img" alt="@product.TenGiay" />
-                    <div class="item-info">
-                        <div class="order-name">@product.TenGiay</div>
-                        <div class="order-price">
-                            <span class="old-price">@FormatMoney(product.Gia)</span>
-                        </div>
-                        <div class="order-size">
-                            Size:
-                            <select @bind="@product.size">
-                                <option value="@product.size">@product.size?.ToString()</option>
-                            </select>
-=======
                 <div class="empty-notice">Không có sản phẩm nào để hiển thị.</div>
             }
             else
@@ -44,7 +25,7 @@
                             <div class="order-size">
                                 Size:
                                 <select @bind="@product.size">
-                                    <option value="@product.size">@product.size</option>
+                                    <option value="@product.size">@product.size?.ToString()</option>
                                 </select>
                             </div>
                         </div>
@@ -52,7 +33,6 @@
                             <button class="decrease-btn" @onclick="@(() => ChangeQty(product, -1))">-</button>
                             <input type="number" class="qty-input" value="@Soluong" readonly />
                             <button class="increase-btn" @onclick="@(() => ChangeQty(product, 1))">+</button>
->>>>>>> fa69a0cad7bb0296815399ae9820deac07a40ec7
                         </div>
                         <div class="order-total">@FormatMoney(product.Gia * product.SoLuongCon)</div>
                         <button class="add-to-order" @onclick="@(() => AddToOrder(product))">Thêm vào đơn</button>
@@ -62,8 +42,6 @@
         </div>
         <button class="close-customer-select" @onclick="Close">Đóng</button>
     </div>
-    
-
 }
 
 @code {
@@ -72,34 +50,25 @@
     [Parameter] public EventCallback OnClose { get; set; }
 
     private List<GiayChiTietDTO> Products = new();
-<<<<<<< HEAD
+    private int Soluong = 1;
 
     protected override async Task OnInitializedAsync()
     {
         var all = await GiayChiTietService.GetAllAsync();
         Products = all.Select(g =>
         {
-            g.SoLuongCon = 1; 
+            g.SoLuongCon = 1;
             g.size = g.size ?? "";
             return g;
         }).ToList();
-=======
-    private int Soluong = 1;
-
-    protected override async Task OnInitializedAsync()
-    {
-
-        Products = await GiayChiTietService.GetAllAsync();
-
->>>>>>> fa69a0cad7bb0296815399ae9820deac07a40ec7
     }
 
     private void ChangeQty(GiayChiTietDTO g, int delta)
     {
         Soluong += delta;
-        if (Soluong > g.SoLuongCon){
+        if (Soluong > g.SoLuongCon)
+        {
             Soluong = g.SoLuongCon;
-
         }
         if (Soluong < 1) Soluong = 1;
     }
@@ -107,12 +76,12 @@
     private async Task AddToOrder(GiayChiTietDTO g)
     {
         var item = new GiayChiTietDTO
-        {
-            GiayId = g.GiayId,
-            Gia = (float)g.Gia,
-            SoLuongCon = g.SoLuongCon,
-            TrangThai = true
-        };
+            {
+                GiayId = g.GiayId,
+                Gia = (float)g.Gia,
+                SoLuongCon = g.SoLuongCon,
+                TrangThai = true
+            };
         await OnAddProduct.InvokeAsync(item);
         await OnClose.InvokeAsync();
     }
