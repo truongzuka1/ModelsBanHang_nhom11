@@ -8,12 +8,8 @@ namespace Application.DTOs
         public Guid DiaChiKhachHangId { get; set; }
 
         [Required]
-        [StringLength(100)]
-        public string SoNha { get; set; }
-
-        [Required]
-        [StringLength(100)]
-        public string Duong { get; set; }
+        [StringLength(200)]
+        public string DiaChiCuThe { get; set; }
 
         [StringLength(100)]
         public string PhuongXa { get; set; }
@@ -30,7 +26,9 @@ namespace Application.DTOs
 
         public bool IsDefault { get; set; } = false;
 
-        public string DiaChiDayDu => $"{SoNha}, {Duong}, {PhuongXa}, {QuanHuyen}, {ThanhPho}".Trim(' ', ',');
+        public string DiaChiDayDu =>
+            $"{DiaChiCuThe}, {PhuongXa}, {QuanHuyen}, {ThanhPho}"
+            .Trim(' ', ',');
     }
 
 }

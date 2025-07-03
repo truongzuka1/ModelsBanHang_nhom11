@@ -19,36 +19,33 @@ namespace Data.Repository
         public async Task<List<DiaChiKhachHang>> GetAllAsync()
         {
             return await _context.diaChiKhachHangs
-                .Where(d => d.TrangThai)
-                .Include(d => d.KhachHang)
+                .Where(x => x.TrangThai)
                 .ToListAsync();
         }
 
         public async Task<DiaChiKhachHang> GetByIdAsync(Guid id)
         {
             return await _context.diaChiKhachHangs
-                .Include(d => d.KhachHang)
-                .FirstOrDefaultAsync(d => d.DiaChiKhachHangId == id && d.TrangThai);
+                .FirstOrDefaultAsync(x => x.DiaChiKhachHangId == id && x.TrangThai);
         }
 
         public async Task<List<DiaChiKhachHang>> GetByKhachHangIdAsync(Guid khachHangId)
         {
             return await _context.diaChiKhachHangs
-                .Where(d => d.KhachHangId == khachHangId && d.TrangThai)
+                .Where(x => x.KhachHangId == khachHangId && x.TrangThai)
                 .ToListAsync();
         }
 
         public async Task<DiaChiKhachHang> GetDefaultByKhachHangIdAsync(Guid khachHangId)
         {
             return await _context.diaChiKhachHangs
-                .FirstOrDefaultAsync(d => d.KhachHangId == khachHangId && d.TrangThai && d.IsDefault);
+                .FirstOrDefaultAsync(x => x.KhachHangId == khachHangId && x.IsDefault && x.TrangThai);
         }
 
         public async Task<bool> CreateAsync(DiaChiKhachHang diaChi)
         {
             try
             {
-                diaChi.DiaChiKhachHangId = Guid.NewGuid();
                 await _context.diaChiKhachHangs.AddAsync(diaChi);
                 await _context.SaveChangesAsync();
                 return true;
@@ -71,7 +68,6 @@ namespace Data.Repository
         {
             var diaChi = await _context.diaChiKhachHangs.FindAsync(id);
             if (diaChi == null) return false;
-
             diaChi.TrangThai = false;
             _context.diaChiKhachHangs.Update(diaChi);
             await _context.SaveChangesAsync();
@@ -83,16 +79,16 @@ namespace Data.Repository
             var diaChi = await GetByIdAsync(id);
             if (diaChi == null) return false;
 
-            var danhSach = await GetByKhachHangIdAsync(diaChi.KhachHangId);
-
-            foreach (var d in danhSach)
+            var list = await GetByKhachHangIdAsync(diaChi.KhachHangId);
+            foreach (var item in list)
             {
-                d.IsDefault = false;
-                await UpdateAsync(d);
+                item.IsDefault = false;
+                _context.diaChiKhachHangs.Update(item);
             }
 
             diaChi.IsDefault = true;
-            await UpdateAsync(diaChi);
+            _context.diaChiKhachHangs.Update(diaChi);
+            await _context.SaveChangesAsync();
 
             return true;
         }
