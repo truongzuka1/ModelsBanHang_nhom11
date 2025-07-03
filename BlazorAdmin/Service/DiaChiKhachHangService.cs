@@ -1,4 +1,5 @@
 ﻿using API.Models.DTO;
+using Application.DTOs;
 using BlazorAdmin.Service.IService;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -14,28 +15,33 @@ namespace BlazorAdmin.Service
             _httpClient = httpClient;
         }
 
-        public async Task<List<DiaChiKhachHangDTO>> GetAllAsync()
+        public async Task<List<DiaChiKhachHangDto>> GetAllAsync()
         {
-            return await _httpClient.GetFromJsonAsync<List<DiaChiKhachHangDTO>>("api/DiaChiKhachHang");
+            return await _httpClient.GetFromJsonAsync<List<DiaChiKhachHangDto>>("api/DiaChiKhachHang");
         }
 
-        public async Task<DiaChiKhachHangDTO> GetByIdAsync(Guid id)
+        public async Task<DiaChiKhachHangDto> GetByIdAsync(Guid id)
         {
-            return await _httpClient.GetFromJsonAsync<DiaChiKhachHangDTO>($"api/DiaChiKhachHang/{id}");
+            return await _httpClient.GetFromJsonAsync<DiaChiKhachHangDto>($"api/DiaChiKhachHang/{id}");
         }
 
-        public async Task<List<DiaChiKhachHangDTO>> GetByKhachHangIdAsync(Guid khachHangId)
+        public async Task<List<DiaChiKhachHangDto>> GetByKhachHangIdAsync(Guid khachHangId)
         {
-            return await _httpClient.GetFromJsonAsync<List<DiaChiKhachHangDTO>>($"api/DiaChiKhachHang/khachhang/{khachHangId}");
+            return await _httpClient.GetFromJsonAsync<List<DiaChiKhachHangDto>>($"api/DiaChiKhachHang/khachhang/{khachHangId}");
         }
 
-        public async Task<bool> CreateAsync(DiaChiKhachHangDTO dto)
+        public async Task<DiaChiKhachHangDto> GetDefaultByKhachHangIdAsync(Guid khachHangId)
+        {
+            return await _httpClient.GetFromJsonAsync<DiaChiKhachHangDto>($"api/DiaChiKhachHang/default/{khachHangId}");
+        }
+
+        public async Task<bool> CreateAsync(DiaChiKhachHangDto dto)
         {
             var response = await _httpClient.PostAsJsonAsync("api/DiaChiKhachHang", dto);
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<bool> UpdateAsync(Guid id, DiaChiKhachHangDTO dto)
+        public async Task<bool> UpdateAsync(Guid id, DiaChiKhachHangDto dto)
         {
             var response = await _httpClient.PutAsJsonAsync($"api/DiaChiKhachHang/{id}", dto);
             return response.IsSuccessStatusCode;
@@ -44,6 +50,12 @@ namespace BlazorAdmin.Service
         public async Task<bool> DeleteAsync(Guid id)
         {
             var response = await _httpClient.DeleteAsync($"api/DiaChiKhachHang/{id}");
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> SetDefaultAsync(Guid id)
+        {
+            var response = await _httpClient.PutAsync($"api/DiaChiKhachHang/set-default/{id}", null);
             return response.IsSuccessStatusCode;
         }
     }

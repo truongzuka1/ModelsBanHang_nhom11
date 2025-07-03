@@ -1,21 +1,34 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace API.Models.DTO
+namespace Application.DTOs
 {
-    public class DiaChiKhachHangDTO
+    public class DiaChiKhachHangDto
     {
-        public Guid DiaChiKhachHangId { get; set; }  // dùng cho cập nhật, không bắt buộc khi thêm mới
+        public Guid DiaChiKhachHangId { get; set; }
 
-        [Required(ErrorMessage = "Tên địa chỉ không được bỏ trống")]
-        [StringLength(50, ErrorMessage = "Tên địa chỉ tối đa 50 ký tự")]
-        [RegularExpression(@"^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưẠ-ỹ\s0-9]+$",
-            ErrorMessage = "Tên chỉ được chứa chữ cái tiếng Việt, số và khoảng trắng")]
-        public string TenDiaChi { get; set; }
+        [Required]
+        [StringLength(200)]
+        public string DiaChiCuThe { get; set; }
 
-        [Required(ErrorMessage = "Vui lòng chọn khách hàng")]
+        [StringLength(100)]
+        public string PhuongXa { get; set; }
+
+        [StringLength(100)]
+        public string QuanHuyen { get; set; }
+
+        [StringLength(100)]
+        public string ThanhPho { get; set; }
+
         public Guid KhachHangId { get; set; }
 
         public bool TrangThai { get; set; } = true;
+
+        public bool IsDefault { get; set; } = false;
+
+        public string DiaChiDayDu =>
+            $"{DiaChiCuThe}, {PhuongXa}, {QuanHuyen}, {ThanhPho}"
+            .Trim(' ', ',');
     }
+
 }

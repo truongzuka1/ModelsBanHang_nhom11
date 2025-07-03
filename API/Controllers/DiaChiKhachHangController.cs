@@ -1,9 +1,11 @@
 ﻿using API.Models.DTO;
+using Application.DTOs;
 using Data.IRepository;
 using Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace API.Controllers
@@ -19,113 +21,103 @@ namespace API.Controllers
             _repository = repository;
         }
 
-        // GET: api/DiaChiKhachHang
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DiaChiKhachHangDTO>>> GetAll()
+        public async Task<ActionResult<IEnumerable<DiaChiKhachHangDto>>> GetAll()
         {
-            var ds = await _repository.GetAllAsync();
-            var result = new List<DiaChiKhachHangDTO>();
-
-            foreach (var item in ds)
-            {
-                result.Add(new DiaChiKhachHangDTO
-                {
-                    DiaChiKhachHangId = item.DiaChiKhachHangId,
-                    TenDiaChi = item.TenDiaChi,
-                    KhachHangId = item.khachHangId,
-                    TrangThai = item.TrangThai
-                });
-            }
-
-            return Ok(result);
+            var data = await _repository.GetAllAsync();
+            return Ok(data.Select(MapToDto));
         }
 
-        // GET: api/DiaChiKhachHang/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<DiaChiKhachHangDTO>> GetById(Guid id)
+        public async Task<ActionResult<DiaChiKhachHangDto>> GetById(Guid id)
         {
-            var item = await _repository.GetByIdAsync(id);
-            if (item == null) return NotFound();
-
-            var dto = new DiaChiKhachHangDTO
-            {
-                DiaChiKhachHangId = item.DiaChiKhachHangId,
-                TenDiaChi = item.TenDiaChi,
-                KhachHangId = item.khachHangId,
-                TrangThai = item.TrangThai
-            };
-
-            return Ok(dto);
+            var entity = await _repository.GetByIdAsync(id);
+            if (entity == null) return NotFound();
+            return Ok(MapToDto(entity));
         }
 
-        // GET: api/DiaChiKhachHang/khachhang/{khachHangId}
         [HttpGet("khachhang/{khachHangId}")]
-        public async Task<ActionResult<IEnumerable<DiaChiKhachHangDTO>>> GetByKhachHangId(Guid khachHangId)
+        public async Task<ActionResult<IEnumerable<DiaChiKhachHangDto>>> GetByKhachHangId(Guid khachHangId)
         {
             var list = await _repository.GetByKhachHangIdAsync(khachHangId);
-            var result = new List<DiaChiKhachHangDTO>();
-
-            foreach (var item in list)
-            {
-                result.Add(new DiaChiKhachHangDTO
-                {
-                    DiaChiKhachHangId = item.DiaChiKhachHangId,
-                    TenDiaChi = item.TenDiaChi,
-                    KhachHangId = item.khachHangId,
-                    TrangThai = item.TrangThai
-                });
-            }
-
-            return Ok(result);
+            return Ok(list.Select(MapToDto));
         }
 
-        // POST: api/DiaChiKhachHang
+        [HttpGet("default/{khachHangId}")]
+        public async Task<ActionResult<DiaChiKhachHangDto>> GetDefault(Guid khachHangId)
+        {
+            var entity = await _repository.GetDefaultByKhachHangIdAsync(khachHangId);
+            if (entity == null) return NotFound();
+            return Ok(MapToDto(entity));
+        }
+
         [HttpPost]
-        public async Task<ActionResult> Create([FromBody] DiaChiKhachHangDTO dto)
+        public async Task<ActionResult> Create([FromBody] DiaChiKhachHangDto dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var entity = new DiaChiKhachHang
-            {
-                DiaChiKhachHangId = Guid.NewGuid(),
-                TenDiaChi = dto.TenDiaChi,
-                khachHangId = dto.KhachHangId,
-                TrangThai = dto.TrangThai
-            };
+            var entity = MapToEntity(dto);
+            entity.DiaChiKhachHangId = Guid.NewGuid();
 
             var result = await _repository.CreateAsync(entity);
-            if (!result) return StatusCode(500, "Không thể tạo địa chỉ");
-
-            return Ok(new { message = "Tạo địa chỉ thành công", id = entity.DiaChiKhachHangId });
+            return result
+                ? Ok(new { message = "Thêm địa chỉ thành công", id = entity.DiaChiKhachHangId })
+                : StatusCode(500, "Lỗi khi thêm địa chỉ");
         }
 
-        // PUT: api/DiaChiKhachHang/{id}
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update(Guid id, [FromBody] DiaChiKhachHangDTO dto)
+        public async Task<ActionResult> Update(Guid id, [FromBody] DiaChiKhachHangDto dto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            var entity = await _repository.GetByIdAsync(id);
+            if (entity == null) return NotFound();
 
-            var existing = await _repository.GetByIdAsync(id);
-            if (existing == null) return NotFound();
+            entity.DiaChiCuThe = dto.DiaChiCuThe;
+            entity.PhuongXa = dto.PhuongXa;
+            entity.QuanHuyen = dto.QuanHuyen;
+            entity.ThanhPho = dto.ThanhPho;
+            entity.TrangThai = dto.TrangThai;
+            entity.IsDefault = dto.IsDefault;
 
-            existing.TenDiaChi = dto.TenDiaChi;
-            existing.khachHangId = dto.KhachHangId;
-            existing.TrangThai = dto.TrangThai;
-
-            var result = await _repository.UpdateAsync(existing);
-            if (!result) return StatusCode(500, "Không thể cập nhật địa chỉ");
-
-            return Ok(new { message = "Cập nhật thành công" });
+            var result = await _repository.UpdateAsync(entity);
+            return result ? Ok(new { message = "Cập nhật thành công" }) : StatusCode(500);
         }
 
-        // DELETE: api/DiaChiKhachHang/{id}
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(Guid id)
         {
             var result = await _repository.DeleteAsync(id);
-            if (!result) return NotFound(new { message = "Địa chỉ không tồn tại hoặc đã bị xoá" });
-
-            return Ok(new { message = "Xoá địa chỉ thành công" });
+            return result ? Ok(new { message = "Xóa thành công" }) : NotFound();
         }
+
+        [HttpPut("set-default/{id}")]
+        public async Task<ActionResult> SetDefault(Guid id)
+        {
+            var result = await _repository.SetDefaultAsync(id);
+            return result ? Ok(new { message = "Đã đặt làm địa chỉ mặc định" }) : NotFound();
+        }
+
+        private DiaChiKhachHangDto MapToDto(DiaChiKhachHang x) => new DiaChiKhachHangDto
+        {
+            DiaChiKhachHangId = x.DiaChiKhachHangId,
+            DiaChiCuThe = x.DiaChiCuThe,
+            PhuongXa = x.PhuongXa,
+            QuanHuyen = x.QuanHuyen,
+            ThanhPho = x.ThanhPho,
+            KhachHangId = x.KhachHangId,
+            TrangThai = x.TrangThai,
+            IsDefault = x.IsDefault
+        };
+
+        private DiaChiKhachHang MapToEntity(DiaChiKhachHangDto dto) => new DiaChiKhachHang
+        {
+            DiaChiKhachHangId = dto.DiaChiKhachHangId,
+            DiaChiCuThe = dto.DiaChiCuThe,
+            PhuongXa = dto.PhuongXa,
+            QuanHuyen = dto.QuanHuyen,
+            ThanhPho = dto.ThanhPho,
+            KhachHangId = dto.KhachHangId,
+            TrangThai = dto.TrangThai,
+            IsDefault = dto.IsDefault
+        };
     }
 }
