@@ -29,6 +29,7 @@ namespace Data.Models
         public DateTime NgayCapNhatCuoiCung { get; set; }
 
         public ChucVu? ChucVu { get; set; }
+        public virtual ICollection<HoaDon> HoaDons { get; set; } = new List<HoaDon>();
         public virtual TaiKhoan? TaiKhoan { get; set; }
     }
 }

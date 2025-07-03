@@ -1,62 +1,47 @@
 ﻿using API.Models;
 using Data.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Data.Models
 {
     public class DbContextApp : DbContext
     {
-        public DbContextApp()
-        {
-            
-        }
+        public DbContextApp() { }
 
-        public DbContextApp(DbContextOptions options) : base(options)
-        {
-        }
+        public DbContextApp(DbContextOptions options) : base(options) { }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-
         {
-
-
             optionsBuilder.UseSqlServer(@"Data Source=.\SQLEXPRESS;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
-
-
-
         }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<GiayDotGiamGia>()
-      .HasKey(gdg => gdg.GiayDotGiamGiaId);
-            modelBuilder.Entity<GioHangChiTiet>()
-        .Property(ghct => ghct.Gia)
-        .HasColumnType("decimal(18, 2)");
 
-            modelBuilder.Entity<GiayDotGiamGia>()
-                .HasOne(gdg => gdg.Giay)
-                .WithMany(g => g.GiayDotGiamGias)
-                .HasForeignKey(gdg => gdg.GiayId);
+            // Định dạng số tiền
+            modelBuilder.Entity<GioHangChiTiet>().Property(x => x.Gia).HasColumnType("decimal(18,2)");
+            modelBuilder.Entity<HoaDonChiTiet>().Property(x => x.Gia).HasColumnType("decimal(18,2)");
 
-            // Quan hệ GiayDotGiamGia - GiamGia (N-1)
+            // Quan hệ GiayDotGiamGia
+            modelBuilder.Entity<GiayDotGiamGia>().HasKey(x => x.GiayDotGiamGiaId);
             modelBuilder.Entity<GiayDotGiamGia>()
-                .HasOne(gdg => gdg.GiamGia)
-                .WithMany(g => g.GiayDotGiamGias)
-                .HasForeignKey(gdg => gdg.GiamGiaId);
+                .HasOne(x => x.Giay)
+                .WithMany(x => x.GiayDotGiamGias)
+                .HasForeignKey(x => x.GiayId);
+            modelBuilder.Entity<GiayDotGiamGia>()
+                .HasOne(x => x.GiamGia)
+                .WithMany(x => x.GiayDotGiamGias)
+                .HasForeignKey(x => x.GiamGiaId);
+
+            // Quan hệ ChucVu – NhanVien
             modelBuilder.Entity<ChucVu>()
-        .HasMany(cv => cv.nhanViens)
-        .WithOne(nv => nv.ChucVu)
-        .HasForeignKey(nv => nv.ChucVuId)
-        .OnDelete(DeleteBehavior.Restrict);
-            //abc
+                .HasMany(x => x.nhanViens)
+                .WithOne(x => x.ChucVu)
+                .HasForeignKey(x => x.ChucVuId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // Seed dữ liệu cứng: Admin và Nhân viên
+            // Seed ChucVu
             modelBuilder.Entity<ChucVu>().HasData(
                 new ChucVu
                 {
@@ -72,19 +57,16 @@ namespace Data.Models
                     MotaChucVu = "Nhân viên bán hàng",
                     TrangThai = 1
                 });
-            var adminTaiKhoanId = Guid.Parse("99999999-9999-9999-9999-999999999999");
 
+            // Seed TaiKhoan + NhanVien Admin
+            var adminTaiKhoanId = Guid.Parse("99999999-9999-9999-9999-999999999999");
             modelBuilder.Entity<TaiKhoan>().HasData(new TaiKhoan
             {
                 TaikhoanId = adminTaiKhoanId,
                 Username = "admin",
-                Password = "admin123", 
+                Password = "admin123",
                 Ngaytaotaikhoan = DateTime.Now
             });
-            
-                
-
-
 
             modelBuilder.Entity<NhanVien>().HasData(new NhanVien
             {
@@ -96,11 +78,10 @@ namespace Data.Models
                 NgayCapNhatCuoiCung = DateTime.Now,
                 TrangThai = true,
                 TaikhoanId = adminTaiKhoanId,
-                ChucVuId = Guid.Parse("11111111-1111-1111-1111-111111111111") 
+                ChucVuId = Guid.Parse("11111111-1111-1111-1111-111111111111")
             });
 
-
-            // Dữ liệu mẫu kích cỡ từ 35 đến 50
+            // Seed Kích Cỡ 35-50
             var kichCoList = new List<KichCo>();
             for (int size = 35; size <= 50; size++)
             {
@@ -115,6 +96,7 @@ namespace Data.Models
             }
             modelBuilder.Entity<KichCo>().HasData(kichCoList.ToArray());
 
+            // Seed màu sắc cơ bản
             modelBuilder.Entity<MauSac>().HasData(
                 new MauSac { MauSacId = Guid.NewGuid(), TenMau = "Đỏ", Color = "#FF0000", MoTa = "Màu đỏ cơ bản", TrangThai = true },
                 new MauSac { MauSacId = Guid.NewGuid(), TenMau = "Xanh dương", Color = "#0000FF", MoTa = "Màu xanh dương cơ bản", TrangThai = true },
@@ -124,64 +106,44 @@ namespace Data.Models
                 new MauSac { MauSacId = Guid.NewGuid(), TenMau = "Trắng", Color = "#FFFFFF", MoTa = "Màu trắng", TrangThai = true }
             );
 
-            // NhanVien - ChucVu
-            modelBuilder.Entity<NhanVien>()
-      .HasOne(nv => nv.ChucVu)
-      .WithMany(cv => cv.nhanViens)
-      .HasForeignKey(nv => nv.ChucVuId);
-
-
-
-            // NhanVien - TaiKhoan
-
-
-            //hoadon-taikhoan
-
+            // HoaDon – NhanVien
             modelBuilder.Entity<HoaDon>()
+     .HasOne(h => h.nhanVien)
+     .WithMany(nv => nv.HoaDons)
+     .HasForeignKey(h => h.NhanVienId)
+     .OnDelete(DeleteBehavior.Restrict);
 
-                .HasOne(h => h.taiKhoan)
-                .WithMany(t => t.hoaDons)
-                .HasForeignKey(h => h.TaiKhoanId)
-                .OnDelete(DeleteBehavior.Restrict); 
-            //hoadon-Khachhang
             modelBuilder.Entity<HoaDon>()
                 .HasOne(h => h.khachHang)
-                .WithMany(t => t.HoaDons)
+                .WithMany(kh => kh.HoaDons)
                 .HasForeignKey(h => h.KhachHangId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<HoaDon>()
-
                 .HasOne(h => h.hinhThucThanhToan)
-                .WithMany(t => t.HoaDons)
-
+                .WithMany(ht => ht.HoaDons)
                 .HasForeignKey(h => h.HinhThucThanhToanId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<HoaDon>()
-
                 .HasOne(h => h.voucher)
-                .WithMany(t => t.HoaDons) 
-
+                .WithMany(v => v.HoaDons)
                 .HasForeignKey(h => h.VoucherId)
                 .OnDelete(DeleteBehavior.SetNull);
-            modelBuilder.Entity<KhachHang>()
-           .HasOne(kh => kh.TaiKhoan)
-           .WithMany()
-           .HasForeignKey(kh => kh.TaiKhoanId)
-           .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<HoaDonChiTiet>()
-    .Property(x => x.Gia)
-    .HasColumnType("decimal(18,2)");
 
+            // KhachHang – TaiKhoan
+            modelBuilder.Entity<KhachHang>()
+                .HasOne(kh => kh.TaiKhoan)
+                .WithMany()
+                .HasForeignKey(kh => kh.TaiKhoanId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
+        // DbSet khai báo bảng
         public DbSet<KhachHang> KhachHangs { get; set; }
-
         public DbSet<TaiKhoan> TaiKhoans { get; set; }
         public DbSet<ChucVu> ChucVus { get; set; }
         public DbSet<NhanVien> NhanViens { get; set; }
-
         public DbSet<Giay> Giays { get; set; }
         public DbSet<GiayChiTiet> GiayChiTiets { get; set; }
         public DbSet<ChatLieu> ChatLieus { get; set; }
@@ -202,7 +164,5 @@ namespace Data.Models
         public DbSet<HinhThucThanhToan> hinhThucThanhToans { get; set; }
         public DbSet<DiaChiKhachHang> diaChiKhachHangs { get; set; }
         public DbSet<ThongBao> ThongBaos { get; set; }
-
-
     }
 }

@@ -18,7 +18,8 @@ namespace API.IRepository.Repository
             var query = _context.HoaDons
                 .Include(h => h.HoaDonChiTiets)
                 .ThenInclude(hdc => hdc.Giays)
-                .Include(h => h.taiKhoan)
+                   .Include(h => h.nhanVien)
+                 .Include(h => h.khachHang)
                 .Include(h => h.hinhThucThanhToan)
                 .AsQueryable();
 
@@ -41,7 +42,8 @@ namespace API.IRepository.Repository
             return await _context.HoaDons
                 .Include(h => h.HoaDonChiTiets)
                 .ThenInclude(hdc => hdc.Giays)
-                .Include(h => h.taiKhoan)
+                .Include(h => h.nhanVien)
+                 .Include(h => h.khachHang)
                 .Include(h => h.hinhThucThanhToan)
                 .FirstOrDefaultAsync(h => h.HoaDonId == hoaDonId);
         }
