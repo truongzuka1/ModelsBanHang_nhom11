@@ -40,7 +40,14 @@ namespace BlazorAdmin.Service
         public async Task<bool> CreateMultipleAsync(List<GiayChiTietDTO> list)
         {
             var response = await _httpClient.PostAsJsonAsync("api/GiayChiTiet/multiple", list);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Lỗi khi thêm chi tiết giày: {error}");
+            }
             return response.IsSuccessStatusCode;
+
         }
 
 
