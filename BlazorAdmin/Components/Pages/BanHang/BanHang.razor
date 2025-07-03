@@ -2,9 +2,11 @@
 @layout AdminLayout
 @inject IXuLyDiaChi xuLyDiaChi
 @inject IVoucherService voucherService
+@inject IHoaDonService HoaDonService
 @inject IJSRuntime JS
 @using API.Models.DTO.BanHang
 @using API.Models.DTO
+@using API.Models.DTO.HeThong
 
 <link href="css/BanHang.css" rel="stylesheet" />
 <div class="sell-container">
@@ -274,12 +276,21 @@
     string selectedHuyen;
 
     // 🛒 Hành động
-    private void CreateOrder()
+    private async void CreateOrder()
     {
 
         if (Orders.Count >= 5)
         {
-            // Hiển thị thông báo nếu cần
+            await JS.InvokeVoidAsync("Swal.fire", new
+            {
+                toast = true,
+                position = "top-end",
+                icon = "info",
+                title = "Bạn đã tạo tối đa 5 đơn hàng.",
+                showConfirmButton = false,
+                timer = 3000,
+                timerProgressBar = true
+            });
             return;
         }
         Orders.Add(new Order());
@@ -313,12 +324,25 @@
 
     private async Task RemoveOrderSafe(int index)
     {
-        if (IsRemovingOrder) return;
-        IsRemovingOrder = true;
+        var result = await JS.InvokeAsync<SwalResult>("Swal.fire", new
+        {
+            title = "Xác nhận xóa đơn hàng",
+            text = "Bạn có chắc muốn xác nhận đơn hàng này?",
+            icon = "question",
+            showCancelButton = true,
+            confirmButtonText = "Xác nhận",
+            cancelButtonText = "Huỷ"
+        });
 
-        RemoveOrder(index);
-        await Task.Delay(200); 
-        IsRemovingOrder = false;
+        if (result.IsConfirmed)
+        {
+            if (IsRemovingOrder) return;
+            IsRemovingOrder = true;
+
+            RemoveOrder(index);
+            await Task.Delay(200);
+            IsRemovingOrder = false;
+        }
     }
 
 
@@ -402,13 +426,47 @@
         }
 
         // ✅ Thành công
-        await JS.InvokeVoidAsync("Swal.fire", new
-        {
-            icon = "success",
-            title = "Đặt hàng thành công",
-            text = "Đơn hàng đã được ghi nhận."
-        });
 
+        var hoaDon = new HoaDon
+        {
+            HoaDonId = Guid.NewGuid(),
+            KhachHangId = CurrentOrder.Customer?.KhachHangId,
+            TenCuaKhachHang = ReceiverName,
+            SDTCuaKhachHang = ReceiverPhone,
+            EmailCuaKhachHang = CurrentOrder.Customer?.Email ?? "",
+            NgayTao = DateTime.Now,
+            NgayNhanHang = DateTime.Now.AddDays(2), // hoặc nhập từ UI
+            TongTienSauKhiGiam = TotalAmount,
+            TrangThai = "Chờ xác nhận",
+            GhiChu = "", // hoặc lấy từ UI
+            HoaDonChiTiets = CurrentOrder.Products.Select(p => new HoaDonChiTiet
+            {
+                GiayId = p.GiayId,
+                SoLuongSanPham = p.Quantity,
+                Gia = (decimal)p.NewPrice
+            }).ToList()
+        };
+        var result = await HoaDonService.Add(hoaDon);
+
+        if (result)
+        {
+            await JS.InvokeVoidAsync("Swal.fire", new
+            {
+                icon = "success",
+                title = "Thành công",
+                text = "Đơn hàng đã được ghi nhận."
+            });
+            RemoveOrder(CurrentOrderIndex);
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("Swal.fire",  new
+            {
+                icon = "warning",
+                title = "Lỗi!",
+                text = "Có lỗi khi lưu đơn hàng."
+            });
+        }
     }
 
     private string FormatMoney(float amount)
@@ -423,7 +481,7 @@
 
         CurrentOrder.Products.Add(new ProductOrder
         {
-            GiayChiTietId = item.GiayId,
+            GiayId = item.GiayId,
             TenGiay = item.TenGiay ?? "Không tên",
             Quantity = item.SoLuongCon,
             Price = item.Gia
