@@ -1,8 +1,12 @@
 ﻿@page "/banhang"
 @layout AdminLayout
+@inject IXuLyDiaChi xuLyDiaChi
+@inject IVoucherService voucherService
+@inject IHoaDonService HoaDonService
+@inject IJSRuntime JS
 @using API.Models.DTO.BanHang
-
 @using API.Models.DTO
+@using API.Models.DTO.HeThong
 
 <link href="css/BanHang.css" rel="stylesheet" />
 <div class="sell-container">
@@ -83,19 +87,40 @@
     <!-- Khách hàng -->
     @if (CurrentOrder != null)
     {
-        <button @onclick="() => IsCustomerModalVisible = true">+ CHỌN KHÁCH HÀNG</button>
-        <CustomerSelect Visible="@IsCustomerModalVisible"
-                        OnCustomerSelected="HandleCustomerSelected"
-                        OnClose="@(() => IsCustomerModalVisible = false)" />
+        <div class="customer-header">
+            <span class="customer-title">
+                Khách hàng: <span class="customer-name">@(ReceiverName == null ? ReceiverName : "Khách lẻ") </span>
+                <button type="button" class="address-change-btn"
+                        style="display:none; margin-left:8px; background:#ff9800; color:#fff; border:none; border-radius:4px; padding:4px 8px; font-size:12px; cursor:pointer;">
+                    Chọn địa chỉ
+                </button>
+            </span>
+            <button class="choose-customer-btn" @onclick="() => IsCustomerModalVisible = true">+ CHỌN KHÁCH HÀNG</button>
+            <CustomerSelect Visible="@IsCustomerModalVisible"
+                            OnCustomerSelected="HandleCustomerSelected"
+                            OnClose="@(() => IsCustomerModalVisible = false)" />
+            @if (ReceiverName != null)
+            {
+                <button class="reset-customer-btn" @onclick="@Khachle"
+                        style="display:none; margin-left:8px; background:#e0e0e0; color:#333; border:none; border-radius:6px; padding:8px 16px; cursor:pointer; font-weight:500;height:40px;">
+                    Đổi về khách lẻ
+                </button>
+            }
+        </div>
+        
     }
 
 
     <!-- Footer đặt hàng -->
-    @if (CurrentOrder?.Products?.Count > 0 && CurrentOrder != null)
+    @if (CurrentOrder != null)
     {
         @if (CurrentOrder?.Customer != null && IsDelivery)
         {
             <button class="address-change-btn" @onclick="() => IsProductModalVisible = true">Chọn địa chỉ</button>
+            <AddressSelect Visible="@IsAddressModalVisible"
+                           
+                           OnAddressSelected="HandleAddressSelected"
+                           OnClose="@(() => IsAddressModalVisible = false)" />
         }
 
         <div class="order-footer">
@@ -113,23 +138,72 @@
                             <input type="text" class="receiver-phone-input" @bind="ReceiverPhone" />
                         </div>
                     </div>
-                    <AddressSelect Visible="@IsAddressModalVisible"
-                                   Addresses="DiaChiTam"
-                                   OnAddressSelected="HandleAddressSelected"
-                                   OnClose="@(() => IsAddressModalVisible = false)" />
+                    <div class="customer-info-row">
+                        <div class="customer-info-row">
+                            <div>
+                                <label for="TinhThanh">Tỉnh/Thành phố</label>
+                                <input id="TinhThanh" @onchange="OnTinhChanged" style="cursor:pointer" list="Tinh" class="province-input">
+                                <datalist id="Tinh" class="dropdown-address">
+                                    @foreach (var t in TinhThanh)
+                                    {
+                                        <option value="@t.Ten"></option>
+                                    }
+                                </datalist>
 
+                            </div>
+                            <div>
+                                <label for="QuanHuyen">Quận/Huyện</label>
+                                <input id="QuanHuyen" @onchange="OnHuyenChanged" disabled="@(!HuyenXa.Any())" style="cursor:pointer" list="Quan" class="province-input" />
+                                <datalist id="Quan" class="dropdown-address">
+                                    @foreach (var h in HuyenXa)
+                                    {
+                                        <option value="@h.Ten">@h.Ten</option>
+                                    }
+                                </datalist>
+                            </div>
+                            <div>
+                                <label for="XaPhuongThiTran">Xã/Phường/Thị trấn</label>
+                                <input id="XaPhuongThiTran" disabled="@(!XaPhuong.Any())" style="cursor:pointer" list="XaPhuong" />
+                                <datalist id="XaPhuong" class="dropdown-address">
+                                    @foreach (var x in XaPhuong)
+                                    {
+                                        <option>@x.Ten</option>
+                                    }
+                                </datalist>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="customer-info-row">
+                        <div style="flex:2; position:relative;">
+                            <label>Địa chỉ cụ thể</label>
+                            <input type="text" class="address-detail-input" placeholder="Địa chỉ cụ thể">
+                        </div>
+                        <div style="flex:1;">
+                            <label>Ghi chú</label>
+                            <input type="text" class="note-input" placeholder="Ghi chú">
+                        </div>
+                    </div>
                 </div>
             }
 
             <div class="order-info">
                 <div style="text-align: right; margin-bottom: 12px;">
-                    <label>Giao hàng</label>
-                    <input type="checkbox" class="delivery-toggle" @bind="IsDelivery" />
+                    <label for="GiaoHang">Giao hàng</label>
+                    <input id="GiaoHang" type="checkbox" class="delivery-toggle" @bind="IsDelivery" />
                 </div>
 
                 <div class="voucher-area">
-                    <input type="text" class="voucher-input" @bind="VoucherCode" placeholder="Phiếu giảm giá" />
-                    <input type="text" class="discount-input" @bind="DiscountPercent" placeholder="Phần trăm giảm" />
+                    <label style="display: none;visibility: hidden;" for="voucher" class="sr-only">Phiếu giảm giá</label>
+                    <input style="cursor:pointer" @onchange="OnVoucherChange" list="PhieuGiamGia" id="voucher" type="text" class="voucher-input" placeholder="Phiếu giảm giá" />
+                    <datalist id="PhieuGiamGia">
+                        @foreach (var x in vouchers)
+                        {
+                            <option>@x.TenVoucher</option>
+                        }
+                    </datalist>
+                    <label style="display: none;visibility: hidden;" for="discount" class="sr-only">Phần trăm giảm</label>
+                    <input disabled type="text" value="@($"{DiscountPercent} %")" class="discount-input" />
+                    
                 </div>
 
                 <div class="order-summary">
@@ -184,23 +258,39 @@
     private bool IsDelivery { get; set; } = false;
 
     // 💰 Tính toán đơn hàng
-    private string VoucherCode { get; set; } = "";
-    private int DiscountPercent { get; set; } = 0;
-    private int CustomerPay { get; set; } = 0;
+    private float DiscountPercent { get; set; } = 0;
+    private float CustomerPay { get; set; } = 0;
 
-    private int Subtotal => CurrentOrder?.Products?.Sum(p => p.Quantity * (int)p.NewPrice) ?? 0;
-    private int ShippingFee => IsDelivery ? 0 : 0; 
-    private int DiscountAmount => (Subtotal * DiscountPercent) / 100;
-    private int TotalAmount => Subtotal + ShippingFee - DiscountAmount;
-    private int DeficitAmount => TotalAmount - CustomerPay;
+    private float Subtotal => CurrentOrder?.Products?.Sum(p => p.Quantity * p.NewPrice) ?? 0f;
+    private float ShippingFee => IsDelivery ? 0f : 0f;
+    private float DiscountAmount => (Subtotal * DiscountPercent) / 100f;
+    private float TotalAmount => Subtotal + ShippingFee - DiscountAmount;
+    private float DeficitAmount => TotalAmount - CustomerPay;
+
+    private List<DiaChi> TinhThanh = new();
+    private List<DiaChi> HuyenXa = new();
+    private List<DiaChi> XaPhuong = new();
+    private List<Voucher> vouchers = new();
+
+    string selectedTinh;
+    string selectedHuyen;
 
     // 🛒 Hành động
-    private void CreateOrder()
+    private async void CreateOrder()
     {
-        
+
         if (Orders.Count >= 5)
         {
-            // Hiển thị thông báo nếu cần
+            await JS.InvokeVoidAsync("Swal.fire", new
+            {
+                toast = true,
+                position = "top-end",
+                icon = "info",
+                title = "Bạn đã tạo tối đa 5 đơn hàng.",
+                showConfirmButton = false,
+                timer = 3000,
+                timerProgressBar = true
+            });
             return;
         }
         Orders.Add(new Order());
@@ -234,12 +324,25 @@
 
     private async Task RemoveOrderSafe(int index)
     {
-        if (IsRemovingOrder) return;
-        IsRemovingOrder = true;
+        var result = await JS.InvokeAsync<SwalResult>("Swal.fire", new
+        {
+            title = "Xác nhận xóa đơn hàng",
+            text = "Bạn có chắc muốn xác nhận đơn hàng này?",
+            icon = "question",
+            showCancelButton = true,
+            confirmButtonText = "Xác nhận",
+            cancelButtonText = "Huỷ"
+        });
 
-        RemoveOrder(index);
-        await Task.Delay(200); 
-        IsRemovingOrder = false;
+        if (result.IsConfirmed)
+        {
+            if (IsRemovingOrder) return;
+            IsRemovingOrder = true;
+
+            RemoveOrder(index);
+            await Task.Delay(200);
+            IsRemovingOrder = false;
+        }
     }
 
 
@@ -283,11 +386,16 @@
         ReceiverPhone = "";
     }
 
-    private void ConfirmOrder()
+    private async void ConfirmOrder()
     {
         if (CurrentOrder.Products.Count == 0)
         {
-            // Thông báo thêm sản phẩm
+            await JS.InvokeVoidAsync("Swal.fire", new
+            {
+                icon = "warning",
+                title = "Chưa thêm sản phẩm",
+                text = "Đơn hàng chưa được thêm sản phẩm."
+            });
             return;
         }
 
@@ -305,13 +413,63 @@
                 return;
             }
         }
+        if (CustomerPay < TotalAmount)
+        {
+            await JS.InvokeVoidAsync("Swal.fire", new
+            {
+                icon = "warning",
+                title = "Chưa đủ tiền!",
+                text = $"Khách còn thiếu {FormatMoney(TotalAmount - CustomerPay)}",
+                confirmButtonText = "OK"
+            });
+            return;
+        }
 
-        // Có thể gọi API lưu đơn ở đây
+        // ✅ Thành công
 
-        // Thông báo thành công
+        var hoaDon = new HoaDon
+        {
+            HoaDonId = Guid.NewGuid(),
+            KhachHangId = CurrentOrder.Customer?.KhachHangId,
+            TenCuaKhachHang = ReceiverName,
+            SDTCuaKhachHang = ReceiverPhone,
+            EmailCuaKhachHang = CurrentOrder.Customer?.Email ?? "",
+            NgayTao = DateTime.Now,
+            NgayNhanHang = DateTime.Now.AddDays(2), // hoặc nhập từ UI
+            TongTienSauKhiGiam = TotalAmount,
+            TrangThai = "Chờ xác nhận",
+            GhiChu = "", // hoặc lấy từ UI
+            HoaDonChiTiets = CurrentOrder.Products.Select(p => new HoaDonChiTiet
+            {
+                GiayId = p.GiayId,
+                SoLuongSanPham = p.Quantity,
+                Gia = (decimal)p.NewPrice
+            }).ToList()
+        };
+        var result = await HoaDonService.Add(hoaDon);
+
+        if (result)
+        {
+            await JS.InvokeVoidAsync("Swal.fire", new
+            {
+                icon = "success",
+                title = "Thành công",
+                text = "Đơn hàng đã được ghi nhận."
+            });
+            RemoveOrder(CurrentOrderIndex);
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("Swal.fire",  new
+            {
+                icon = "warning",
+                title = "Lỗi!",
+                text = "Có lỗi khi lưu đơn hàng."
+            });
+        }
     }
 
-    private string FormatMoney(int amount)
+    private string FormatMoney(float amount)
     {
         return string.Format("{0:N0} VND", amount);
     }
@@ -320,10 +478,10 @@
     private void HandleAddProduct(GiayChiTietDTO item)
     {
         if (CurrentOrder == null) return;
-        
+
         CurrentOrder.Products.Add(new ProductOrder
         {
-            GiayChiTietId = item.GiayId,
+            GiayId = item.GiayId,
             TenGiay = item.TenGiay ?? "Không tên",
             Quantity = item.SoLuongCon,
             Price = item.Gia
@@ -331,8 +489,8 @@
     }
 
     private bool IsCustomerModalVisible = false;
-
-    private void HandleCustomerSelected(KhachHang kh)
+    private List<DiaChiKhachHang> diaChiKhachHangs = new();
+    private async Task HandleCustomerSelected(KhachHang kh)
     {
         CurrentOrder.Customer = kh;
 
@@ -342,6 +500,11 @@
             ReceiverPhone = kh.SoDienThoai;
             // Có thể gán địa chỉ mặc định nếu bạn muốn
         }
+
+    }
+    private void Khachle()
+    {
+        CurrentOrder.Customer = null;
     }
 
     private bool IsAddressModalVisible = false;
@@ -355,10 +518,45 @@
         {
             ReceiverName = CurrentOrder.Customer?.HoTen ?? "";
             ReceiverPhone = CurrentOrder.Customer?.SoDienThoai ?? "";
-            AddressDetail = diaChi.MoTa;
+            AddressDetail = diaChi.TenDiaChi;
         }
+
     }
 
-    private List<DiaChiKhachHang> DiaChiTam => CurrentOrder.Customer?.DiaChiKhachHangs?.ToList() ?? new();
+    protected override async Task OnInitializedAsync()
+    {
+        TinhThanh = await xuLyDiaChi.ParseDiaChiAsync("wwwroot/Files/ThanhPho.txt");
+        vouchers = await voucherService.GetAll();
+    }
+
+    void OnTinhChanged(ChangeEventArgs e)
+    {
+        selectedTinh = e.Value?.ToString();
+        var tinh = TinhThanh.FirstOrDefault(t => t.Ten == selectedTinh);
+        HuyenXa = tinh?.Con ?? new();
+        XaPhuong = new();
+    }
+
+    void OnHuyenChanged(ChangeEventArgs e)
+    {
+        selectedHuyen = e.Value?.ToString();
+        var huyen = HuyenXa.FirstOrDefault(h => h.Ten == selectedHuyen);
+        XaPhuong = huyen?.Con ?? new();
+    }
+    void OnVoucherChange(ChangeEventArgs e)
+    {
+        string selectedVoucher = e.Value?.ToString()?.Trim();
+
+        var voucher = vouchers.FirstOrDefault(v => v.TenVoucher == selectedVoucher);
+
+        if (voucher != null)
+        {
+            DiscountPercent = voucher.PhanTram;
+        }
+        else
+        {
+            DiscountPercent = 0; 
+        }
+    }
 
 }
