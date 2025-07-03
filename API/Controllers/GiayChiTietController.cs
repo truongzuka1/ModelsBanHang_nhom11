@@ -101,6 +101,7 @@ namespace API.Controllers
             var success = await _repo.AddMultipleAsync(mappedEntities);
             if (!success) return BadRequest("Thêm thất bại");
             return Ok();
+
         }
 
 

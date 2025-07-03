@@ -7,7 +7,7 @@ using BlazorAdmin.Service;
 using BlazorAdmin.Service.IService;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args); 
 
 builder.Services.AddBlazorBootstrap();
 
@@ -46,24 +46,41 @@ builder.Services.AddAuthorizationCore();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+string url = "https://localhost:7246/";
 builder.Services.AddScoped(sp => new HttpClient
 {
-    BaseAddress = new Uri("https://localhost:7246/")
+    BaseAddress = new Uri(url)
 });
 builder.Services.AddHttpClient("voucher", client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7246");
+    client.BaseAddress = new Uri(url);
 });
 builder.Services.AddHttpClient<IKhachHangService, KhachHangService>(client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7246/");
+    client.BaseAddress = new Uri(url);
 });
 
 builder.Services.AddHttpClient<IDeGiayService, DeGiayService>(client =>
 {
-    client.BaseAddress = new Uri("https://localhost:5001/"); 
+    client.BaseAddress = new Uri(url); 
 });
+builder.Services.AddHttpClient<IVoucherService, VoucherService>(client =>
+{
+    client.BaseAddress = new Uri(url); // đúng base URL API
+});
+builder.Services.AddHttpClient<IGiamGiaService, GiamGiaService>(client =>
+{
+    client.BaseAddress = new Uri(url); // hoặc địa chỉ backend của bạn
+});
+builder.Services.AddHttpClient<IKichCoService, KichCoService>(client =>
+{
+    client.BaseAddress = new Uri(url); // hoặc địa chỉ backend của bạn
+});
+builder.Services.AddHttpClient("giay", client =>
+{
+    client.BaseAddress = new Uri(url); // thay đổi tùy theo API của bạn
+});
+
 builder.Services.AddHttpClient<IVoucherService, VoucherService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7246"); // đúng base URL API
@@ -84,15 +101,25 @@ builder.Services.AddHttpClient<IMauSacService, MauSacService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7246/");
 });
+builder.Services.AddHttpClient<IGiayService, GiayService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7246/");
+});
+builder.Services.AddHttpClient<IGiayChiTietService, GiayChiTietService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7246/");
+});
 builder.Services.AddHttpClient<IAnhService, AnhService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7246/"); // Đảm bảo đúng địa chỉ API backend
 });
 
+builder.Services.AddScoped<IXuLyDiaChi, XuLyDiaChi>();
 builder.Services.AddScoped<IHoaDonChiTietService, HoaDonChiTietService>();
 builder.Services.AddScoped<INhanVienService, NhanVienService>();
 builder.Services.AddScoped<IAnhService, AnhService>();
 builder.Services.AddScoped<IChatLieuService, ChatLieuService>();
+builder.Services.AddScoped<IDiaChiKhachHangService, DiaChiKhachHangService>();
 builder.Services.AddScoped<IChiTietHoaDonService, ChiTietHoaDonService>();
 builder.Services.AddScoped<IDeGiayService, DeGiayService>();
 builder.Services.AddScoped<IGiamGiaService, GiamGiaService>();

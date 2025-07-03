@@ -143,7 +143,7 @@
             .Split("/", StringSplitOptions.RemoveEmptyEntries)
             .Select(Capitalize);
 
-        breadcrumbText = "Dashboard / " + string.Join(" / ", segments);
+        breadcrumbText = string.Join(" / ", segments);
     }
 
     private string Capitalize(string input)

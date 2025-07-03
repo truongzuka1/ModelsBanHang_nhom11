@@ -12,17 +12,34 @@ namespace Data.Models
     {
         [Key]
         public Guid DiaChiKhachHangId { get; set; } = Guid.NewGuid();
+
         [Required]
-        [StringLength(50)]
-        [RegularExpression(@"^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưẠ-ỹ\s0-9]+$", ErrorMessage = "Tên chỉ được chứa chữ cái tiếng Việt, số và khoảng trắng")]
-        public string TenDiaChi { get; set; }
-        public Guid khachHangId { get; set; }
-        public string MoTa { get; set; }
-       
+        [StringLength(100)]
+        public string SoNha { get; set; }
+
+        [Required]
+        [StringLength(100)]
+        public string Duong { get; set; }
+
+        [StringLength(100)]
+        public string PhuongXa { get; set; }
+
+        [StringLength(100)]
+        public string QuanHuyen { get; set; }
+
+        [StringLength(100)]
+        public string ThanhPho { get; set; }
+
+        public Guid KhachHangId { get; set; }
+
         public bool TrangThai { get; set; } = true;
+
+        public bool IsDefault { get; set; } = false; // <--- THÊM
 
         public virtual KhachHang KhachHang { get; set; }
 
-
+        public string DiaChiDayDu => $"{SoNha}, {Duong}, {PhuongXa}, {QuanHuyen}, {ThanhPho}".Trim(' ', ',');
     }
+
+
 }

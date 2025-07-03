@@ -9,7 +9,7 @@ namespace BlazorAdmin.Service.IService
         Task<GiayChiTietDTO> GetByIdAsync(Guid id);
         Task<List<GiayChiTietDTO>> GetByGiayIdAsync(Guid giayId);
         Task CreateAsync(GiayChiTietDTO obj);
-        Task CreateMultipleAsync(List<GiayChiTietDTO> list);
+        Task<bool> CreateMultipleAsync(List<GiayChiTietDTO> list);
         Task DeleteAsync(Guid id);
     }
 }
