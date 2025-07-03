@@ -1,128 +1,117 @@
 ﻿@page "/chatlieu"
 @rendermode InteractiveServer
-@using BlazorAdmin.Service.IService
-
-@* <Modal @ref="modal" Title="Modal title">
-    <BodyTemplate>
-        Modal body text goes here.
-    </BodyTemplate>
-    <FooterTemplate>
-        <Button Color="ButtonColor.Secondary" @onclick="OnHideModalClick">Close</Button>
-        <Button Color="ButtonColor.Primary">Save changes</Button>
-    </FooterTemplate>
-</Modal>
-
-<Button Color="ButtonColor.Success" @onclick="OnShowModalClick">
-    <Icon Name="IconName.Plus"></Icon>
-    Thêm chất liệu
-</Button>
-
-@code {
-    private Modal modal = default!;
-
-    private async Task OnShowModalClick()
-    {
-        await modal.ShowAsync();
-    }
-
-    private async Task OnHideModalClick()
-    {
-        await modal.HideAsync();
-    }
-} *@
-
-@inject IJSRuntime JS
 @inject IChatLieuService ChatLieuService
+<link href="/css/site.css" rel="stylesheet" />
 
 <div class="container mt-5">
-    <h2 class="text-success mb-4">Quản lý Chất Liệu</h2>
+    <h4 class="mb-3">🧵 Quản lý chất liệu</h4>
 
+    <div class="card shadow-sm p-4">
+        <!-- Tìm kiếm & nút -->
+        <div class="d-flex justify-content-between mb-3">
+            <input type="text" class="form-control w-50" placeholder="🔍 Tìm kiếm chất liệu..." @bind="SearchText" @bind:event="oninput" />
+            <button class="btn btn-outline-primary" @onclick="ShowModal">➕ Thêm chất liệu</button>
+        </div>
 
-    <Button Color="ButtonColor.Success" @onclick="ShowModal">
-        <Icon Name="IconName.Plus"></Icon>
-        Thêm chất liệu
-    </Button>
-
-    <table class="table table-bordered table-hover align-middle">
-        <thead class="table-success">
-            <tr>
-                <th>#</th>
-                <th>Tên chất liệu</th>
-                <th>Mô tả</th>
-                <th>Trạng thái</th>
-                <th>Hành động</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (DanhSachChatLieu.Any())
-            {
-                @foreach (var (item, index) in DanhSachChatLieu.Select((value, i) => (value, i + 1)))
+        <!-- Bảng dữ liệu -->
+        <table class="table table-bordered table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 60px;">STT</th>
+                    <th>Tên chất liệu</th>
+                    <th>Mô tả</th>
+                    <th>Trạng thái</th>
+                    <th style="width: 120px;">Chức năng</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!FilteredChatLieus.Any())
                 {
                     <tr>
-                        <td>@index</td>
-                        <td>@item.TenChatLieu</td>
-                        <td>@item.MoTa</td>
-                        <td>
-                            <span class="badge @(item.TrangThai ? "bg-success" : "bg-secondary")">
-                                @(item.TrangThai ? "Đang sử dụng" : "Ngừng sử dụng")
-                            </span>
-                        </td>
-                        <td>
-                            <button class="btn btn-sm btn-warning me-2" @onclick="() => EditChatLieu(item)">
-                                <i class="fa fa-edit"></i>
-                            </button>
-                        </td>
+                        <td colspan="5" class="text-center text-muted">Không tìm thấy chất liệu nào.</td>
                     </tr>
                 }
-            }
-            else
-            {
-                <tr>
-                    <td colspan="5" class="text-center text-muted">Chưa có dữ liệu</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                else
+                {
+                    @foreach (var (item, index) in FilteredChatLieus.Select((x, i) => (x, i + 1)))
+                    {
+                        <tr>
+                            <td>@index</td>
+                            <td>@item.TenChatLieu</td>
+                            <td>@item.MoTa</td>
+                            <td>
+                                <span class="badge bg-@(item.TrangThai ? "success" : "secondary")">
+                                    @(item.TrangThai ? "Đang sử dụng" : "Ngừng sử dụng")
+                                </span>
+                            </td>
+                            <td>
+                                <i class="bi bi-pencil-square text-primary" style="cursor: pointer;" title="Sửa" @onclick="() => EditChatLieu(item)"></i>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Component Modal -->
+    <ChatLieuModal IsOpen="@IsModalOpen"
+                   IsEdit="@IsEdit"
+                   @bind-TenChatLieu="@TenChatLieu"
+                   @bind-MoTa="@MoTa"
+                   @bind-TrangThai="@TrangThai"
+                   OnClose="CloseModal"
+                   OnSaved="HandleSave" />
 </div>
 
-<ChatLieuModal IsOpen="@IsModalOpen"
-               IsEdit="@IsEdit"
-               @bind-TenChatLieu="@TenChatLieu"
-               @bind-MoTa="@MoTa"
-               @bind-TrangThai="@TrangThai"
-               OnClose="CloseModal"
-               OnSaved="HandleSave" />
-
 @code {
-    private List<ChatLieuModel> DanhSachChatLieu = new();
+    private List<ChatLieu> DanhSachChatLieu = new();
+    private string SearchText = string.Empty;
+
+    private IEnumerable<ChatLieu> FilteredChatLieus =>
+        string.IsNullOrWhiteSpace(SearchText)
+            ? DanhSachChatLieu
+            : DanhSachChatLieu.Where(x =>
+                (x.TenChatLieu ?? "").Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                (x.MoTa ?? "").Contains(SearchText, StringComparison.OrdinalIgnoreCase));
 
     private bool IsModalOpen = false;
     private bool IsEdit = false;
 
-    private string TenChatLieu;
-    private string MoTa;
-    private bool TrangThai;
+    private string TenChatLieu = string.Empty;
+    private string MoTa = string.Empty;
+    private bool TrangThai = true;
 
     private Guid? EditingId = null;
 
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        DanhSachChatLieu = await ChatLieuService.GetAllAsync();
+    }
+
     private void ShowModal()
     {
+        IsModalOpen = true;
+        IsEdit = false;
+        EditingId = null;
         TenChatLieu = string.Empty;
         MoTa = string.Empty;
         TrangThai = true;
-        EditingId = null;
-        IsEdit = false;
-        IsModalOpen = true;
     }
 
-    private void EditChatLieu(ChatLieuModel item)
+    private void EditChatLieu(ChatLieu item)
     {
+        IsModalOpen = true;
+        IsEdit = true;
+        EditingId = item.ChatLieuId;
         TenChatLieu = item.TenChatLieu;
         MoTa = item.MoTa;
         TrangThai = item.TrangThai;
-        EditingId = item.Id;
-        IsEdit = true;
-        IsModalOpen = true;
     }
 
     private void CloseModal()
@@ -130,37 +119,33 @@
         IsModalOpen = false;
     }
 
-    private void HandleSave((string Ten, string MoTa, bool TrangThai) result)
+    private async Task HandleSave((string Ten, string MoTa, bool TrangThai) result)
     {
         if (IsEdit && EditingId.HasValue)
         {
-            var existing = DanhSachChatLieu.FirstOrDefault(x => x.Id == EditingId.Value);
-            if (existing != null)
-            {
-                existing.TenChatLieu = result.Ten;
-                existing.MoTa = result.MoTa;
-                existing.TrangThai = result.TrangThai;
-            }
+            var updated = new ChatLieu
+                {
+                    ChatLieuId = EditingId.Value,
+                    TenChatLieu = result.Ten,
+                    MoTa = result.MoTa,
+                    TrangThai = result.TrangThai
+                };
+
+            await ChatLieuService.UpdateAsync(updated);
         }
         else
         {
-            DanhSachChatLieu.Add(new ChatLieuModel
-            {
-                Id = Guid.NewGuid(),
-                TenChatLieu = result.Ten,
-                MoTa = result.MoTa,
-                TrangThai = result.TrangThai
-            });
+            var newItem = new ChatLieu
+                {
+                    TenChatLieu = result.Ten,
+                    MoTa = result.MoTa,
+                    TrangThai = result.TrangThai
+                };
+
+            await ChatLieuService.CreateAsync(newItem);
         }
 
+        await LoadDataAsync();
         CloseModal();
-    }
-
-    private class ChatLieuModel
-    {
-        public Guid Id { get; set; }
-        public string TenChatLieu { get; set; }
-        public string MoTa { get; set; }
-        public bool TrangThai { get; set; }
     }
 }

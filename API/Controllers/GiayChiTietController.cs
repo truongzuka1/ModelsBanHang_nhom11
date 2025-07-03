@@ -1,5 +1,6 @@
 ﻿using API.IRepository;
 using API.Models.DTO;
+using API.Repository;
 using Data.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -44,6 +45,7 @@ namespace API.Controllers
             var items = await _repo.GetAllAsync();
             return Ok(items.Select(MapToDTO));
         }
+      
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
@@ -82,25 +84,25 @@ namespace API.Controllers
         }
 
         [HttpPost("multiple")]
-        public async Task<IActionResult> AddMultiple([FromBody] List<GiayChiTietDTO> listDto)
+        public async Task<IActionResult> AddMultiple([FromBody] List<GiayChiTietDTO> list)
         {
-            var entities = listDto.Select(dto => new GiayChiTiet
+            var mappedEntities = list.Select(dto => new GiayChiTiet
             {
                 GiayId = dto.GiayId,
-                KichCoId = dto.KichCoId,
                 MauSacId = dto.MauSacId,
-                Gia = dto.Gia,
+                KichCoId = dto.KichCoId,
                 SoLuongCon = dto.SoLuongCon,
-                MoTa = dto.MoTa,
+                Gia = dto.Gia,
+                NgayTao = dto.NgayTao,
                 TrangThai = dto.TrangThai,
-                AnhGiay = dto.AnhGiay,
-                NgayTao = DateTime.Now,
-                NgaySua = DateTime.Now
+                AnhGiay = dto.AnhGiay
             }).ToList();
 
-            var result = await _repo.AddMultipleAsync(entities);
-            return result ? Ok() : StatusCode(500, "Không thêm được danh sách");
+            var success = await _repo.AddMultipleAsync(mappedEntities);
+            if (!success) return BadRequest("Thêm thất bại");
+            return Ok();
         }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)

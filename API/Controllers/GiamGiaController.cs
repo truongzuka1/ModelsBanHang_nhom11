@@ -12,10 +12,12 @@ namespace API.Controllers
     public class GiamGiaController : ControllerBase
     {
         private readonly IGiamGiaRepository _giamGiaRepository;
+        private readonly IThongBaoRepository _thongBaoRepository; // ✅ Thêm
 
-        public GiamGiaController(IGiamGiaRepository giamGiaRepository)
+        public GiamGiaController(IGiamGiaRepository giamGiaRepository, IThongBaoRepository thongBaoRepository)
         {
             _giamGiaRepository = giamGiaRepository;
+            _thongBaoRepository = thongBaoRepository;
         }
 
         [HttpGet]
@@ -36,13 +38,14 @@ namespace API.Controllers
         [HttpPost]
         public async Task<ActionResult<GiamGia>> Create([FromBody] GiamGia giamGia)
         {
-            // ✅ Thêm validate rõ ràng phía server
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             var created = await _giamGiaRepository.AddAsync(giamGia);
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"🎯 Thêm đợt giảm giá: {giamGia.TenGiamGia}");
+
             return CreatedAtAction(nameof(GetById), new { id = created.GiamGiaId }, created);
         }
 
@@ -53,12 +56,13 @@ namespace API.Controllers
                 return BadRequest("Id mismatch");
 
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             var updated = await _giamGiaRepository.UpdateAsync(giamGia);
             if (updated == null) return NotFound();
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"✏️ Cập nhật đợt giảm giá: {giamGia.TenGiamGia}");
 
             return Ok(updated);
         }
@@ -66,8 +70,15 @@ namespace API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
+            var giamGia = await _giamGiaRepository.GetByIdAsync(id);
+            if (giamGia == null) return NotFound();
+
             var deleted = await _giamGiaRepository.DeleteAsync(id);
-            if (!deleted) return NotFound();
+            if (!deleted) return BadRequest();
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"🗑️ Đã xoá đợt giảm giá: {giamGia.TenGiamGia}");
+
             return NoContent();
         }
 
@@ -78,6 +89,9 @@ namespace API.Controllers
             if (!added)
                 return BadRequest("Không thể thêm giày vào đợt giảm giá (đã tồn tại hoặc không tìm thấy)");
 
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"➕ Thêm giày vào đợt giảm giá ID: {giamGiaId}");
+
             return Ok();
         }
 
@@ -86,8 +100,11 @@ namespace API.Controllers
         {
             var removed = await _giamGiaRepository.RemoveGiayFromDotGiamGia(giamGiaId, giayId);
             if (!removed) return NotFound();
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"➖ Gỡ giày khỏi đợt giảm giá ID: {giamGiaId}");
+
             return Ok();
         }
     }
-
 }

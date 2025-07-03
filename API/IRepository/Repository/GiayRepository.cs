@@ -96,5 +96,35 @@ namespace API.Repository
             await _context.SaveChangesAsync();
             return existing;
         }
+
+        public async Task<bool> AddWithChiTietAsync(Giay giay, List<GiayChiTiet> chiTietList)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                _context.Giays.Add(giay);
+                await _context.SaveChangesAsync();
+              
+                foreach (var ct in chiTietList)
+                {
+                    ct.GiayId = giay.GiayId;
+                }
+
+             
+                _context.GiayChiTiets.AddRange(chiTietList);
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                Console.WriteLine("Lỗi khi thêm giày + chi tiết: " + ex.Message);
+                return false;
+            }
+        }
+
     }
 }

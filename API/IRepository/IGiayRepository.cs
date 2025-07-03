@@ -10,6 +10,8 @@ namespace API.IRepository
         Task<Giay> UpdateAsync(Giay giay);
         Task<bool> DeleteAsync(Guid id);
         Task<IEnumerable<Giay>> SearchByTenAsync(string keyword);
+        Task<bool> AddWithChiTietAsync(Giay giay, List<GiayChiTiet> chiTietList);
+
 
     }
 }

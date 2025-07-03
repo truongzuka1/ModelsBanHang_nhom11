@@ -1,0 +1,86 @@
+﻿@using API.Models.DTO
+@using Data.Models
+@inject IGiayChiTietService GiayChiTietService
+
+@if (Visible)
+{
+    <div class="product-select-overlay"></div>
+    <div class="product-select-box">
+        <div class="product-select-list">
+            @foreach (var product in Products)
+            {
+                <div class="product-select-item">
+                    <img src="@product.AnhGiay" class="order-img" alt="@product.TenGiay" />
+                    <div class="item-info">
+                        <div class="order-name">@product.TenGiay</div>
+                        <div class="order-price">
+                            <span class="old-price">@FormatMoney(product.Gia)</span>
+                        </div>
+                        <div class="order-size">
+                            Size:
+                            <select @bind="@product.size">
+                                <option value="@product.size">@product.size?.ToString()</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="order-qty">
+                        <button class="decrease-btn" @onclick="@(() => ChangeQty(product, -1))">-</button>
+                        <input type="number" class="qty-input" value="@product.SoLuongCon" readonly />
+                        <button class="increase-btn" @onclick="@(() => ChangeQty(product, 1))">+</button>
+                    </div>
+                    <div class="order-total">@FormatMoney(product.Gia * product.SoLuongCon)</div>
+                    <button class="add-to-order" @onclick="@(() => AddToOrder(product))">Thêm vào đơn</button>
+                </div>
+            }
+        </div>
+        <button class="close-product-select" @onclick="Close">Đóng</button>
+    </div>
+}
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public EventCallback<GioHangChiTiet> OnAddProduct { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private List<GiayChiTietDTO> Products = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var all = await GiayChiTietService.GetAllAsync();
+        Products = all.Select(g =>
+        {
+            g.SoLuongCon = 1; 
+            g.size = g.size ?? "";
+            return g;
+        }).ToList();
+    }
+
+    private void ChangeQty(GiayChiTietDTO g, int delta)
+    {
+        g.SoLuongCon += delta;
+        if (g.SoLuongCon < 1) g.SoLuongCon = 1;
+    }
+
+    private async Task AddToOrder(GiayChiTietDTO g)
+    {
+        var item = new GioHangChiTiet
+        {
+            GiayId = g.GiayId,
+            Gia = (decimal)g.Gia,
+            SoLuongSanPham = g.SoLuongCon,
+            TrangThai = true
+        };
+        await OnAddProduct.InvokeAsync(item);
+        await OnClose.InvokeAsync();
+    }
+
+    private void Close()
+    {
+        OnClose.InvokeAsync();
+    }
+
+    private string FormatMoney(float amount)
+    {
+        return string.Format("{0:N0} VND", amount);
+    }
+}

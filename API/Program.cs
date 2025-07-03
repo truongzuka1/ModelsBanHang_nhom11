@@ -34,6 +34,8 @@ builder.Services.AddScoped<IChatLieuRepository, ChatLieuRepository>();
 builder.Services.AddScoped<IDeGiayRepository, DeGiayRepository>();
 builder.Services.AddScoped<IGiamGiaRepository, GiamGiaRepository>();
 builder.Services.AddScoped<IGiayRepository, GiayRepository>();
+builder.Services.AddScoped<IThongBaoRepository, ThongBaoRepository>();
+
 builder.Services.AddScoped<IGiayChiTietRepository, GiayChiTietRepository>();
 builder.Services.AddScoped<IGioHangRepository, GioHangRepository>();
 builder.Services.AddScoped<IGioHangChiTietRepository, GioHangChiTietRepository>();
@@ -43,6 +45,7 @@ builder.Services.AddScoped<IKichCoRepository, KichCoRepository>();
 builder.Services.AddScoped<INhanVienRepository, NhanVienRepository>();
 builder.Services.AddScoped<IThuongHieuRepository, ThuongHieuRepository>();
 builder.Services.AddScoped<IVoucherRepo, VoucherRepo>();
+builder.Services.AddScoped<IKieuDangRepository, KieuDangRepository>();
 builder.Services.AddScoped<ITheLoaiGiayRepository, TheLoaiGiayRepository>();
 builder.Services.AddScoped<IChiTietHoaDonRepository, ChiTietHoaDonRepository>();
 builder.Services.AddScoped<ITaiKhoanRepository, TaiKhoanRepository>();

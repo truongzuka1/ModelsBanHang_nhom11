@@ -1,6 +1,7 @@
 ﻿using API.Models.DTO;
 using BlazorAdmin.Service.IService;
 using System.Net.Http.Json;
+using static BlazorAdmin.Components.Pages.Admin.SanPham.SanPhamChiTiet;
 
 namespace BlazorAdmin.Service
 {
@@ -39,8 +40,14 @@ namespace BlazorAdmin.Service
         public async Task CreateMultipleAsync(List<GiayChiTietDTO> list)
         {
             var response = await _httpClient.PostAsJsonAsync("api/GiayChiTiet/multiple", list);
-            response.EnsureSuccessStatusCode();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Lỗi khi thêm chi tiết giày: {error}");
+            }
         }
+
 
         public async Task DeleteAsync(Guid id)
         {

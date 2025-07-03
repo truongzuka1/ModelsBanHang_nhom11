@@ -11,10 +11,12 @@ namespace API.Controllers
     public class ChatLieuController : ControllerBase
     {
         private readonly IChatLieuRepository _chatLieuRepository;
+        private readonly IThongBaoRepository _thongBaoRepository; // ✅ thêm
 
-        public ChatLieuController(IChatLieuRepository chatLieuRepository)
+        public ChatLieuController(IChatLieuRepository chatLieuRepository, IThongBaoRepository thongBaoRepository)
         {
             _chatLieuRepository = chatLieuRepository;
+            _thongBaoRepository = thongBaoRepository;
         }
 
         // GET: api/ChatLieu
@@ -40,6 +42,10 @@ namespace API.Controllers
         {
             chatLieu.ChatLieuId = Guid.NewGuid();
             await _chatLieuRepository.AddAsync(chatLieu);
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"➕ Đã thêm chất liệu: {chatLieu.TenChatLieu}");
+
             return Ok();
         }
 
@@ -55,6 +61,10 @@ namespace API.Controllers
             existing.TrangThai = chatLieu.TrangThai;
 
             await _chatLieuRepository.UpdateAsync(existing);
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"✏️ Đã cập nhật chất liệu: {chatLieu.TenChatLieu}");
+
             return Ok();
         }
 
@@ -62,7 +72,14 @@ namespace API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
+            var entity = await _chatLieuRepository.GetByIdAsync(id);
+            if (entity == null) return NotFound();
+
             await _chatLieuRepository.DeleteAsync(id);
+
+            // ✅ Ghi thông báo
+            await _thongBaoRepository.ThemThongBaoAsync($"🗑️ Đã xoá chất liệu: {entity.TenChatLieu}");
+
             return Ok();
         }
     }

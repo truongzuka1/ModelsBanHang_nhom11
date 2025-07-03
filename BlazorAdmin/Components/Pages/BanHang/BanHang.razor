@@ -1,0 +1,287 @@
+﻿@page "/banhang"
+@using API.Models.DTO.BanHang
+<link href="~/css/BanHang.css" rel="stylesheet" />
+<div class="sell-container">
+    <!-- Tabs đơn hàng -->
+    <div class="order-tabs">
+        @foreach (var order in Orders.Select((value, index) => new { value, index }))
+        {
+            <div class="order-tab @(order.index == CurrentOrderIndex ? "active" : "")" @onclick="@(() => SwitchOrder(order.index))">
+                Đơn hàng @(order.index + 1)
+                @if (order.value.Products.Count > 0)
+                {
+                    <span class="order-qty-badge">@order.value.Products.Sum(p => p.Quantity)</span>
+                }
+                <span class="close" @onclick="() => RemoveOrder(order.index)">×</span>
+            </div>
+        }
+
+        <button class="create-order-btn" @onclick="CreateOrder">+ Tạo đơn hàng</button>
+    </div>
+
+    <!-- Thanh công cụ sản phẩm -->
+    @if (CurrentOrder.Products.Count > 0)
+    {
+        <div class="order-actions">
+            <div class="order-list-title">Sản phẩm</div>
+            <div class="order-actions-buttons">
+                <button class="qr-btn" @onclick="ScanQRCode">📷 Quét QR sản phẩm</button>
+                <button class="add-btn" @onclick="() => IsProductModalVisible = true">Thêm sản phẩm</button>
+            </div>
+        </div>
+    }
+
+    <!-- Danh sách sản phẩm trong đơn hàng -->
+    <div class="order-list @(CurrentOrder.Products.Count == 0 ? "empty" : "")">
+        @if (CurrentOrder.Products.Count == 0)
+        {
+            <div>Chưa có sản phẩm nào trong đơn hàng</div>
+        }
+        else
+        {
+            <!-- Chỉ render 1 lần ngoài vòng foreach -->
+            <ProductSelect Visible="@IsProductModalVisible"
+                           OnAddProduct="HandleAddProduct"
+                           OnClose="@(() => IsProductModalVisible = false)" />
+
+        }
+    </div>
+
+    <!-- Khách hàng -->
+    @if (CurrentOrder.Products.Count > 0)
+    {
+        <!-- Trong giao diện, bạn nên có nút mở modal -->
+        <button @onclick="() => IsCustomerModalVisible = true">+ CHỌN KHÁCH HÀNG</button>
+        <CustomerSelect Visible="@IsCustomerModalVisible"
+                        OnCustomerSelected="HandleCustomerSelected"
+                        OnClose="@(() => IsCustomerModalVisible = false)" />
+    }
+
+    <!-- Footer đặt hàng -->
+    @if (CurrentOrder.Products.Count > 0)
+    {
+        @if (CurrentOrder.Customer != null && IsDelivery)
+        {
+            <button class="address-change-btn" @onclick="() => IsProductModalVisible = true">Chọn địa chỉ</button>
+        }
+
+        <div class="order-footer">
+            @if (IsDelivery)
+            {
+
+                <div class="customer-info">
+                    <div class="customer-info-row">
+                        <div>
+                            <label>Tên người nhận</label>
+                            <input type="text" class="receiver-name-input" @bind="ReceiverName" />
+                        </div>
+                        <div>
+                            <label>Số điện thoại</label>
+                            <input type="text" class="receiver-phone-input" @bind="ReceiverPhone" />
+                        </div>
+                    </div>
+                    <AddressSelect Visible="@IsAddressModalVisible"
+                                   Addresses="DiaChiTam"
+                                   OnAddressSelected="HandleAddressSelected"
+                                   OnClose="@(() => IsAddressModalVisible = false)" />
+
+                </div>
+            }
+
+            <div class="order-info">
+                <div style="text-align: right; margin-bottom: 12px;">
+                    <label>Giao hàng</label>
+                    <input type="checkbox" class="delivery-toggle" @bind="IsDelivery" />
+                </div>
+
+                <div class="voucher-area">
+                    <input type="text" class="voucher-input" @bind="VoucherCode" placeholder="Phiếu giảm giá" />
+                    <input type="text" class="discount-input" @bind="DiscountPercent" placeholder="Phần trăm giảm" />
+                </div>
+
+                <div class="order-summary">
+                    <div class="order-row">
+                        <span>Tiền hàng</span>
+                        <span>@FormatMoney(Subtotal)</span>
+                    </div>
+                    <div class="order-row">
+                        <span>Phí vận chuyển</span>
+                        <span>@FormatMoney(ShippingFee)</span>
+                    </div>
+                    <div class="order-row">
+                        <span>Giảm giá</span>
+                        <span>@FormatMoney(DiscountAmount)</span>
+                    </div>
+                    <div class="order-row total">
+                        <span>Tổng số tiền</span>
+                        <span>@FormatMoney(TotalAmount)</span>
+                    </div>
+                    <div class="order-row">
+                        <span>Khách thanh toán:</span>
+                        <input class="pay-input" type="text" @bind="CustomerPay" />
+                    </div>
+                    <div class="order-row deficit">
+                        <span>Tiền thiếu</span>
+                        <span>@FormatMoney(DeficitAmount)</span>
+                    </div>
+                    <button class="confirm-btn" @onclick="ConfirmOrder">XÁC NHẬN ĐẶT HÀNG</button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+
+    // 📦 Dữ liệu đơn hàng
+    private List<Order> Orders = new() { new Order() };
+    private int CurrentOrderIndex = 0;
+    private Order CurrentOrder => Orders[CurrentOrderIndex];
+
+    // 📞 Thông tin nhận hàng
+    private string ReceiverName { get; set; } = "";
+    private string ReceiverPhone { get; set; } = "";
+    private string AddressDetail { get; set; } = "";
+    private bool IsDelivery { get; set; } = false;
+
+    // 💰 Tính toán đơn hàng
+    private string VoucherCode { get; set; } = "";
+    private int DiscountPercent { get; set; } = 0;
+    private int CustomerPay { get; set; } = 0;
+
+    private int Subtotal => CurrentOrder.Products.Sum(p => p.Quantity * (int)p.NewPrice);
+    private int ShippingFee => IsDelivery ? 0 : 0; 
+    private int DiscountAmount => (Subtotal * DiscountPercent) / 100;
+    private int TotalAmount => Subtotal + ShippingFee - DiscountAmount;
+    private int DeficitAmount => TotalAmount - CustomerPay;
+
+    // 🛒 Hành động
+    private void CreateOrder()
+    {
+        if (Orders.Count >= 5)
+        {
+            // Hiển thị thông báo nếu cần
+            return;
+        }
+        Orders.Add(new Order());
+        CurrentOrderIndex = Orders.Count - 1;
+    }
+
+    private void RemoveOrder(int index)
+    {
+        if (Orders.Count <= 1) return;
+        Orders.RemoveAt(index);
+        if (CurrentOrderIndex >= Orders.Count)
+            CurrentOrderIndex = Orders.Count - 1;
+    }
+
+    private void SwitchOrder(int index)
+    {
+        CurrentOrderIndex = index;
+    }
+
+    private void IncreaseQuantity(ProductOrder product)
+    {
+        product.Quantity++;
+    }
+
+    private void DecreaseQuantity(ProductOrder product)
+    {
+        if (product.Quantity > 1)
+            product.Quantity--;
+    }
+
+    private void RemoveProduct(ProductOrder product)
+    {
+        CurrentOrder.Products.Remove(product);
+    }
+
+
+    private void ScanQRCode()
+    {
+        // TODO: QR
+    }
+
+    private void ResetCustomer()
+    {
+        CurrentOrder.Customer = null;
+        ReceiverName = "";
+        ReceiverPhone = "";
+    }
+
+    private void ConfirmOrder()
+    {
+        if (CurrentOrder.Products.Count == 0)
+        {
+            // Thông báo thêm sản phẩm
+            return;
+        }
+
+        if (IsDelivery)
+        {
+            if (string.IsNullOrWhiteSpace(ReceiverName) || string.IsNullOrWhiteSpace(ReceiverPhone))
+            {
+                // Thông báo thiếu thông tin
+                return;
+            }
+
+            if (!System.Text.RegularExpressions.Regex.IsMatch(ReceiverPhone, @"^\d{9,11}$"))
+            {
+                // Số điện thoại không hợp lệ
+                return;
+            }
+        }
+
+        // Có thể gọi API lưu đơn ở đây
+
+        // Thông báo thành công
+    }
+
+    private string FormatMoney(int amount)
+    {
+        return string.Format("{0:N0} VND", amount);
+    }
+    private bool IsProductModalVisible = false;
+
+    private void HandleAddProduct(GioHangChiTiet item)
+    {
+        CurrentOrder.Products.Add(new ProductOrder
+        {
+            GiayChiTietId = item.GiayId,
+            TenGiay = item.Giays.TenGiay, 
+            Quantity = item.SoLuongSanPham,
+            Price = item.Gia
+        });
+    }
+    private bool IsCustomerModalVisible = false;
+
+    private void HandleCustomerSelected(KhachHang kh)
+    {
+        CurrentOrder.Customer = kh;
+
+        if (IsDelivery)
+        {
+            ReceiverName = kh.HoTen;
+            ReceiverPhone = kh.SoDienThoai;
+            // Có thể gán địa chỉ mặc định nếu bạn muốn
+        }
+    }
+
+    private bool IsAddressModalVisible = false;
+
+    private void HandleAddressSelected(DiaChiKhachHang diaChi)
+    {
+        CurrentOrder.Address = diaChi;
+
+        // Nếu bạn muốn gán giá trị về form giao hàng
+        if (IsDelivery)
+        {
+            ReceiverName = CurrentOrder.Customer?.HoTen ?? "";
+            ReceiverPhone = CurrentOrder.Customer?.SoDienThoai ?? "";
+            AddressDetail = diaChi.MoTa;
+        }
+    }
+
+    private List<DiaChiKhachHang> DiaChiTam => CurrentOrder.Customer?.DiaChiKhachHangs?.ToList() ?? new();
+
+}
