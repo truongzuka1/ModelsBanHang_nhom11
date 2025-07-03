@@ -72,10 +72,10 @@
                         </div>
                         <div class="order-qty">
                             <button class="decrease-btn" @onclick="() => DecreaseQuantity(product)">-</button>
-                            <input class="qty-input" type="number" value="@product.Quantity" readonly />
+                            <input class="qty-input" type="number" value="@Soluongsp" readonly />
                             <button class="increase-btn" @onclick="() => IncreaseQuantity(product)">+</button>
                         </div>
-                        <div class="order-total">@FormatMoney(product.Quantity * (int)product.NewPrice)</div>
+                        <div class="order-total">@FormatMoney(Soluongsp * (int)product.NewPrice)</div>
                         <button class="order-remove" @onclick="() => RemoveProduct(product)">×</button>
                     </div>
                 }
@@ -261,7 +261,7 @@
     private float DiscountPercent { get; set; } = 0;
     private float CustomerPay { get; set; } = 0;
 
-    private float Subtotal => CurrentOrder?.Products?.Sum(p => p.Quantity * p.NewPrice) ?? 0f;
+    private float Subtotal => CurrentOrder?.Products?.Sum(p => Soluongsp * p.NewPrice) ?? 0f;
     private float ShippingFee => IsDelivery ? 0f : 0f;
     private float DiscountAmount => (Subtotal * DiscountPercent) / 100f;
     private float TotalAmount => Subtotal + ShippingFee - DiscountAmount;
@@ -345,21 +345,36 @@
         }
     }
 
-
+    private int Soluongsp = 1;
     private void SwitchOrder(int index)
     {
         CurrentOrderIndex = index;
     }
 
-    private void IncreaseQuantity(ProductOrder product)
+    private async void IncreaseQuantity(ProductOrder product)
     {
-        product.Quantity++;
+        Soluongsp++;
+        if (Soluongsp > product.Quantity)
+        {
+            Soluongsp = product.Quantity;
+            await JS.InvokeVoidAsync("Swal.fire", new
+            {
+                toast = true,
+                position = "top-end",
+                icon = "info",
+                title = "Số lượng sản phẩm tối đa",
+                showConfirmButton = false,
+                timer = 3000,
+                timerProgressBar = true
+            });
+        }
     }
 
     private void DecreaseQuantity(ProductOrder product)
     {
-        if (product.Quantity > 1)
-            product.Quantity--;
+        Soluongsp--;
+        if (Soluongsp < 1) RemoveProduct(product);
+
     }
 
     private void RemoveProduct(ProductOrder product)
@@ -475,8 +490,10 @@
     }
     private bool IsProductModalVisible = false;
 
-    private void HandleAddProduct(GiayChiTietDTO item)
+    private void HandleAddProduct((GiayChiTietDTO item , int Soluong) data)
     {
+        var item = data.item;
+        var soluong = data.Soluong;
         if (CurrentOrder == null) return;
 
         CurrentOrder.Products.Add(new ProductOrder
@@ -486,6 +503,7 @@
             Quantity = item.SoLuongCon,
             Price = item.Gia
         });
+        Soluongsp = soluong; 
     }
 
     private bool IsCustomerModalVisible = false;
