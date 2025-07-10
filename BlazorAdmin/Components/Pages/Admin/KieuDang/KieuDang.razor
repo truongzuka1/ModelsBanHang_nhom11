@@ -2,7 +2,7 @@
 @using API.Models.DTO
 @inject IKieuDangService kieuDangService
 @inject IJSRuntime JS
-
+<script src="js/site.js"></script>
 <h4 class="mb-3">✨ Quản lý kiểu dáng</h4>
 
 <div class="card shadow-sm p-4">
@@ -11,18 +11,49 @@
         <input type="text" class="form-control w-50" placeholder="🔍 Tìm tên kiểu dáng..." @bind="searchTerm" @bind:event="oninput" />
         <button class="btn btn-outline-primary" @onclick="ShowAddForm">➕ Thêm mới</button>
     </div>
-    <!-- Popup thêm/sửa -->
-    <CreateOrUpdateKieuDang FormData="FormData"
-                            IsVisible="IsPopupVisible"
-                            OnSubmit="SubmitForm"
-                            OnClose="ClosePopup"
-                            IsEdit="IsEdit" />
 
-    <!-- Popup xác nhận xoá -->
+    <!-- Modal thêm/sửa -->
+    <div class="modal fade" id="kieuDangModal" tabindex="-1" aria-labelledby="kieuDangModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="kieuDangModalLabel">@(IsEdit ? "Sửa kiểu dáng" : "Thêm kiểu dáng")</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="FormData" OnValidSubmit="SubmitForm">
+                        <DataAnnotationsValidator />
+                        <div class="mb-3">
+                            <label class="form-label">Tên kiểu dáng</label>
+                            <InputText class="form-control" @bind-Value="FormData.TenKieuDang" />
+                            <ValidationMessage For="@(() => FormData.TenKieuDang)" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mô tả</label>
+                            <InputTextArea class="form-control" @bind-Value="FormData.MoTa" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-check-label">
+                                <InputCheckbox class="form-check-input" @bind-Value="FormData.TrangThai" />
+                                Hiển thị
+                            </label>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" @onclick="CloseModal">Đóng</button>
+                            <button type="submit" class="btn btn-primary">Lưu</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup xác nhận xóa (giữ nguyên) -->
     <DeleteKieuDang Item="SelectedItem"
                     IsVisible="IsConfirmVisible"
                     OnDelete="DeleteItem"
                     OnCancel="() => IsConfirmVisible = false" />
+
     <!-- Bảng dữ liệu -->
     <table class="table table-bordered table-hover">
         <thead class="table-light">
@@ -62,7 +93,6 @@
         </tbody>
     </table>
 
-
     <!-- Phân trang -->
     <div class="d-flex justify-content-between align-items-center mt-3">
         <div>
@@ -92,8 +122,6 @@
     </div>
 </div>
 
-
-
 <!-- Toast -->
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
     @if (!string.IsNullOrEmpty(ToastMessage))
@@ -114,9 +142,7 @@
     private int PageSize = 5;
 
     private KieuDangDTO FormData = new();
-    private bool IsPopupVisible = false;
     private bool IsEdit = false;
-
     private KieuDangDTO? SelectedItem;
     private bool IsConfirmVisible = false;
     private string? ToastMessage;
@@ -154,29 +180,29 @@
         }
     }
 
-    private void ShowAddForm()
+    private async Task ShowAddForm()
     {
         IsEdit = false;
         FormData = new KieuDangDTO { TrangThai = true };
-        IsPopupVisible = true;
+        await JS.InvokeVoidAsync("showModal", "kieuDangModal");
     }
 
-    private void Edit(KieuDangDTO item)
+    private async Task Edit(KieuDangDTO item)
     {
         IsEdit = true;
         FormData = new KieuDangDTO
-            {
-                KieuDangId = item.KieuDangId,
-                TenKieuDang = item.TenKieuDang,
-                MoTa = item.MoTa,
-                TrangThai = item.TrangThai
-            };
-        IsPopupVisible = true;
+        {
+            KieuDangId = item.KieuDangId,
+            TenKieuDang = item.TenKieuDang,
+            MoTa = item.MoTa,
+            TrangThai = item.TrangThai
+        };
+        await JS.InvokeVoidAsync("showModal", "kieuDangModal");
     }
 
-    private void ClosePopup()
+    private async Task CloseModal()
     {
-        IsPopupVisible = false;
+        await JS.InvokeVoidAsync("hideModal", "kieuDangModal");
     }
 
     private async Task SubmitForm()
@@ -198,7 +224,7 @@
         {
             ToastMessage = IsEdit ? "Cập nhật thành công!" : "Thêm thành công!";
             await LoadData();
-            ClosePopup();
+            await CloseModal();
         }
         else
         {

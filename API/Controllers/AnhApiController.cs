@@ -11,133 +11,174 @@ namespace API.Controllers
     public class AnhApiController : ControllerBase
     {
         private readonly IAnhRepository _anhRepository;
+        private readonly ILogger<AnhApiController> _logger;
 
-        public AnhApiController(IAnhRepository anhRepository)
+        public AnhApiController(IAnhRepository anhRepository, ILogger<AnhApiController> logger)
         {
             _anhRepository = anhRepository;
+            _logger = logger;
         }
 
-        // GET: api/AnhApi
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AnhDTO>>> GetAll()
         {
-            var result = await _anhRepository.GetAllAsync();
-            var dtoList = result.Select(anh => new AnhDTO
+            try
             {
-                AnhId = anh.AnhId,
-                GiayChiTietId = anh.GiayChiTietId,
-                DuongDan = anh.DuongDan,
-                TenAnh = anh.TenAnh,
-                TrangThai = anh.TrangThai
-            }).ToList();
+                var result = await _anhRepository.GetAllAsync();
+                var dtoList = result.Select(anh => new AnhDTO
+                {
+                    AnhId = anh.AnhId,
+                    GiayChiTietId = anh.GiayChiTietId,
+                    DuongDan = anh.DuongDan,
+                    TenAnh = anh.TenAnh,
+                    TrangThai = anh.TrangThai
+                }).ToList();
 
-            return Ok(dtoList);
+                return Ok(dtoList);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi lấy danh sách ảnh");
+                return StatusCode(500, "Đã xảy ra lỗi khi xử lý yêu cầu");
+            }
         }
 
-        // GET: api/AnhApi/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<AnhDTO>> GetById(Guid id)
         {
-            var anh = await _anhRepository.GetByIdAsync(id);
-            if (anh == null) return NotFound();
-
-            var dto = new AnhDTO
+            try
             {
-                AnhId = anh.AnhId,
-                GiayChiTietId = anh.GiayChiTietId,
-                DuongDan = anh.DuongDan,
-                TenAnh = anh.TenAnh,
-                TrangThai = anh.TrangThai
-            };
+                var anh = await _anhRepository.GetByIdAsync(id);
+                if (anh == null) return NotFound();
 
-            return Ok(dto);
+                return Ok(new AnhDTO
+                {
+                    AnhId = anh.AnhId,
+                    GiayChiTietId = anh.GiayChiTietId,
+                    DuongDan = anh.DuongDan,
+                    TenAnh = anh.TenAnh,
+                    TrangThai = anh.TrangThai
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Lỗi khi lấy ảnh với ID: {id}");
+                return StatusCode(500, "Đã xảy ra lỗi khi xử lý yêu cầu");
+            }
         }
 
-        // POST: api/AnhApi/upload
         [HttpPost("upload")]
+        [Consumes("multipart/form-data")]
         public async Task<ActionResult<AnhDTO>> Upload([FromForm] AnhUploadDTO dto)
         {
-            if (dto.File == null || dto.File.Length == 0)
-                return BadRequest("File ảnh không hợp lệ.");
-
-            var uploadedAnh = await _anhRepository.UploadAsync(dto.File, dto.TenAnh);
-
-            if (uploadedAnh == null) return BadRequest("Upload thất bại.");
-
-            uploadedAnh.GiayChiTietId = dto.GiayChiTietId;
-            await _anhRepository.UpdateAsync(uploadedAnh); // Cập nhật liên kết với GiayChiTiet
-
-            var resultDto = new AnhDTO
+            try
             {
-                AnhId = uploadedAnh.AnhId,
-                GiayChiTietId = uploadedAnh.GiayChiTietId,
-                DuongDan = uploadedAnh.DuongDan,
-                TenAnh = uploadedAnh.TenAnh,
-                TrangThai = uploadedAnh.TrangThai
-            };
+                if (dto.File == null || dto.File.Length == 0)
+                    return BadRequest("File ảnh không hợp lệ.");
 
-            return Ok(resultDto);
+                var uploadedAnh = await _anhRepository.UploadAsync(dto.File, dto.TenAnh, dto.GiayChiTietId);
+
+                if (uploadedAnh == null)
+                    return BadRequest("Upload thất bại hoặc file không đúng định dạng.");
+
+                return Ok(new AnhDTO
+                {
+                    AnhId = uploadedAnh.AnhId,
+                    GiayChiTietId = uploadedAnh.GiayChiTietId,
+                    DuongDan = uploadedAnh.DuongDan,
+                    TenAnh = uploadedAnh.TenAnh,
+                    TrangThai = uploadedAnh.TrangThai
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi upload ảnh");
+                return StatusCode(500, "Đã xảy ra lỗi khi upload ảnh");
+            }
         }
 
-        // PUT: api/AnhApi/{id}
         [HttpPut("{id}")]
         public async Task<ActionResult<AnhDTO>> Update(Guid id, [FromBody] AnhDTO dto)
         {
-            if (id != dto.AnhId) return BadRequest("ID không khớp.");
-
-            var model = new Anh
+            try
             {
-                AnhId = dto.AnhId,
-                GiayChiTietId = dto.GiayChiTietId,
-                DuongDan = dto.DuongDan,
-                TenAnh = dto.TenAnh,
-                TrangThai = dto.TrangThai
-            };
+                if (id != dto.AnhId)
+                    return BadRequest("ID không khớp.");
 
-            var updated = await _anhRepository.UpdateAsync(model);
-            if (updated == null) return NotFound();
+                var updated = await _anhRepository.UpdateAsync(new Anh
+                {
+                    AnhId = dto.AnhId,
+                    GiayChiTietId = dto.GiayChiTietId,
+                    DuongDan = dto.DuongDan,
+                    TenAnh = dto.TenAnh,
+                    TrangThai = dto.TrangThai
+                });
 
-            var resultDto = new AnhDTO
+                if (updated == null)
+                    return NotFound();
+
+                return Ok(new AnhDTO
+                {
+                    AnhId = updated.AnhId,
+                    GiayChiTietId = updated.GiayChiTietId,
+                    DuongDan = updated.DuongDan,
+                    TenAnh = updated.TenAnh,
+                    TrangThai = updated.TrangThai
+                });
+            }
+            catch (Exception ex)
             {
-                AnhId = updated.AnhId,
-                GiayChiTietId = updated.GiayChiTietId,
-                DuongDan = updated.DuongDan,
-                TenAnh = updated.TenAnh,
-                TrangThai = updated.TrangThai
-            };
-
-            return Ok(resultDto);
+                _logger.LogError(ex, $"Lỗi khi cập nhật ảnh với ID: {id}");
+                return StatusCode(500, "Đã xảy ra lỗi khi cập nhật ảnh");
+            }
         }
 
-        // PUT: api/AnhApi/update-file/{id}
         [HttpPut("update-file/{id}")]
+        [Consumes("multipart/form-data")]
         public async Task<ActionResult<AnhDTO>> UpdateFile(Guid id, [FromForm] AnhUploadDTO dto)
         {
-            var updated = await _anhRepository.UpdateFileAsync(id, dto.File, dto.TenAnh);
-            if (updated == null) return NotFound();
-
-            updated.GiayChiTietId = dto.GiayChiTietId;
-            await _anhRepository.UpdateAsync(updated); // Cập nhật liên kết nếu cần
-
-            var resultDto = new AnhDTO
+            try
             {
-                AnhId = updated.AnhId,
-                GiayChiTietId = updated.GiayChiTietId,
-                DuongDan = updated.DuongDan,
-                TenAnh = updated.TenAnh,
-                TrangThai = updated.TrangThai
-            };
+                if (dto.File == null || dto.File.Length == 0)
+                    return BadRequest("File ảnh không hợp lệ.");
 
-            return Ok(resultDto);
+                var updated = await _anhRepository.UpdateFileAsync(id, dto.File, dto.TenAnh, dto.GiayChiTietId);
+
+                if (updated == null)
+                    return NotFound();
+
+                return Ok(new AnhDTO
+                {
+                    AnhId = updated.AnhId,
+                    GiayChiTietId = updated.GiayChiTietId,
+                    DuongDan = updated.DuongDan,
+                    TenAnh = updated.TenAnh,
+                    TrangThai = updated.TrangThai
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Lỗi khi cập nhật file ảnh với ID: {id}");
+                return StatusCode(500, "Đã xảy ra lỗi khi cập nhật file ảnh");
+            }
         }
 
-        // DELETE: api/AnhApi/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var result = await _anhRepository.DeleteAsync(id);
-            if (!result) return NotFound();
-            return Ok(new { message = "Xóa ảnh thành công." });
+            try
+            {
+                var result = await _anhRepository.DeleteAsync(id);
+                if (!result)
+                    return NotFound();
+
+                return Ok(new { message = "Xóa ảnh thành công." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Lỗi khi xóa ảnh với ID: {id}");
+                return StatusCode(500, "Đã xảy ra lỗi khi xóa ảnh");
+            }
         }
     }
 }
