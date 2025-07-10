@@ -115,36 +115,9 @@
     private bool showBellDropdown = false;
     private bool showAvatarDropdown = false;
     private bool showLogoutConfirm = false;
-    private string breadcrumbText = "Dashboard";
+    private string breadcrumbText = "";
 
     private List<ThongBaoDTO> thongBaos = new();
-
-    protected override void OnInitialized()
-    {
-        NavigationManager.LocationChanged += OnLocationChanged;
-        UpdateBreadcrumb(NavigationManager.Uri);
-    }
-
-    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
-    {
-        UpdateBreadcrumb(e.Location);
-    }
-
-    private void UpdateBreadcrumb(string uri)
-    {
-        var relativePath = NavigationManager.ToBaseRelativePath(uri);
-        if (string.IsNullOrWhiteSpace(relativePath))
-        {
-            breadcrumbText = "Dashboard";
-            return;
-        }
-
-        var segments = relativePath
-            .Split("/", StringSplitOptions.RemoveEmptyEntries)
-            .Select(Capitalize);
-
-        breadcrumbText = string.Join(" / ", segments);
-    }
 
     private string Capitalize(string input)
     {
