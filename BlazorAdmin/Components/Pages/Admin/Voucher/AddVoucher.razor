@@ -30,8 +30,26 @@
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Phần trăm giảm:</label>
-        <InputNumber class="form-control" @bind-Value="Input.PhanTram" />
+        <label class="form-label">Giá trị giảm:</label>
+        <div class="input-group">
+            <InputNumber class="form-control"
+                         @bind-Value="GiaTriGiam"
+                         placeholder="Nhập giá trị" />
+            <button class="btn @(IsPhanTram ? "btn-primary" : "btn-outline-secondary")"
+                    type="button"
+                    @onclick="() => DoiKieuGiamGia(true)">
+                %
+            </button>
+            <button class="btn @(!IsPhanTram ? "btn-primary" : "btn-outline-secondary")"
+                    type="button"
+                    @onclick="() => DoiKieuGiamGia(false)">
+                ₫
+            </button>
+        </div>
+        @if (!string.IsNullOrEmpty(LoiSoTienGiam))
+        {
+            <div class="text-danger mt-1">@LoiSoTienGiam</div>
+        }
     </div>
 
     <div class="mb-3">
@@ -39,24 +57,85 @@
         <InputNumber class="form-control" @bind-Value="Input.SoLuong" />
     </div>
 
+    <div class="mb-3">
+        <label class="form-label">Điều kiện giảm:</label>
+        <InputNumber class="form-control" @bind-Value="Input.DieuKienToiThieu" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Giảm tối đa:</label>
+        <InputNumber class="form-control" @bind-Value="Input.GiamToiDa" />
+    </div>
+
     <button type="submit" class="btn btn-success">Thêm mới</button>
 </EditForm>
 
 @code {
     private InputModel Input { get; set; } = new();
+    private string? LoiSoTienGiam;
+    private bool IsPhanTram = true;
+
+    private float? GiaTriGiam
+    {
+        get => IsPhanTram ? Input.PhanTram : Input.SoTienGiam;
+        set
+        {
+            if (IsPhanTram)
+            {
+                Input.PhanTram = value ?? 0;
+                Input.SoTienGiam = 0;
+            }
+            else
+            {
+                Input.SoTienGiam = value ?? 0;
+                Input.PhanTram = 0;
+            }
+        }
+    }
+
+    private void DoiKieuGiamGia(bool laPhanTram)
+    {
+        if (IsPhanTram != laPhanTram)
+        {
+            IsPhanTram = laPhanTram;
+            GiaTriGiam = null;
+        }
+    }
 
     private async Task SubmitFormCreate()
     {
-        var newVoucher = new Voucher
+      
+        if (IsPhanTram)
         {
-            VoucherId = Guid.NewGuid(),
-            TenVoucher = Input.TenVoucher,
-            NgayBatDau = Input.NgayBatDau,
-            NgayKetThuc = Input.NgayKetThuc,
-            PhanTram = Input.PhanTram,
-            TrangThai = true,
-            SoLuong = Input.SoLuong
-        };
+            var soTienTuPhanTram = (Input.PhanTram / 100f) * Input.DieuKienToiThieu;
+            if (soTienTuPhanTram > Input.GiamToiDa)
+            {
+              
+                Input.PhanTram = (Input.GiamToiDa / Input.DieuKienToiThieu) * 100f;
+            }
+        }
+        else // Nếu là số tiền
+        {
+            if (Input.SoTienGiam > Input.GiamToiDa)
+            {
+                LoiSoTienGiam = "Số tiền giảm không được vượt quá giảm tối đa.";
+                return; // Không tiếp tục submit nếu có lỗi
+            }
+        }
+
+        var newVoucher = new Voucher
+            {
+                VoucherId = Guid.NewGuid(),
+                TenVoucher = Input.TenVoucher,
+                NgayBatDau = Input.NgayBatDau,
+                NgayKetThuc = Input.NgayKetThuc,
+                PhanTram = Input.PhanTram,
+                TrangThai = true,
+                SoLuong = Input.SoLuong,
+                SoTienGiam = Input.SoTienGiam,
+                GiamToiDa = Input.GiamToiDa,
+                DieuKienToiThieu = Input.DieuKienToiThieu
+            };
 
         await service.Add(newVoucher);
         manager.NavigateTo("/Admin/voucher");
@@ -78,5 +157,9 @@
 
         [Range(1, int.MaxValue, ErrorMessage = "Số lượng phải lớn hơn 0")]
         public int SoLuong { get; set; }
+
+        public float SoTienGiam { get; set; }
+        public float GiamToiDa { get; set; }
+        public float DieuKienToiThieu { get; set; }
     }
 }
