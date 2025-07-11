@@ -22,9 +22,11 @@
                 <th>Tên Voucher</th>
                 <th>Ngày bắt đầu</th>
                 <th>Ngày kết thúc</th>
-                <th>Phần trăm</th>
-                <th>Trạng thái</th>
+                <th>Loại</th>
+                <th style="width: 250px;">Trạng thái</th>
                 <th>Số lượng</th>
+                <th>Giảm tối đa</th>
+                <th>Điều kiện tối thiểu</th>
                 <th>Hành động</th>
             </tr>
         </thead>
@@ -40,15 +42,66 @@
                     <tr>
                         <td>@((CurrentPage - 1) * PageSize + index + 1)</td>
                         <td>@item.TenVoucher</td>
-                        <td>@item.NgayBatDau:dd/MM/yyyy</td>
-                        <td>@item.NgayKetThuc:dd/MM/yyyy</td>
-                        <td>@item.PhanTram%</td>
+                        <td>@item.NgayBatDau.ToString("dd/MM/yyyy")</td>
+                        <td>@item.NgayKetThuc.ToString("dd/MM/yyyy")</td>
                         <td>
-                            <span class="badge @(item.TrangThai ? "bg-warning text-dark" : "bg-secondary")">
-                                @(item.TrangThai ? "Đang diễn ra" : "Hết hạn")
+                            @if (item.PhanTram > 0)
+                            {
+                                @($"{item.PhanTram}%")
+                            }
+                            else if (item.SoTienGiam > 0)
+                            {
+                                @($"{item.SoTienGiam:N0} ₫")
+                            }
+                            else
+                            {
+                                <span class="text-muted">Không có</span>
+                            }
+                        </td>
+
+                        <td>
+                            @{
+                                bool isExpired = item.NgayKetThuc < DateTime.Now;
+                                string trangThaiHienThi;
+                                string badgeClass;
+
+                                if (!item.TrangThai)
+                                {
+                                    trangThaiHienThi = "Ngừng hoạt động";
+                                    badgeClass = "bg-danger";
+                                }
+                                else if (isExpired)
+                                {
+                                    trangThaiHienThi = "Hết hạn";
+                                    badgeClass = "bg-secondary";
+                                }
+                                else
+                                {
+                                    trangThaiHienThi = "Đang diễn ra";
+                                    badgeClass = "bg-success";
+                                }
+                            }
+
+                            <i class="bi bi-arrow-repeat @(item.TrangThai ? "text-danger" : "text-success") me-2"
+                               style="cursor: @(isExpired ? "not-allowed" : "pointer"); opacity: @(isExpired ? "0.5" : "1")"
+                               title="Chuyển trạng thái"
+                               @onclick="@(isExpired ? null : () => ToggleTrangThai(item.VoucherId))">
+                            </i>
+
+                            <span class="badge @badgeClass">
+                                @(trangThaiHienThi == "Đang diễn ra" ? "✅" :
+                                    trangThaiHienThi == "Ngừng hoạt động" ? "❌" : "⏰")
+                                @trangThaiHienThi
                             </span>
                         </td>
+
+
                         <td>@item.SoLuong</td>
+                        <td><span class="text-success">@item.GiamToiDa.ToString("N0") ₫</span></td>
+
+                        <td><span class="text-danger">@item.DieuKienToiThieu.ToString("N0") ₫</span></td>
+
+
                         <td>
                             <i class="bi bi-pencil-square text-warning me-2"
                                @onclick='@(() => NavigateToEdit(item.VoucherId))'
@@ -96,4 +149,16 @@
             Vouchers = await service.GetAll();
         }
     }
+    
+    private async Task ToggleTrangThai(Guid id)
+    {
+        var voucher = Vouchers.FirstOrDefault(x => x.VoucherId == id);
+        if (voucher != null && voucher.NgayKetThuc >= DateTime.Now)
+        {
+            voucher.TrangThai = !voucher.TrangThai;
+            await service.Update(voucher);
+            StateHasChanged();
+        }
+    }
+
 }

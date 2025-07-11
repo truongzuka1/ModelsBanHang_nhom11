@@ -1,10 +1,12 @@
 ﻿@inject IGiayChiTietService GiayChiTietService
-@inject IJSRuntime JS
 @using API.Models.DTO
+@using Data.Models
+@inject IGiayChiTietService GiayChiTietService
+
 @if (Visible)
 {
     <div class="customer-select-overlay"></div>
-    <div class="product-select-box" >
+    <div class="product-select-box">
         <div class="product-select-list">
             @if (Products.Count == 0)
             {
@@ -24,7 +26,7 @@
                             <div class="order-size">
                                 Size:
                                 <select @bind="@product.size">
-                                    <option value="@product.size">@product.size</option>
+                                    <option value="@product.size">@product.size.ToString()</option>
                                 </select>
                             </div>
                         </div>
@@ -41,8 +43,6 @@
         </div>
         <button class="close-customer-select" @onclick="Close">Đóng</button>
     </div>
-    
-
 }
 
 @code {
@@ -54,9 +54,13 @@
 
     protected override async Task OnInitializedAsync()
     {
-
-        Products = await GiayChiTietService.GetAllAsync();
-
+        var all = await GiayChiTietService.GetAllAsync();
+        Products = all.Select(g =>
+        {
+            g.SoLuongCon = 1;
+            g.size = g.size =37;
+            return g;
+        }).ToList();
     }
 
     private async void ChangeQty(GiayChiTietDTO g, int delta)
@@ -90,7 +94,7 @@
             SoLuongCon = g.SoLuongCon,
             TrangThai = true
         };
-        await OnAddProduct.InvokeAsync((item, Soluong));
+        await OnAddProduct.InvokeAsync(item);
         await OnClose.InvokeAsync();
     }
 

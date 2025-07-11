@@ -14,5 +14,6 @@ namespace API.IRepository
         Task<TaiKhoan> GetByIdChucVuAsync (string username, string password);
 
         Task<TaiKhoan> GetByUsernameAsync(string username);
+        //hahahahah 
     }
 }

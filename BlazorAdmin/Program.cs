@@ -2,10 +2,11 @@
 
 using API.IService;
 using BlazorAdmin.Components;
-using BlazorAdmin.Service.IService;
 using BlazorAdmin.Service;
 using BlazorAdmin.Service.IService;
+using BlazorAdmin.Service.IService;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args); 
 
@@ -136,6 +137,7 @@ builder.Services.AddScoped<IKichCoService, KichCoService>();
 builder.Services.AddScoped<IKhachHangService, KhachHangService>();
 builder.Services.AddScoped<IReturnService, ReturnService>();
 builder.Services.AddScoped<IThongBaoService, ThongBaoService>();
+builder.WebHost.UseWebRoot("wwwroot");
 
 var app = builder.Build();
 

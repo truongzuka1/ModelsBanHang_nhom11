@@ -26,6 +26,10 @@ namespace Data.Models
         [Range(0, 100)]
         public float PhanTram { get; set; }
 
+        public float SoTienGiam { get; set; }
+        public float GiamToiDa { get; set; }
+        public float DieuKienToiThieu { get; set; }
+
         public bool TrangThai { get; set; }
 
         public int SoLuong { get; set; }

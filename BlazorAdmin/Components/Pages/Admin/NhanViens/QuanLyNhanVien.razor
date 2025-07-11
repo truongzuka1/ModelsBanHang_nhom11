@@ -43,7 +43,7 @@
                     <th>Ngày sinh</th>
                     <th>Chức vụ</th>
                     <th>Ngày cập nhật</th>
-                    <th>Trạng thái</th>
+                    <th style="width: 180px;">Trạng thái</th>
                     <th style="width: 120px;">Chức năng</th>
                 </tr>
             </thead>
@@ -54,9 +54,11 @@
                         <td colspan="9" class="text-center text-muted">Không tìm thấy nhân viên nào.</td>
                     </tr>
                 }
-                else
-                {
+                @{
                     int stt = 1;
+                }
+             
+                 
                     @foreach (var item in NhanViens)
                     {
                         <tr>
@@ -69,7 +71,10 @@
                             <td>@item.NgayCapNhatCuoiCung</td>
                             <td>
                                 <i class="bi bi-arrow-repeat @(item.TrangThai ? "text-danger" : "text-success") me-2" style="cursor: pointer;" title="Chuyển trạng thái" @onclick="() => ToggleTrangThai(item.NhanVienId)"></i>
-                                <span>@(item.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")</span>
+                            <span class="badge @(item.TrangThai ? "bg-success" : "bg-danger")">
+                                @(item.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")
+                            </span>
+
                             </td>
                             <td>
                                 <i class="bi bi-pencil-square text-primary me-2" style="cursor: pointer;" title="Sửa" @onclick="() => NavigateToEdit(item.NhanVienId)"></i>
@@ -78,7 +83,6 @@
                         </tr>
                         stt++;
                     }
-                }
             </tbody>
         </table>
     </div>
@@ -101,7 +105,13 @@
     .input-group-text {
         background-color: #f8f9fa;
     }
+
+    td.trang-thai {
+        min-width: 150px;
+        white-space: nowrap;
+    }
 </style>
+
 
 @code {
     private List<NhanVien> NhanViens;

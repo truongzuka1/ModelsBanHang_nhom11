@@ -1,4 +1,4 @@
-﻿@page "/banhang"
+﻿@* @page "/banhang"
 @layout AdminLayout
 @inject IXuLyDiaChi xuLyDiaChi
 @inject IVoucherService voucherService
@@ -557,6 +557,13 @@
     {
         CurrentOrder.Address = diaChi;
 
+        // Nếu bạn muốn gán giá trị về form giao hàng
+        if (IsDelivery)
+        {
+            ReceiverName = CurrentOrder.Customer?.HoTen ?? "";
+            ReceiverPhone = CurrentOrder.Customer?.SoDienThoai ?? "";
+            AddressDetail = diaChi.DiaChiCuThe;
+        }
 
     }
 
@@ -614,3 +621,4 @@
     }
 
 }
+ *@

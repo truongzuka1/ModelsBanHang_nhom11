@@ -47,9 +47,9 @@ namespace API.Controllers
                     SoLuongCon = ct.SoLuongCon,
                     MoTa = ct.MoTa,
                     TrangThai = ct.TrangThai,
-                    size = ct.KichCo?.size != null ? ct.KichCo.size.ToString() : null,
+                    size = ct.KichCo.size,
                     TenMau = ct.MauSac?.TenMau,
-                    AnhGiay = ct.AnhGiay,
+                    AnhGiay = ct.Anhs.FirstOrDefault()?.DuongDan,
                     NgayTao = ct.NgayTao,
                     NgaySua = ct.NgaySua
                 }).ToList() ?? new List<GiayChiTietDTO>()
@@ -134,5 +134,7 @@ namespace API.Controllers
             var results = await _giayRepo.SearchByTenAsync(keyword);
             return Ok(results.Select(MapToDTO).ToList());
         }
+
+
     }
 }

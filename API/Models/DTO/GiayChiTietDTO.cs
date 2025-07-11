@@ -11,7 +11,7 @@
         public int SoLuongCon { get; set; }
         public string? MoTa { get; set; }
         public bool TrangThai { get; set; }
-        public string ? size { get; set; }
+        public int  size { get; set; }
         public string? TenMau { get; set; }
         public string? AnhGiay { get; set; }
         public DateTime NgayTao { get; set; } = DateTime.Now;
