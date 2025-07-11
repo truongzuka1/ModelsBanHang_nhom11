@@ -44,10 +44,18 @@ namespace API.Controllers
 
         // GET: api/GiayChiTiet
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ActionResult<IEnumerable<GiayChiTietDTO>>> GetAll()
         {
-            var entities = await _repo.GetAllAsync();
-            return Ok(entities.Select(MapToDTO));
+            try
+            {
+                var entities = await _repo.GetAllAsync();
+                var dtos = entities.Select(MapToDTO);
+                return Ok(dtos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi khi lấy dữ liệu: {ex.Message}");
+            }
         }
 
         // GET: api/GiayChiTiet/5
