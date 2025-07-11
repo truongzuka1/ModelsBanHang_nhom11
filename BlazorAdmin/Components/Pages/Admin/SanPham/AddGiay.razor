@@ -405,17 +405,14 @@
                 return;
             }
 
-            // 2. Chuẩn bị dữ liệu biến thể
+            // 2. Chuẩn bị và lưu các biến thể trước
             var listBienThe = new List<GiayChiTietDTO>();
-            var uploadTasks = new List<Task>();
-
             foreach (var mau in _danhSachChiTiet)
             {
                 foreach (var size in mau.ChiTietSizes.Where(IsValidBienThe))
                 {
                     var sizeNumber = _danhSachKichCo.FirstOrDefault(k => k.KichCoId == size.KichCoId)?.size;
-
-                    var bienTheDto = new GiayChiTietDTO
+                    listBienThe.Add(new GiayChiTietDTO
                     {
                         GiayId = giayResult.GiayId,
                         MauSacId = mau.MauSacId,
@@ -427,23 +424,43 @@
                         TrangThai = true,
                         NgayTao = DateTime.Now,
                         NgaySua = DateTime.Now
-                    };
+                        // Không gán AnhGiay ở đây
+                    });
+                }
+            }
 
-                    // Xử lý upload ảnh nếu có
+            // Lưu các biến thể
+            var createdVariants = await _giayChiTietService.CreateMultipleAsync(listBienThe);
+            if (createdVariants == null || !createdVariants.Any())
+            {
+                await ShowErrorAsync("Không thể lưu các biến thể vào hệ thống");
+                return;
+            }
+
+            // 3. Upload ảnh và lưu vào bảng Anhs
+            var uploadTasks = new List<Task>();
+            foreach (var mau in _danhSachChiTiet)
+            {
+                foreach (var size in mau.ChiTietSizes.Where(IsValidBienThe))
+                {
                     if (!string.IsNullOrEmpty(size.AnhDaTai))
                     {
-                        var tempId = Guid.NewGuid();
-                        uploadTasks.Add(Task.Run(async () =>
+                        // Tìm GiayChiTietId tương ứng từ createdVariants
+                        var bienThe = createdVariants.FirstOrDefault(v =>
+                            v.MauSacId == mau.MauSacId && v.KichCoId == size.KichCoId);
+                        if (bienThe != null)
                         {
-                            var anhUrl = await UploadImageToServerAsync(size.AnhDaTai, tempId);
-                            if (!string.IsNullOrEmpty(anhUrl))
+                            uploadTasks.Add(Task.Run(async () =>
                             {
-                                bienTheDto.AnhGiay = anhUrl;
-                            }
-                        }));
+                                var anhUrl = await UploadImageToServerAsync(size.AnhDaTai, bienThe.GiayChiTietId);
+                                if (!string.IsNullOrEmpty(anhUrl))
+                                {
+                                    // Có thể cập nhật GiayChiTiet với AnhGiay nếu cần
+                                    bienThe.AnhGiay = anhUrl;
+                                }
+                            }));
+                        }
                     }
-
-                    listBienThe.Add(bienTheDto);
                 }
             }
 
@@ -453,25 +470,8 @@
                 await Task.WhenAll(uploadTasks);
             }
 
-            // 3. Lưu các biến thể
-            if (listBienThe.Any())
-            {
-                var createdVariants = await _giayChiTietService.CreateMultipleAsync(listBienThe);
-
-                if (createdVariants != null && createdVariants.Any())
-                {
-                    await ShowSuccessAsync($"Đã tạo sản phẩm với {createdVariants.Count} biến thể");
-                    _navigationManager.NavigateTo($"/Giay/{giayResult.GiayId}");
-                }
-                else
-                {
-                    await ShowErrorAsync("Không thể lưu các biến thể vào hệ thống");
-                }
-            }
-            else
-            {
-                await ShowErrorAsync("Không có biến thể hợp lệ để lưu");
-            }
+            await ShowSuccessAsync($"Đã tạo sản phẩm với {createdVariants.Count} biến thể");
+            _navigationManager.NavigateTo($"/Giay/{giayResult.GiayId}");
         }
         catch (HttpRequestException ex)
         {
@@ -486,6 +486,7 @@
             _isSubmitting = false;
         }
     }
+
 
     private async Task<string?> UploadImageToServerAsync(string base64Image, Guid giayChiTietId)
     {

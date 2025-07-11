@@ -12,7 +12,7 @@
 @using Microsoft.AspNetCore.Components.Forms
 @code {
     [Parameter] public Guid giayid { get; set; }
-
+    private InputFileChangeEventArgs? e;
     private GiayChiTietDTO currentItem = new();
     private List<MauSacDTO> mauSacList = new();
     private List<KichCoDTO> kichCoList = new();
@@ -35,7 +35,15 @@
         }
         else
         {
-            await giayChiTietService.CreateAsync(currentItem);
+            var newItem = await giayChiTietService.CreateAsync(currentItem);
+            if (newItem != null)
+            {
+                currentItem.GiayChiTietId = newItem.GiayChiTietId;
+                if (e?.File != null)
+                {
+                    await UploadAnh(e); // Upload ảnh sau khi có GiayChiTietId
+                }
+            }
         }
 
         var jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Js/sanphamchitiet.js");
@@ -47,34 +55,38 @@
 
     private async Task UploadAnh(InputFileChangeEventArgs e)
     {
+        this.e = e;
         var file = e.File;
-        if (file != null)
+        if (file != null && file.Size <= 5 * 1024 * 1024)
         {
-            var stream = file.OpenReadStream(10 * 1024 * 1024); // Max 10MB
-            var memoryStream = new MemoryStream();
-            await stream.CopyToAsync(memoryStream);
-            memoryStream.Position = 0;
-
-            var formFile = new FormFile(memoryStream, 0, memoryStream.Length, file.Name, file.Name)
-                {
-                    Headers = new HeaderDictionary(),
-                    ContentType = file.ContentType
-                };
-
-            var uploadDto = new AnhUploadDTO
-                {
-                    File = formFile,
-                    TenAnh = file.Name,
-                    GiayChiTietId = currentItem.GiayChiTietId
-                };
-
-            var anh = await anhService.UploadAsync(file, file.Name, currentItem.GiayChiTietId);
-            if (anh != null)
+            try
             {
-                currentItem.AnhGiay = anh.DuongDan;
+                var anh = await anhService.UploadAsync(file, file.Name, currentItem.GiayChiTietId );
+                if (anh != null && !string.IsNullOrEmpty(anh.DuongDan))
+                {
+                    currentItem.AnhGiay = anh.DuongDan;
+                    if (isEditMode)
+                    {
+                        await giayChiTietService.UpdateAsync(currentItem.GiayChiTietId, currentItem);
+                    }
+                }
+                else
+                {
+                    await JSRuntime.InvokeVoidAsync("alert", "Upload ảnh thất bại.");
+                }
+            }
+            catch (Exception ex)
+            {
+                await JSRuntime.InvokeVoidAsync("console.error", $"Lỗi upload ảnh: {ex.Message}");
             }
         }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "File vượt quá 5MB hoặc không hợp lệ.");
+        }
+        StateHasChanged();
     }
+
 
     private async Task EditItem(GiayChiTietDTO item)
     {
@@ -110,6 +122,7 @@
     {
         currentItem = new GiayChiTietDTO { GiayId = giayid, TrangThai = true };
         isEditMode = false;
+        e = null;
 
         var jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Js/sanphamchitiet.js");
         await jsModule.InvokeVoidAsync("showModal", "#giayChiTietModal");
@@ -145,7 +158,12 @@
                 <td>@item.size</td>
                 <td>@item.Gia.ToString("N0", new CultureInfo("vi-VN"))</td>
                 <td>@item.SoLuongCon</td>
-                <td><img src="@item.AnhGiay" style="height: 50px;" /></td>
+                <td>
+                    <img src="@($"https://localhost:7246{item.AnhGiay ?? "/images/no-image.png"}")"
+                         style="height: 50px;"
+                         onerror="this.onerror=null; this.src='/images/no-image.png'; console.log('Image load failed: ' + this.src);" />
+                </td>
+
                 <td>@(item.TrangThai ? "Đang bán" : "Ngừng bán")</td>
                 <td>@item.NgayTao.ToString("dd/MM/yyyy")</td>
                 <td>@item.NgaySua.ToString("dd/MM/yyyy")</td>
@@ -218,8 +236,12 @@
                             <InputFile OnChange="UploadAnh" accept="image/*" class="form-control" />
                             @if (!string.IsNullOrEmpty(currentItem.AnhGiay))
                             {
-                                <img src="@currentItem.AnhGiay" class="img-thumbnail mt-2" style="max-height: 100px" />
+                                <img src="@($"https://localhost:7246{currentItem.AnhGiay}")"
+                                     class="img-thumbnail mt-2"
+                                     style="max-height: 100px"
+                                     onerror="this.onerror=null; this.src='/images/no-image.png'; console.log('Image load failed: ' + this.src);" />
                             }
+
                         </div>
                     </div>
                     <div class="modal-footer mt-3">
