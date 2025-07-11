@@ -10,6 +10,5 @@
         public float Price { get; set; }
         public float OldPrice { get; set; }
         public float NewPrice => Price;
-        public int Soluong { get; set; } = 1;
     }
 }
