@@ -5,7 +5,7 @@
 @inject AuthenticationStateProvider AuthProvider
 @inject IJSRuntime JSRuntime
 @inject IThongBaoService ThongBaoService
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 <link href="css/Sidebar.css" rel="stylesheet" />
 <style>
     .dropdown-avatar {
@@ -41,8 +41,7 @@
 
     <div class="main">
         <div class="header d-flex align-items-center justify-content-between px-3">
-            <div class="breadcrumb">@breadcrumbText</div>
-
+            <div class="breadcrumb"><i class="fas fa-bars"></i></div>
             <div class="user-area d-flex align-items-center gap-3">
                 <span class="bell" @onclick="ToggleBellDropdown">
                     🔔<span class="badge">@thongBaos.Count</span>
