@@ -16,5 +16,6 @@
         public string? AnhGiay { get; set; }
         public DateTime NgayTao { get; set; } = DateTime.Now;
         public DateTime NgaySua { get; set; } = DateTime.Now;
+        public int SoLuongDat { get; set; } = 1;
     }
 }

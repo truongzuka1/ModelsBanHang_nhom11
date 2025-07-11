@@ -273,7 +273,7 @@
 
 	private List<HoaDon> hoaDons = new List<HoaDon>();
 	private List<HoaDonChiTiet> hoaDonChiTiets = new List<HoaDonChiTiet>();
-	private List<GiayChiTiet> giayChiTiets = new List<GiayChiTiet>();
+	private List<GiayChiTietDTO> giayChiTiets = new List<GiayChiTietDTO>();
 
 
 	private decimal TongSoTienHomNay ;
@@ -388,7 +388,7 @@
 
 			hoaDons = await hoaDonService.GetAll();
 			hoaDonChiTiets = await chiTietHoaDonService.GetAllHDCTAsync();
-			// giayChiTiets = await giayChiTietService.GetAllAsync();
+			giayChiTiets = await giayChiTietService.GetAllAsync();
 			Console.WriteLine($"Loaded {hoaDons.Count} HoaDon records.");
 			Console.WriteLine($"Loaded {hoaDonChiTiets.Count} HoaDonChiTiet records.");
 			Console.WriteLine($"Loaded {giayChiTiets.Count} GiayChiTiet records.");
@@ -401,9 +401,9 @@
 			var first = group.First();
 			return new DanhSachSanPhamBanChay
 				{
-					Anh = first.Anhs?.FirstOrDefault()?.DuongDan ?? "",
-					Kichco = first.KichCo?.TenKichCo ?? "Không rõ",
-					TenSanPham = first.Giay?.TenGiay ?? "Chưa rõ tên",
+					Anh = first.AnhGiay ?? "",
+					Kichco = first.TenMau ?? "Không rõ",
+					TenSanPham = first.TenGiay ?? "Chưa rõ tên",
 					SoLuong = group.Sum(x => x.SoLuongCon),
 					GiaTien = (decimal)(group.Min(x => x.Gia))
 				};
@@ -595,10 +595,10 @@
 									hdct.TrangThai == true
 									select new
 									{
-										TenGiay = gct.Giay.TenGiay,
-										DuongDanAnh = gct.Anhs.FirstOrDefault()?.DuongDan ?? "",
+										TenGiay = gct.TenGiay,
+										DuongDanAnh = gct.AnhGiay,
 										Gia = hdct.Gia,
-										kc = gct.KichCo.TenKichCo,
+										kc = gct.TenMau,
 										SoLuong = hdct.SoLuongSanPham
 									})
 									.GroupBy(x => x.TenGiay)

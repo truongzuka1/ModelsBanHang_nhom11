@@ -7,5 +7,6 @@ namespace API.Models.DTO.BanHang
         public List<ProductOrder> Products { get; set; } = new();
         public KhachHang? Customer { get; set; }
         public DiaChiKhachHang? Address { get; set; }
+        public ThongTinHoaDon ThongTinHoaDon { get; set; } = new();
     }
 }

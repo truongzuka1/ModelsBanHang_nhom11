@@ -30,11 +30,11 @@
                         </div>
                         <div class="order-qty">
                             <button class="decrease-btn" @onclick="@(() => ChangeQty(product, -1))">-</button>
-                            <input type="number" class="qty-input" value="@Soluong" readonly />
+                            <input type="number" class="qty-input" value="@product.SoLuongDat" readonly />
                             <button class="increase-btn" @onclick="@(() => ChangeQty(product, 1))">+</button>
                         </div>
-                        <div class="order-total">@FormatMoney(product.Gia * Soluong)</div>
-                        <button class="add-to-order" @onclick="@(() => AddToOrder(product , Soluong))">Thêm vào đơn</button>
+                        <div class="order-total">@FormatMoney(product.Gia * product.SoLuongDat)</div>
+                        <button class="add-to-order" @onclick="@(() => AddToOrder(product, product.SoLuongDat))">Thêm vào đơn</button>
                     </div>
                 }
             }
@@ -51,7 +51,6 @@
     [Parameter] public EventCallback OnClose { get; set; }
 
     private List<GiayChiTietDTO> Products = new();
-    private int Soluong = 1;
 
     protected override async Task OnInitializedAsync()
     {
@@ -62,9 +61,10 @@
 
     private async void ChangeQty(GiayChiTietDTO g, int delta)
     {
-        Soluong += delta;
-        if (Soluong > g.SoLuongCon){
-            Soluong = g.SoLuongCon;
+        g.SoLuongDat += delta;
+        if (g.SoLuongDat > g.SoLuongCon)
+        {
+            g.SoLuongDat = g.SoLuongCon;
             await JS.InvokeVoidAsync("Swal.fire", new
             {
                 toast = true,
@@ -76,7 +76,9 @@
                 timerProgressBar = true
             });
         }
-        if (Soluong < 1) Soluong = 1;
+        if (g.SoLuongDat < 1) g.SoLuongDat = 1;
+
+        StateHasChanged();
     }
 
     private async Task AddToOrder(GiayChiTietDTO g , int Soluong)
