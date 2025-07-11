@@ -1,28 +1,16 @@
 ﻿@page "/Admin/updatevoucher/{Id:guid}"
 @rendermode InteractiveServer
+
 @inject IVoucherService service
 @inject NavigationManager manager
+
 @using Data.Models
-@code {
-    [Parameter] public Guid Id { get; set; }
-
-    private Voucher voucher = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        voucher = await service.GetById(Id);
-    }
-
-    private async Task HandleValidSubmit()
-    {
-        await service.Update(voucher);
-        manager.NavigateTo("/Admin/voucher");
-    }
-}
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
 
 <h3>Cập nhật Voucher</h3>
 
-<EditForm Model="voucher" OnValidSubmit="HandleValidSubmit">
+<EditForm EditContext="editContext" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
 
@@ -42,8 +30,22 @@
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Phần trăm giảm:</label>
-        <InputNumber class="form-control" @bind-Value="voucher.PhanTram" />
+        <label class="form-label">Giá trị giảm:</label>
+        <div class="input-group">
+            <InputNumber class="form-control text-start" @bind-Value="GiaTriGiam" />
+            <button class="btn @(IsPhanTram ? "btn-primary" : "btn-outline-secondary")"
+                    type="button"
+                    @onclick="() => DoiKieuGiamGia(true)">
+                %
+            </button>
+            <button class="btn @(!IsPhanTram ? "btn-primary" : "btn-outline-secondary")"
+                    type="button"
+                    @onclick="() => DoiKieuGiamGia(false)">
+                ₫
+            </button>
+        </div>
+        <ValidationMessage For="@(() => voucher.PhanTram)" />
+        <ValidationMessage For="@(() => voucher.SoTienGiam)" />
     </div>
 
     <div class="mb-3">
@@ -51,5 +53,95 @@
         <InputNumber class="form-control" @bind-Value="voucher.SoLuong" />
     </div>
 
+    <div class="mb-3">
+        <label class="form-label">Điều kiện giảm:</label>
+        <div class="input-group">
+            <InputNumber class="form-control text-start" @bind-Value="voucher.DieuKienToiThieu" />
+            <span class="input-group-text">₫</span>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Giảm tối đa:</label>
+        <div class="input-group">
+            <InputNumber class="form-control text-start" @bind-Value="voucher.GiamToiDa" />
+            <span class="input-group-text">₫</span>
+        </div>
+    </div>
+
     <button class="btn btn-primary">Lưu thay đổi</button>
 </EditForm>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private Voucher voucher = new();
+    private bool IsPhanTram = true;
+
+    private EditContext editContext;
+    private ValidationMessageStore messageStore;
+
+    protected override async Task OnInitializedAsync()
+    {
+        voucher = await service.GetById(Id);
+        IsPhanTram = voucher.PhanTram > 0;
+
+        editContext = new EditContext(voucher);
+        messageStore = new ValidationMessageStore(editContext);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        messageStore.Clear();
+
+        if (IsPhanTram)
+        {
+            float tienGiamTuPhanTram = (voucher.PhanTram / 100f) * voucher.DieuKienToiThieu;
+            if (tienGiamTuPhanTram > voucher.GiamToiDa)
+            {
+                messageStore.Add(() => voucher.PhanTram, "Phần trăm giảm vượt quá số tiền giảm tối đa.");
+                editContext.NotifyValidationStateChanged();
+                return;
+            }
+        }
+        else
+        {
+            if (voucher.SoTienGiam > voucher.GiamToiDa)
+            {
+                messageStore.Add(() => voucher.SoTienGiam, "Số tiền giảm không được lớn hơn số tiền giảm tối đa.");
+                editContext.NotifyValidationStateChanged();
+                return;
+            }
+        }
+
+        await service.Update(voucher);
+        manager.NavigateTo("/Admin/voucher");
+    }
+
+    private float? GiaTriGiam
+    {
+        get => IsPhanTram ? voucher.PhanTram : voucher.SoTienGiam;
+        set
+        {
+            if (IsPhanTram)
+            {
+                voucher.PhanTram = value ?? 0;
+                voucher.SoTienGiam = 0;
+            }
+            else
+            {
+                voucher.SoTienGiam = value ?? 0;
+                voucher.PhanTram = 0;
+            }
+        }
+    }
+
+    private void DoiKieuGiamGia(bool laPhanTram)
+    {
+        if (IsPhanTram != laPhanTram)
+        {
+            IsPhanTram = laPhanTram;
+            GiaTriGiam = null;
+        }
+    }
+}

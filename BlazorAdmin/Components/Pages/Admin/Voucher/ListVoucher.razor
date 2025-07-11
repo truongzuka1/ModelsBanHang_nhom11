@@ -22,9 +22,11 @@
                 <th>Tên Voucher</th>
                 <th>Ngày bắt đầu</th>
                 <th>Ngày kết thúc</th>
-                <th>Phần trăm</th>
+                <th>Loại</th>
                 <th style="width: 250px;">Trạng thái</th>
                 <th>Số lượng</th>
+                <th>Giảm tối đa</th>
+                <th>Điều kiện tối thiểu</th>
                 <th>Hành động</th>
             </tr>
         </thead>
@@ -42,7 +44,21 @@
                         <td>@item.TenVoucher</td>
                         <td>@item.NgayBatDau.ToString("dd/MM/yyyy")</td>
                         <td>@item.NgayKetThuc.ToString("dd/MM/yyyy")</td>
-                        <td>@item.PhanTram%</td>
+                        <td>
+                            @if (item.PhanTram > 0)
+                            {
+                                @($"{item.PhanTram}%")
+                            }
+                            else if (item.SoTienGiam > 0)
+                            {
+                                @($"{item.SoTienGiam:N0} ₫")
+                            }
+                            else
+                            {
+                                <span class="text-muted">Không có</span>
+                            }
+                        </td>
+
                         <td>
                             @{
                                 bool isExpired = item.NgayKetThuc < DateTime.Now;
@@ -81,6 +97,11 @@
 
 
                         <td>@item.SoLuong</td>
+                        <td><span class="text-success">@item.GiamToiDa.ToString("N0") ₫</span></td>
+
+                        <td><span class="text-danger">@item.DieuKienToiThieu.ToString("N0") ₫</span></td>
+
+
                         <td>
                             <i class="bi bi-pencil-square text-warning me-2"
                                @onclick='@(() => NavigateToEdit(item.VoucherId))'
