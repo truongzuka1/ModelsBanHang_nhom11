@@ -11,7 +11,7 @@ namespace API.IRepository.Repository
         private readonly IWebHostEnvironment _env;
         private readonly ILogger<AnhRepository> _logger;
         private readonly string _uploadFolderPath;
-        private const string _relativePath = "/uploads/images";
+        private const string _relativePath = "/Uploads/Images";
         private static readonly string[] _allowedExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
         private const long _maxFileSize = 5 * 1024 * 1024; // 5MB
 
