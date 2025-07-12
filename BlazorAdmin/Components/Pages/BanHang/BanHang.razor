@@ -1,4 +1,4 @@
-﻿@* @page "/banhang"
+﻿@page "/banhang"
 @layout AdminLayout
 @inject IXuLyDiaChi xuLyDiaChi
 @inject IVoucherService voucherService
@@ -516,10 +516,8 @@
     }
     private bool IsProductModalVisible = false;
 
-    private void HandleAddProduct((GiayChiTietDTO item , int Soluong) data)
+    private void HandleAddProduct(GiayChiTietDTO item)
     {
-        var item = data.item;
-        var soluong = data.Soluong;
         if (CurrentOrder == null) return;
 
         CurrentOrder.Products.Add(new ProductOrder
@@ -528,7 +526,7 @@
             TenGiay = item.TenGiay ?? "Không tên",
             Quantity = item.SoLuongCon,
             Price = item.Gia,
-            Soluong = soluong
+            Soluong = item.SoLuongCon
 
         });
     }
@@ -556,14 +554,6 @@
     private void HandleAddressSelected(DiaChiKhachHang diaChi)
     {
         CurrentOrder.Address = diaChi;
-
-        // Nếu bạn muốn gán giá trị về form giao hàng
-        if (IsDelivery)
-        {
-            ReceiverName = CurrentOrder.Customer?.HoTen ?? "";
-            ReceiverPhone = CurrentOrder.Customer?.SoDienThoai ?? "";
-            AddressDetail = diaChi.DiaChiCuThe;
-        }
 
     }
 
@@ -621,4 +611,3 @@
     }
 
 }
- *@
