@@ -1,0 +1,67 @@
+﻿@using BlazorKhachHang.Components.Pages.TaiKhoan
+
+@* Component: DonMuaTab.razor *@
+
+<div class="bg-white rounded shadow-sm p-4 mb-4">
+    <h5 class="mb-3">Lịch sử đơn hàng</h5>
+    <div class="d-flex justify-content-between position-relative flex-wrap">
+        <div class="step complete">
+            <div class="step-icon"><i class="bi bi-file-earmark-text"></i></div>
+            <div class="step-text">Chờ xác nhận</div>
+            <small>21-12-2023 14:41:42</small>
+        </div>
+        <div class="step complete">
+            <div class="step-icon"><i class="bi bi-truck"></i></div>
+            <div class="step-text">Chờ giao hàng</div>
+            <small>21-12-2023 14:42:23</small>
+        </div>
+        <div class="step complete">
+            <div class="step-icon"><i class="bi bi-box-seam"></i></div>
+            <div class="step-text">Đang vận chuyển</div>
+            <small>21-12-2023 14:42:37</small>
+        </div>
+        <div class="step complete">
+            <div class="step-icon"><i class="bi bi-truck-front"></i></div>
+            <div class="step-text">Đã giao hàng</div>
+            <small>21-12-2023 14:42:42</small>
+        </div>
+        <div class="step complete">
+            <div class="step-icon"><i class="bi bi-check2-circle"></i></div>
+            <div class="step-text">Hoàn thành</div>
+            <small>21-12-2023 14:42:51</small>
+        </div>
+    </div>
+</div>
+
+<div class="bg-white rounded shadow-sm p-4">
+    <button class="btn btn-outline-warning btn-sm mb-3">CHI TIẾT</button>
+
+    <h6 class="fw-bold">ĐỊA CHỈ NHẬN HÀNG</h6>
+    <p class="mb-1">Địa chỉ 12</p>
+    <p class="mb-1">0473029182</p>
+    <p>aaaaa, Xã Mường Giàng, Huyện Quỳnh Nhai, Sơn La</p>
+
+    <div class="order-card row">
+        <div class="col-md-2">
+            <img src="https://down-vn.img.susercontent.com/file/sg-11134201-7qvdm-lnwt59z4edkl8a" alt="Giày">
+        </div>
+        <div class="col-md-10">
+            <p class="mb-1 fw-semibold">Balen Grey 2023 Bạc Đế nhựa "Xanh dương"</p>
+            <p class="text-muted mb-1">Phân loại hàng: Giày lười - 42</p>
+            <p class="text-danger mb-1 fw-semibold">104,500 ₫</p>
+            <p>Số lượng: x1</p>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="d-flex justify-content-end">
+        <div>
+            <p class="mb-1">Tổng tiền hàng: <span class="float-end">104,500 ₫</span></p>
+            <p class="mb-1">Phí vận chuyển: <span class="float-end">34,000 ₫</span></p>
+            <p class="mb-1">Giảm giá: <span class="float-end">0 ₫</span></p>
+            <h5 class="text-danger mt-3">Thành tiền: 138,500 ₫</h5>
+        </div>
+    </div>
+</div>
+
