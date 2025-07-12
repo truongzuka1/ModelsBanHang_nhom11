@@ -1,5 +1,7 @@
 ﻿using API.Models.DTO;
-using static BlazorAdmin.Components.Pages.Admin.SanPham.SanPhamChiTiet;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BlazorAdmin.Service.IService
 {
@@ -11,6 +13,5 @@ namespace BlazorAdmin.Service.IService
         Task<GiayChiTietDTO> CreateAsync(GiayChiTietDTO obj);
         Task<List<GiayChiTietDTO>> CreateMultipleAsync(List<GiayChiTietDTO> list);
         Task<GiayChiTietDTO> UpdateAsync(Guid id, GiayChiTietDTO obj);
-        Task<bool> DeleteAsync(Guid id);
     }
 }

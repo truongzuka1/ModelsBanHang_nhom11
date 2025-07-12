@@ -21,8 +21,5 @@ namespace API.IRepository
 
         // Cập nhật bản ghi
         Task<GiayChiTiet?> UpdateAsync(GiayChiTiet chiTiet);
-
-        // Xóa bản ghi
-        Task<bool> DeleteAsync(Guid id);
     }
 }

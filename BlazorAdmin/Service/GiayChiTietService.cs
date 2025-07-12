@@ -28,7 +28,7 @@ namespace BlazorAdmin.Service
         {
             var response = await _httpClient.GetAsync($"api/GiayChiTiet/{id}");
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<GiayChiTietDTO>();
+            return await response.Content.ReadFromJsonAsync<GiayChiTietDTO>() ?? new GiayChiTietDTO();
         }
 
         public async Task<List<GiayChiTietDTO>> GetByGiayIdAsync(Guid giayId)
@@ -42,7 +42,7 @@ namespace BlazorAdmin.Service
         {
             var response = await _httpClient.PostAsJsonAsync("api/GiayChiTiet", obj);
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<GiayChiTietDTO>();
+            return await response.Content.ReadFromJsonAsync<GiayChiTietDTO>() ?? new GiayChiTietDTO();
         }
 
         public async Task<List<GiayChiTietDTO>> CreateMultipleAsync(List<GiayChiTietDTO> list)
@@ -56,13 +56,7 @@ namespace BlazorAdmin.Service
         {
             var response = await _httpClient.PutAsJsonAsync($"api/GiayChiTiet/{id}", obj);
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<GiayChiTietDTO>();
-        }
-
-        public async Task<bool> DeleteAsync(Guid id)
-        {
-            var response = await _httpClient.DeleteAsync($"api/GiayChiTiet/{id}");
-            return response.IsSuccessStatusCode;
+            return await response.Content.ReadFromJsonAsync<GiayChiTietDTO>() ?? new GiayChiTietDTO();
         }
     }
 }
