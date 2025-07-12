@@ -94,7 +94,7 @@
             SoLuongCon = g.SoLuongCon,
             TrangThai = true
         };
-        await OnAddProduct.InvokeAsync(item);
+        await OnAddProduct.InvokeAsync((item,Soluong));
         await OnClose.InvokeAsync();
     }
 
