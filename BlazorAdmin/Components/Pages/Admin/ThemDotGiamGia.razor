@@ -1,14 +1,16 @@
 ﻿@page "/ThemDotGiamGia"
 @page "/ThemDotGiamGia/{Id:guid}"
 @using Data.Models
+@using API.Models.DTO
 @using BlazorAdmin.Service.IService
 @inject IGiamGiaService GiamGiaService
+@inject IGiayService GiayService
 @inject NavigationManager Navigation
 
 @rendermode InteractiveServer
 
 <h3 class="mb-3">
-    <i class="bi bi-plus-circle"></i> @(Id.HasValue ? "Chỉnh sửa Đợt Giảm Giá" : "Thêm Đợt Giảm Giá")
+    <i class="bi bi-plus-circle"></i> @(Id.HasValue ? "Chỉnh sửa Đợt Khuyến Mại" : "Thêm Đợt Khuyến Mại")
 </h3>
 
 <div class="card shadow-sm p-4">
@@ -47,6 +49,19 @@
             </div>
         </div>
 
+        <div class="mb-3">
+            <label class="form-label">Chọn sản phẩm áp dụng</label>
+            @foreach (var sp in danhSachGiay)
+            {
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="@sp.GiayId"
+                           @onchange="@(() => ToggleGiay(sp.GiayId))"
+                           checked="@giayChon.Contains(sp.GiayId)" />
+                    <label class="form-check-label">@sp.TenGiay</label>
+                </div>
+            }
+        </div>
+
         <div class="d-flex justify-content-end mt-3">
             <button type="submit" class="btn btn-primary">
                 <i class="bi bi-save"></i> Lưu
@@ -65,14 +80,28 @@
     private GiamGia dot = new();
     private string? errorMessage;
 
+    private List<GiayDTO> danhSachGiay = new();
+    private List<Guid> giayChon = new();
+
     protected override async Task OnInitializedAsync()
     {
+        danhSachGiay = await GiayService.GetAllAsync();
+
         if (Id.HasValue)
         {
             var existing = await GiamGiaService.GetByIdAsync(Id.Value);
             if (existing != null)
             {
                 dot = existing;
+
+                // Nếu có danh sách sản phẩm từ entity trung gian
+                if (existing.GiayDotGiamGias != null)
+                {
+                    giayChon = existing.GiayDotGiamGias
+                    .Where(g => g.GiayId.HasValue)
+                    .Select(g => g.GiayId!.Value)
+                    .ToList();
+                }
             }
         }
         else
@@ -82,30 +111,39 @@
                 NgayBatDau = DateTime.Today,
                 NgayKetThuc = DateTime.Today.AddDays(7),
                 TrangThai = true,
-                SanPhamKhuyenMai = "Tất cả sản phẩm"
+                SanPhamKhuyenMai = "Nhiều sản phẩm"
             };
         }
+    }
+
+    private void ToggleGiay(Guid giayId)
+    {
+        if (giayChon.Contains(giayId))
+            giayChon.Remove(giayId);
+        else
+            giayChon.Add(giayId);
     }
 
     private async Task HandleSubmit()
     {
         errorMessage = null;
 
+        // Gán danh sách giày vào entity trung gian để gửi lên API
+        dot.GiayDotGiamGias = giayChon.Select(id => new GiayDotGiamGia
+        {
+            GiayId = id,
+            GiamGiaId = dot.GiamGiaId
+        }).ToList();
+
         HttpResponseMessage response;
 
         if (Id.HasValue)
-        {
             response = await GiamGiaService.UpdateAsyncReturnResponse(dot);
-        }
         else
-        {
             response = await GiamGiaService.AddAsync(dot);
-        }
 
         if (response.IsSuccessStatusCode)
-        {
             Navigation.NavigateTo("/DotGiamGia");
-        }
         else
         {
             var content = await response.Content.ReadAsStringAsync();
