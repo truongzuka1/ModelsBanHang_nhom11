@@ -1,6 +1,10 @@
 ﻿using API.IRepository;
 using Data.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace API.Repository
 {
@@ -17,10 +21,10 @@ namespace API.Repository
         {
             return await _context.GiayChiTiets
                 .Include(g => g.Giay)
-                .Include(g => g.KichCo)  // Đã sửa từ Kichco -> KichCo
+                .Include(g => g.KichCo)
                 .Include(g => g.MauSac)
                 .Include(g => g.Anhs)
-                .AsNoTracking()  // Tối ưu cho read-only
+                .AsNoTracking()
                 .ToListAsync();
         }
 
@@ -28,9 +32,9 @@ namespace API.Repository
         {
             return await _context.GiayChiTiets
                 .Include(g => g.Giay)
-                .Include(g => g.KichCo)  // Đã sửa
+                .Include(g => g.KichCo)
                 .Include(g => g.MauSac)
-                .Include(g => g.Anhs)    // Thêm include ảnh
+                .Include(g => g.Anhs)
                 .FirstOrDefaultAsync(x => x.GiayChiTietId == id);
         }
 
@@ -39,7 +43,7 @@ namespace API.Repository
             return await _context.GiayChiTiets
                 .Where(x => x.GiayId == giayId)
                 .Include(g => g.Giay)
-                .Include(g => g.KichCo)  // Đã sửa
+                .Include(g => g.KichCo)
                 .Include(g => g.MauSac)
                 .Include(g => g.Anhs)
                 .AsNoTracking()
@@ -48,7 +52,6 @@ namespace API.Repository
 
         public async Task<GiayChiTiet> AddAsync(GiayChiTiet chiTiet)
         {
-            // Kiểm tra trùng lặp (tùy nhu cầu)
             if (await _context.GiayChiTiets.AnyAsync(x =>
                 x.GiayId == chiTiet.GiayId &&
                 x.KichCoId == chiTiet.KichCoId &&
@@ -58,7 +61,7 @@ namespace API.Repository
             }
 
             chiTiet.GiayChiTietId = Guid.NewGuid();
-            chiTiet.NgayTao = DateTime.UtcNow;  // Sử dụng UTC
+            chiTiet.NgayTao = DateTime.UtcNow;
             chiTiet.NgaySua = DateTime.UtcNow;
 
             await _context.GiayChiTiets.AddAsync(chiTiet);
@@ -73,6 +76,14 @@ namespace API.Repository
             {
                 foreach (var item in list)
                 {
+                    if (await _context.GiayChiTiets.AnyAsync(x =>
+                        x.GiayId == item.GiayId &&
+                        x.KichCoId == item.KichCoId &&
+                        x.MauSacId == item.MauSacId))
+                    {
+                        throw new InvalidOperationException($"Đã tồn tại sản phẩm với cấu hình: GiayId={item.GiayId}, KichCoId={item.KichCoId}, MauSacId={item.MauSacId}");
+                    }
+
                     item.GiayChiTietId = Guid.NewGuid();
                     item.NgayTao = DateTime.UtcNow;
                     item.NgaySua = DateTime.UtcNow;
@@ -94,28 +105,17 @@ namespace API.Repository
             var existing = await _context.GiayChiTiets.FindAsync(chiTiet.GiayChiTietId);
             if (existing == null) return null;
 
-            // Cập nhật toàn bộ thuộc tính
-            existing.GiayId = chiTiet.GiayId;  // Thêm dòng này
+            existing.GiayId = chiTiet.GiayId;
             existing.KichCoId = chiTiet.KichCoId;
             existing.MauSacId = chiTiet.MauSacId;
             existing.Gia = chiTiet.Gia;
             existing.SoLuongCon = chiTiet.SoLuongCon;
             existing.MoTa = chiTiet.MoTa;
             existing.TrangThai = chiTiet.TrangThai;
-            existing.NgaySua = DateTime.UtcNow;  // Sử dụng UTC
+            existing.NgaySua = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
             return existing;
-        }
-
-        public async Task<bool> DeleteAsync(Guid id)
-        {
-            var existing = await _context.GiayChiTiets.FindAsync(id);
-            if (existing == null) return false;
-
-            _context.GiayChiTiets.Remove(existing);
-            await _context.SaveChangesAsync();
-            return true;
         }
     }
 }
