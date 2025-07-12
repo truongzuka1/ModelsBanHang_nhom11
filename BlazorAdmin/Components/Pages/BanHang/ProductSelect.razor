@@ -2,7 +2,7 @@
 @using API.Models.DTO
 @using Data.Models
 @inject IGiayChiTietService GiayChiTietService
-
+@inject IJSRuntime JS
 @if (Visible)
 {
     <div class="customer-select-overlay"></div>
@@ -36,7 +36,7 @@
                             <button class="increase-btn" @onclick="@(() => ChangeQty(product, 1))">+</button>
                         </div>
                         <div class="order-total">@FormatMoney(product.Gia * product.SoLuongDat)</div>
-                        <button class="add-to-order" @onclick="@(() => AddToOrder(product, product.SoLuongDat))">Thêm vào đơn</button>
+                        <button class="add-to-order" @onclick="@(() => AddToOrder(product))">Thêm vào đơn</button>
                     </div>
                 }
             }
@@ -47,7 +47,7 @@
 
 @code {
     [Parameter] public bool Visible { get; set; }
-    [Parameter] public EventCallback<(GiayChiTietDTO, int)> OnAddProduct { get; set; }
+    [Parameter] public EventCallback<GiayChiTietDTO> OnAddProduct { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
 
     private List<GiayChiTietDTO> Products = new();
@@ -85,7 +85,7 @@
         StateHasChanged();
     }
 
-    private async Task AddToOrder(GiayChiTietDTO g , int Soluong)
+    private async Task AddToOrder(GiayChiTietDTO g)
     {
         var item = new GiayChiTietDTO
         {
