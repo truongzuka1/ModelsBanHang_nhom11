@@ -6,6 +6,7 @@
 @using System.ComponentModel.DataAnnotations
 
 @inject IVoucherService service
+@inject ITaiKhoanService taiKhoanService
 @inject NavigationManager manager
 
 <h3>Thêm Voucher mới</h3>
@@ -32,9 +33,7 @@
     <div class="mb-3">
         <label class="form-label">Giá trị giảm:</label>
         <div class="input-group">
-            <InputNumber class="form-control"
-                         @bind-Value="GiaTriGiam"
-                         placeholder="Nhập giá trị" />
+            <InputNumber class="form-control" @bind-Value="GiaTriGiam" placeholder="Nhập giá trị" />
             <button class="btn @(IsPhanTram ? "btn-primary" : "btn-outline-secondary")"
                     type="button"
                     @onclick="() => DoiKieuGiamGia(true)">
@@ -67,6 +66,18 @@
         <InputNumber class="form-control" @bind-Value="Input.GiamToiDa" />
     </div>
 
+    <div class="mb-3">
+        <label class="form-label">Áp dụng cho khách hàng:</label>
+        <InputSelect class="form-select" @bind-Value="Input.IdTaiKhoan">
+            <option value="">-- Áp dụng cho tất cả --</option>
+            @foreach (var tk in danhSachTaiKhoan)
+            {
+                <option value="@tk.TaikhoanId">@tk.Username</option>
+
+            }
+        </InputSelect>
+    </div>
+
     <button type="submit" class="btn btn-success">Thêm mới</button>
 </EditForm>
 
@@ -74,6 +85,7 @@
     private InputModel Input { get; set; } = new();
     private string? LoiSoTienGiam;
     private bool IsPhanTram = true;
+    private List<TaiKhoan> danhSachTaiKhoan = new();
 
     private float? GiaTriGiam
     {
@@ -93,6 +105,11 @@
         }
     }
 
+    protected override async Task OnInitializedAsync()
+    {
+        danhSachTaiKhoan = await taiKhoanService.GetAllTaiKhoanAsync();
+    }
+
     private void DoiKieuGiamGia(bool laPhanTram)
     {
         if (IsPhanTram != laPhanTram)
@@ -104,38 +121,39 @@
 
     private async Task SubmitFormCreate()
     {
-      
+        LoiSoTienGiam = null;
+
         if (IsPhanTram)
         {
             var soTienTuPhanTram = (Input.PhanTram / 100f) * Input.DieuKienToiThieu;
             if (soTienTuPhanTram > Input.GiamToiDa)
             {
-              
                 Input.PhanTram = (Input.GiamToiDa / Input.DieuKienToiThieu) * 100f;
             }
         }
-        else // Nếu là số tiền
+        else
         {
             if (Input.SoTienGiam > Input.GiamToiDa)
             {
                 LoiSoTienGiam = "Số tiền giảm không được vượt quá giảm tối đa.";
-                return; // Không tiếp tục submit nếu có lỗi
+                return;
             }
         }
 
         var newVoucher = new Voucher
-            {
-                VoucherId = Guid.NewGuid(),
-                TenVoucher = Input.TenVoucher,
-                NgayBatDau = Input.NgayBatDau,
-                NgayKetThuc = Input.NgayKetThuc,
-                PhanTram = Input.PhanTram,
-                TrangThai = true,
-                SoLuong = Input.SoLuong,
-                SoTienGiam = Input.SoTienGiam,
-                GiamToiDa = Input.GiamToiDa,
-                DieuKienToiThieu = Input.DieuKienToiThieu
-            };
+        {
+            VoucherId = Guid.NewGuid(),
+            TenVoucher = Input.TenVoucher,
+            NgayBatDau = Input.NgayBatDau,
+            NgayKetThuc = Input.NgayKetThuc,
+            PhanTram = Input.PhanTram,
+            SoTienGiam = Input.SoTienGiam,
+            GiamToiDa = Input.GiamToiDa,
+            DieuKienToiThieu = Input.DieuKienToiThieu,
+            TrangThai = true,
+            SoLuong = Input.SoLuong,
+            IdTaiKhoan = Input.IdTaiKhoan
+        };
 
         await service.Add(newVoucher);
         manager.NavigateTo("/Admin/voucher");
@@ -155,11 +173,13 @@
         [Range(0, 100, ErrorMessage = "Phần trăm giảm phải từ 0 đến 100")]
         public float PhanTram { get; set; }
 
-        [Range(1, int.MaxValue, ErrorMessage = "Số lượng phải lớn hơn 0")]
-        public int SoLuong { get; set; }
-
         public float SoTienGiam { get; set; }
         public float GiamToiDa { get; set; }
         public float DieuKienToiThieu { get; set; }
+
+        [Range(1, int.MaxValue, ErrorMessage = "Số lượng phải lớn hơn 0")]
+        public int SoLuong { get; set; }
+
+        public Guid? IdTaiKhoan { get; set; } // Áp dụng cho khách hàng cụ thể (nếu có)
     }
 }
