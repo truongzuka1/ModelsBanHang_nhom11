@@ -40,7 +40,7 @@
                         <td>@item.MoTa</td>
                         <td>
                             <span class="badge bg-@(item.TrangThai ? "success" : "secondary")">
-                                @(item.TrangThai ? "Hiển thị" : "Ẩn")
+                                @(item.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")
                             </span>
                         </td>
                         <td>
@@ -185,7 +185,7 @@
             ? await theLoaiGiayService.UpdateAsync(FormData) != null
             : await theLoaiGiayService.AddAsync(FormData) != null;
 
-        ToastMessage = result ? (IsEdit ? "Cập nhật thành công!" : "Thêm thành công!") : "Đã xảy ra lỗi!";
+        // ToastMessage = result ? (IsEdit ? "Cập nhật thành công!" : "Thêm thành công!") : "Đã xảy ra lỗi!";
 
         if (result)
         {
