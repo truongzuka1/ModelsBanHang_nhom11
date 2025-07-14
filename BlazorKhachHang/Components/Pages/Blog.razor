@@ -1,63 +1,95 @@
 ﻿@page "/blog"
+@inject IJSRuntime JS
 
-<h2 class="mb-4 text-center">😜 Những Fact Cực Tào Lao Về Giày</h2>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<h2 class="mb-4 text-center">📰 Blog & Tin tức mới nhất</h2>
 
 <div class="container">
-    @foreach (var item in bullshitFacts)
-    {
-        <div class="fact-card mb-3 p-3 border rounded shadow-sm" style="cursor: pointer;"
-             @onclick="() => ToggleBullshit(item)">
-            <strong>👉 @item.Title</strong>
-            @if (item.Show)
-            {
-                <div class="mt-2 text-muted">@item.Body</div>
-            }
-        </div>
-    }
+    <div class="row">
+        @foreach (var post in blogPosts)
+        {
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm h-100" style="cursor: pointer;" @onclick="() => ShowPopup(post)">
+                    <div class="card-body">
+                        <h5 class="card-title">@post.Title</h5>
+                        <p class="card-text text-muted small">@post.Summary</p>
+                        <span class="text-primary">Xem thêm →</span>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 </div>
 
+<!-- Popup -->
+@if (selectedPost != null)
+{
+    <div class="modal fade show d-block" style="background: rgba(0,0,0,0.5);" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title">@selectedPost.Title</h5>
+                    <button type="button" class="btn-close" @onclick="HidePopup" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted">@selectedPost.Date.ToString("dd MMM yyyy")</p>
+                    <p>@selectedPost.Body</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="HidePopup">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
-    class BullshitItem
+    class BlogPost
     {
         public string Title { get; set; } = "";
+        public string Summary { get; set; } = "";
         public string Body { get; set; } = "";
-        public bool Show { get; set; } = false;
+        public DateTime Date { get; set; } = DateTime.Today;
     }
 
-    private List<BullshitItem> bullshitFacts = new()
+    private List<BlogPost> blogPosts = new()
     {
         new() {
-            Title = "👟 Giày càng thối càng đắt",
-            Body = "Ở Ý có hãng chỉ bán giày đã qua sử dụng ít nhất 10 năm — họ gọi đó là 'vintage chân thật'."
+            Title = "Nike ra mắt dòng giày tái chế 2025",
+            Summary = "Công nghệ Flyknit và chất liệu bền vững đang thay đổi cuộc chơi.",
+            Body = "Nike vừa công bố dòng giày tái chế mới nhất của họ, kết hợp Flyknit với cao su tái chế từ giày cũ. Theo đại diện thương hiệu, mỗi đôi giúp giảm 30% khí thải carbon so với sản phẩm truyền thống.",
+            Date = DateTime.Now.AddDays(-2)
         },
         new() {
-            Title = "🧼 Không bao giờ giặt giày – bụi là một lớp bảo vệ tự nhiên",
-            Body = "Theo một 'chuyên gia TikTok', lớp bụi giúp chống UV và chống người khác giẫm lên giày bạn."
+            Title = "Adidas hợp tác cùng nghệ sĩ Việt thiết kế giày giới hạn",
+            Summary = "Một bước đột phá văn hoá trong làng sneaker Việt.",
+            Body = "Adidas vừa bắt tay với nghệ sĩ đường phố Việt Nam để ra mắt BST giới hạn chỉ 500 đôi. Thiết kế mang màu sắc graffiti, pha trộn giữa truyền thống và hiện đại.",
+            Date = DateTime.Now.AddDays(-5)
         },
         new() {
-            Title = "🔥 Review từ khách thật: “Tôi mang giày này 3 ngày là có người yêu luôn”",
-            Body = "– Tài khoản @hung_deptraivcc, chưa xác minh, để lại review sau khi mua đôi slip-on màu hồng cánh sen."
+            Title = "Top 5 mẫu giày chạy bộ đáng mua nhất 2025",
+            Summary = "Đánh giá và so sánh chi tiết các dòng giày hot nhất hiện nay.",
+            Body = "Từ Nike Pegasus 41 đến Asics Gel-Nimbus 26, danh sách này giúp bạn chọn đôi giày phù hợp nhất với tốc độ, địa hình và túi tiền của mình.",
+            Date = DateTime.Now.AddDays(-7)
         },
         new() {
-            Title = "🧠 Giày càng chật thì IQ càng tăng",
-            Body = "Khoa học chưa chứng minh, nhưng đau chân quá sẽ khiến bạn tỉnh táo hơn."
-        },
-        new() {
-            Title = "💩 Đôi giày tệ nhất thế giới đã từng được bán với giá 50 triệu",
-            Body = "Chỉ vì có chữ ký... của một người không nổi tiếng lắm và một vết cà ri đặc trưng."
-        },
-        new() {
-            Title = "👃 Giày tự động tỏa mùi nước mắm để xua đuổi người xấu",
-            Body = "Startup này gọi đó là 'chống cướp bằng mùi' – nhưng phải đóng cửa sau 1 tuần ra mắt."
-        },
-        new() {
-            Title = "🧍‍♂️ Một người dùng nói: “Mang đôi giày này, tôi không còn bị hỏi 'sao chưa có bồ' nữa”",
-            Body = "Không phải vì giày đẹp – mà vì không ai dám lại gần nữa."
+            Title = "Tại sao giá giày sneaker đang tăng mạnh?",
+            Summary = "Xu hướng thị trường và lý do khiến người tiêu dùng khó tiếp cận hơn.",
+            Body = "Nguồn cung khan hiếm, cộng với làn sóng resale khiến giá sneaker tăng gấp đôi trong nhiều phân khúc. Một đôi Air Jordan có thể đội giá từ 4 triệu lên 12 triệu trong vòng 1 tháng.",
+            Date = DateTime.Now.AddDays(-10)
         }
     };
 
-    void ToggleBullshit(BullshitItem item)
+    private BlogPost? selectedPost = null;
+
+    void ShowPopup(BlogPost post)
     {
-        item.Show = !item.Show;
+        selectedPost = post;
+    }
+
+    void HidePopup()
+    {
+        selectedPost = null;
     }
 }
