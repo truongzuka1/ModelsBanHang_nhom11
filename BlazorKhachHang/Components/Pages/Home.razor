@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject IGiayService GiayService
+@inject IAnhService AnhService
 @using API.Models.DTO
 @using BlazorKhachHang.Service.IService
 
@@ -10,7 +11,7 @@
 <div class="container">
     <!-- Banner -->
     <div class="banner">
-        <img src="LOGO.png" alt="Nike Banner">
+        <img src="https://storage.pixteller.com/designs/designs-images/2020-12-21/05/sport-shoes-sale-banner-1-5fe0bc1f11c83.png" alt="Nike Banner">
         <div class="banner-content">
             <p>SALE UP TO 50%</p>
             <button>Explore Now <i class="fa fa-arrow-right"></i></button>
@@ -22,7 +23,7 @@
         @foreach (var cate in categories)
         {
             <div class="category-card">
-                <img src="LOGO.png" />
+                <img src="@GetCategoryImage(cate)" alt="@cate" />
                 <span>@cate</span>
             </div>
         }
@@ -30,15 +31,11 @@
 
     <!-- Deals Of The Month -->
     <div class="section-title">Deals Of The Month</div>
-    @RenderProductSlider(giayDeals)
+    @RenderProductSlider(giayDeals.Where(g => g.ChiTietGiays.Any(c => c.Gia < 1000000)).ToList())
 
-    <!-- New Arrivals -->
-    <div class="section-title">New Arrivals</div>
+    <!-- Hot Product -->
+    <div class="section-title">Hot Product</div>
     @RenderProductSlider(giayNew)
-
-    <!-- Best-selling -->
-@*     <div class="section-title">Best-selling</div>
-    @RenderProductSlider(giayBest) *@
 </div>
 
 @code {
@@ -50,9 +47,30 @@
     protected override async Task OnInitializedAsync()
     {
         var all = await GiayService.GetAllAsync();
-        giayDeals = all.Take(5).ToList(); // giả định lấy 5 sản phẩm đầu
-        giayNew = all.Skip(5).Take(5).ToList(); // tiếp theo 5 sản phẩm
-        giayBest = all.Skip(10).Take(5).ToList(); // tiếp theo 5 sản phẩm nữa
+        giayDeals = all.Take(5).ToList();
+        giayNew = all.ToList();
+        giayBest = all.Skip(10).Take(5).ToList();
+    }
+
+    private string GetCategoryImage(string category)
+    {
+        return category switch
+        {
+            "Trẻ em" => "https://i.ebayimg.com/images/g/QjEAAOSwK6ZhlLJS/s-l1200.jpg",
+            "Thể Thao" => "https://product.hstatic.net/200000641225/product/6_53d500d9f1ee488f8a7ad62d2c07887c_master.png",
+            "Lịch Lãm" => "https://ardenteal.com/cdn/shop/articles/Best_colours_to_wear_with_brown_shoes_1500x643.jpg?v=1686881257",
+            "Thời Trang" => "https://images.axios.com/p8tJ-NCV12xN3nrBxh47R-DSHHI=/1024x1024/smart/2023/03/11/1678560460423.jpg",
+            "Ưu đãi" => "https://m.media-amazon.com/images/I/71aQ2z4sj-L._AC_SL1500_.jpg",
+            _ => "LOGO.png"
+        };
+    }
+
+    private string GetProductImage(GiayDTO g)
+    {
+        var path = g.ChiTietGiays.FirstOrDefault()?.AnhGiay;
+        return string.IsNullOrEmpty(path)
+            ? "/images/no-image.png"
+            : $"https://localhost:7246{path}";
     }
 
     RenderFragment RenderProductSlider(List<GiayDTO> list) => __builder =>
@@ -64,11 +82,11 @@
                 {
                     <div class="product-card">
                         <span class="discount">-20%</span>
-                        <img src="LOGO.png" />
+                        <img src="@GetProductImage(g)" alt="@g.TenGiay" onerror="this.src='/images/no-image.png'" />
                         <div class="product-title">@g.TenGiay</div>
                         <div class="rating">★★★★★</div>
-                        <div class="price">999,000₫</div>
-                        <div class="sold">50 sold</div>
+                        <div class="price">@string.Format("{0:0,0}₫", g.ChiTietGiays.FirstOrDefault()?.Gia)</div>
+                        <div class="sold">@g.ChiTietGiays.FirstOrDefault()?.SoLuongCon In Stocks</div>
                     </div>
                 }
             </div>

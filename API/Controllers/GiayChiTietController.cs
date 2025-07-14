@@ -20,7 +20,6 @@ namespace API.Controllers
             _repo = repo;
         }
 
-        // 🔄 Map Entity → DTO (giữ nguyên kiểu dữ liệu)
         private GiayChiTietDTO MapToDTO(GiayChiTiet entity)
         {
             return new GiayChiTietDTO
@@ -31,18 +30,18 @@ namespace API.Controllers
                 MauSacId = entity.MauSacId,
                 TenGiay = entity.Giay?.TenGiay,
                 TenMau = entity.MauSac?.TenMau,
-                size = entity.KichCo?.size ?? 0, // Giả sử Size là int
+                size = entity.KichCo?.size ?? 0,
                 Gia = entity.Gia,
                 SoLuongCon = entity.SoLuongCon,
+                SoLuongDat = 1, // Giá trị mặc định vì GiayChiTiet không có SoLuongDat
                 MoTa = entity.MoTa,
                 TrangThai = entity.TrangThai,
-                AnhGiay = entity.Anhs.FirstOrDefault()?.DuongDan, // Lấy ảnh đầu tiên
+                AnhGiay = entity.Anhs.FirstOrDefault()?.DuongDan,
                 NgayTao = entity.NgayTao,
                 NgaySua = entity.NgaySua
             };
         }
 
-        // GET: api/GiayChiTiet
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GiayChiTietDTO>>> GetAll()
         {
@@ -58,7 +57,6 @@ namespace API.Controllers
             }
         }
 
-        // GET: api/GiayChiTiet/5
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
@@ -67,7 +65,6 @@ namespace API.Controllers
             return Ok(MapToDTO(entity));
         }
 
-        // GET: api/GiayChiTiet/giay/5
         [HttpGet("giay/{giayId}")]
         public async Task<IActionResult> GetByGiayId(Guid giayId)
         {
@@ -75,10 +72,14 @@ namespace API.Controllers
             return Ok(entities.Select(MapToDTO));
         }
 
-        // POST: api/GiayChiTiet
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] GiayChiTietDTO dto)
         {
+            if (dto.GiayId == Guid.Empty)
+            {
+                return BadRequest("GiayId là bắt buộc.");
+            }
+
             var entity = new GiayChiTiet
             {
                 GiayId = dto.GiayId,
@@ -96,10 +97,14 @@ namespace API.Controllers
             return CreatedAtAction(nameof(GetById), new { id = createdEntity.GiayChiTietId }, MapToDTO(createdEntity));
         }
 
-        // POST: api/GiayChiTiet/multiple
         [HttpPost("multiple")]
         public async Task<IActionResult> CreateMultiple([FromBody] List<GiayChiTietDTO> dtos)
         {
+            if (dtos == null || !dtos.Any())
+            {
+                return BadRequest("Danh sách DTO không được rỗng.");
+            }
+
             var entities = dtos.Select(dto => new GiayChiTiet
             {
                 GiayId = dto.GiayId,
@@ -117,7 +122,6 @@ namespace API.Controllers
             return Ok(createdEntities.Select(MapToDTO));
         }
 
-        // PUT: api/GiayChiTiet/5
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] GiayChiTietDTO dto)
         {
@@ -134,15 +138,6 @@ namespace API.Controllers
 
             var updatedEntity = await _repo.UpdateAsync(existingEntity);
             return Ok(MapToDTO(updatedEntity));
-        }
-
-        // DELETE: api/GiayChiTiet/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id)
-        {
-            var success = await _repo.DeleteAsync(id);
-            if (!success) return NotFound();
-            return NoContent();
         }
     }
 }

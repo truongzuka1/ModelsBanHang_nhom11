@@ -1,0 +1,69 @@
+﻿@page "/shoes-sole"
+@using API.Models.DTO
+@using BlazorKhachHang.Service.IService
+@inject IDeGiayService deGiayService
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+<link href="/css/home.css" rel="stylesheet" />
+
+<h2 class="text-center my-4">👟 Các loại đế giày</h2>
+
+<div class="container">
+    <div class="row g-4">
+        @foreach (var item in danhSachDeGiay)
+        {
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <img src="@GetImageForSole(item.TenDeGiay)" class="card-img-top" alt="@item.TenDeGiay" style="height: 200px; object-fit: cover;">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">@item.TenDeGiay</h5>
+                        <p class="text-muted fst-italic small">Chọn đế, bước chất!</p>
+                        <p class="card-text flex-grow-1">@item.MoTa</p>
+
+                        @if (item is { GiaBan: > 0 })
+                        {
+                            <p class="fw-bold text-primary">@($"{item.GiaBan:N0} đ")</p>
+                        }
+
+                        <span class="badge bg-@(item.TrangThai ? "success" : "secondary") mb-2">
+                            @(item.TrangThai ? "Có sẵn" : "Ngừng bán")
+                        </span>
+
+                        <button class="btn btn-outline-dark w-100 mt-auto">
+                            <i class="bi bi-cart-plus"></i> Thêm vào giỏ
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .card:hover {
+        transform: translateY(-4px);
+        transition: all 0.3s ease-in-out;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+</style>
+
+@code {
+    private List<DeGiayDTO> danhSachDeGiay = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        danhSachDeGiay = (await deGiayService.GetAllAsync())
+            .Where(x => x.TrangThai) // chỉ hiển thị đế giày đang bán
+            .ToList();
+    }
+
+    private string GetImageForSole(string name)
+    {
+        name = name.ToLower();
+        if (name.Contains("cao su")) return "https://i.imgur.com/Hn3dnwl.jpg";
+        if (name.Contains("gỗ")) return "https://i.imgur.com/3YdFM5n.jpg";
+        if (name.Contains("eva")) return "https://i.imgur.com/zkZn0u5.jpg";
+        if (name.Contains("đúc")) return "https://i.imgur.com/xIdBvL6.jpg";
+        return "https://i.imgur.com/Sqz2JSU.jpg"; // ảnh mặc định
+    }
+}

@@ -1,0 +1,232 @@
+﻿@page "/khachhang"
+@using Microsoft.JSInterop
+@inject IJSRuntime JS
+
+<div class="container py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 mb-4">
+            <div class="bg-white p-3 rounded shadow-sm sidebar text-center">
+                <!-- Avatar -->
+                <div class="mb-3">
+                    <img src="@avatarImage" alt="avatar" class="profile-avatar mb-2" id="avatarImage">
+                    <button class="btn btn-outline-secondary btn-sm mb-2" @onclick="TriggerAvatarClick">
+                        <i class="bi bi-pencil"></i> Chỉnh sửa ảnh
+                    </button>
+                    <input type="file" accept="image/*" style="display:none" @ref="avatarInput" id="avatarInput" @onchange="OnAvatarChanged">
+                </div>
+
+                <!-- Tên -->
+                <div>
+                    <div class="fw-bold">@ProfileName</div>
+                    <a href="#" class="text-decoration-none text-muted" style="font-size:13px;">Sửa hồ sơ</a>
+                </div>
+
+                <!-- Menu -->
+                <div class="menu-title mt-4">Tài khoản của tôi</div>
+                <nav class="nav flex-column mb-3">
+                    <a class="nav-link @(activeTab=="profile" ? "active" : null)" @onclick="@(() => SetActiveTab("profile"))">Hồ sơ</a>
+                    <a class="nav-link @(activeTab=="address" ? "active" : null)" @onclick="@(() => SetActiveTab("address"))">Địa chỉ</a>
+                </nav>
+                <nav class="nav flex-column">
+                    <a class="nav-link @(activeTab=="donmua" ? "active" : null)" @onclick="LoadDonMua">Đơn mua</a>
+                    <a class="nav-link" href="#">Phiếu giảm giá</a>
+                    <a class="nav-link @(activeTab=="doimatkhau" ? "active" : null)" @onclick="@(() => SetActiveTab("doimatkhau"))">Đổi mật khẩu</a>
+
+                </nav>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="col-md-9">
+            <!-- Hồ sơ -->
+            @if (activeTab == "profile")
+            {
+                <div class="bg-white p-4 rounded shadow-sm">
+                    <h4 class="mb-4">Hồ sơ của tôi</h4>
+                    <EditForm Model="this" OnValidSubmit="SaveProfile">
+                        <div class="mb-3 row">
+                            <label class="col-sm-3 col-form-label">Tên đăng nhập:</label>
+                            <div class="col-sm-9"><InputText class="form-control" @bind-Value="ProfileName" /></div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label class="col-sm-3 col-form-label">Email:</label>
+                            <div class="col-sm-9"><InputText class="form-control" @bind-Value="ProfileEmail" /></div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label class="col-sm-3 col-form-label">Số điện thoại:</label>
+                            <div class="col-sm-9"><InputText class="form-control" @bind-Value="ProfilePhone" /></div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label class="col-sm-3 col-form-label">Giới tính:</label>
+                            <div class="col-sm-9">
+                                <InputSelect class="form-select" @bind-Value="ProfileGender">
+                                    <option>Nam</option>
+                                    <option>Nữ</option>
+                                    <option>Khác</option>
+                                </InputSelect>
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label class="col-sm-3 col-form-label">Ngày sinh:</label>
+                            <div class="col-sm-9"><InputDate class="form-control" @bind-Value="ProfileBirthday" /></div>
+                        </div>
+                        <div class="text-end"><button type="submit" class="btn btn-primary">Lưu</button></div>
+                    </EditForm>
+                </div>
+            }
+
+            <!-- Địa chỉ -->
+            @if (activeTab == "address")
+            {
+                <div class="bg-white p-4 rounded shadow-sm">
+                    <h4 class="mb-4">Địa chỉ của tôi</h4>
+                    <p class="mb-2"><strong>@AddressName</strong></p>
+                    <p class="mb-2">SĐT: <span>@AddressPhone</span></p>
+                    <p>@AddressFull</p>
+                    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editAddressModal">Chỉnh sửa địa chỉ</button>
+                </div>
+            }
+
+            <!-- Đơn mua -->
+            @if (activeTab == "donmua")
+            {
+                <DonMuaTab />
+
+            }
+
+            <!-- Đổi mật khẩu -->
+            @if (activeTab == "doimatkhau")
+            {
+               
+                    <DoiMatKhauTab />
+               
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal địa chỉ -->
+<div class="modal fade" id="editAddressModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chỉnh sửa địa chỉ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3"><label class="form-label">Tên địa chỉ:</label><input class="form-control" @bind="AddressName"></div>
+                <div class="mb-3"><label class="form-label">Số điện thoại:</label><input class="form-control" @bind="AddressPhone"></div>
+                <div class="mb-3"><label class="form-label">Địa chỉ chi tiết:</label><textarea class="form-control" @bind="AddressFull"></textarea></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @onclick="SaveAddress">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private ElementReference avatarInput;
+
+    private string activeTab = "profile";
+
+    private string ProfileName = "";
+    private string ProfileEmail = "";
+    private string ProfilePhone = "";
+    private string ProfileGender = "";
+    private DateTime ProfileBirthday = DateTime.Today;
+
+    private string AddressName = "";
+    private string AddressPhone = "";
+    private string AddressFull = "";
+
+    private string avatarImage = "https://i.pravatar.cc/100";
+    private string DonMuaHtml = "Đang tải đơn mua...";
+    private string DoiMatKhauHtml = "Đang tải đổi mật khẩu...";
+
+    private bool _firstRender = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var profile = await JS.InvokeAsync<ProfileData>("loadProfileFromLocalStorage");
+            ProfileName = profile.name;
+            ProfileEmail = profile.email;
+            ProfilePhone = profile.phone;
+            ProfileGender = profile.gender;
+
+            if (DateTime.TryParse(profile.birthday, out var parsedDate))
+            {
+                ProfileBirthday = parsedDate;
+            }
+
+            AddressName = await JS.InvokeAsync<string>("localStorage.getItem", "addressName") ?? "";
+            AddressPhone = await JS.InvokeAsync<string>("localStorage.getItem", "addressPhone") ?? "";
+            AddressFull = await JS.InvokeAsync<string>("localStorage.getItem", "addressFull") ?? "";
+            avatarImage = await JS.InvokeAsync<string>("localStorage.getItem", "avatarImage") ?? avatarImage;
+
+            StateHasChanged();
+        }
+    }
+
+    private async Task SaveProfile()
+    {
+        await JS.InvokeVoidAsync("saveProfileToLocalStorage", new
+        {
+            name = ProfileName,
+            email = ProfileEmail,
+            phone = ProfilePhone,
+            gender = ProfileGender,
+            birthday = ProfileBirthday.ToString("yyyy-MM-dd")
+        });
+        await JS.InvokeVoidAsync("alert", "Thông tin đã được lưu tạm thời!");
+    }
+
+    private async Task SaveAddress()
+    {
+        await JS.InvokeVoidAsync("localStorage.setItem", "addressName", AddressName);
+        await JS.InvokeVoidAsync("localStorage.setItem", "addressPhone", AddressPhone);
+        await JS.InvokeVoidAsync("localStorage.setItem", "addressFull", AddressFull);
+    }
+
+    private async Task TriggerAvatarClick()
+    {
+        await JS.InvokeVoidAsync("eval", "document.getElementById('avatarInput').click();");
+    }
+
+    private async Task OnAvatarChanged(ChangeEventArgs e)
+    {
+        var file = (e.Value as Microsoft.AspNetCore.Components.Forms.IBrowserFile);
+        if (file != null)
+        {
+            var buffer = new byte[file.Size];
+            await file.OpenReadStream().ReadAsync(buffer);
+            avatarImage = "data:" + file.ContentType + ";base64," + Convert.ToBase64String(buffer);
+            await JS.InvokeVoidAsync("localStorage.setItem", "avatarImage", avatarImage);
+        }
+    }
+
+    private void SetActiveTab(string tab)
+    {
+        activeTab = tab;
+    }
+
+    private async Task LoadDonMua()
+    {
+        SetActiveTab("donmua");
+        DonMuaHtml = await JS.InvokeAsync<string>("fetchHtmlContent", "donmua.html");
+    }
+
+    
+
+    public class ProfileData
+    {
+        public string name { get; set; } = string.Empty;
+        public string email { get; set; } = string.Empty;
+        public string phone { get; set; } = string.Empty;
+        public string gender { get; set; } = string.Empty;
+        public string birthday { get; set; } = string.Empty;
+    }
+}

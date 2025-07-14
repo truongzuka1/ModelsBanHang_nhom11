@@ -16,10 +16,12 @@
                 <h5 class="mb-0">@((IsEdit ? "✏️ Sửa" : "➕ Thêm") + " thể loại giày")</h5>
                 <button class="btn-close" @onclick="() => OnClose.InvokeAsync()"></button>
             </div>
-
+              <EditForm Model="FormData" OnValidSubmit="() => OnSubmit.InvokeAsync()">
+                <DataAnnotationsValidator />
             <div class="mb-3">
                 <label class="form-label">Tên thể loại</label>
                 <input class="form-control" @bind="FormData.TenTheLoai" />
+                    <ValidationMessage For="@(() => FormData.TenTheLoai)" />
             </div>
 
             <div class="mb-3">
@@ -38,6 +40,7 @@
                     @(IsEdit ? "Lưu" : "Thêm")
                 </button>
             </div>
+            </EditForm>
         </div>
     </div>
 }
