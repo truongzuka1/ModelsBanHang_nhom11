@@ -1,0 +1,63 @@
+﻿@page "/blog"
+
+<h2 class="mb-4 text-center">😜 Những Fact Cực Tào Lao Về Giày</h2>
+
+<div class="container">
+    @foreach (var item in bullshitFacts)
+    {
+        <div class="fact-card mb-3 p-3 border rounded shadow-sm" style="cursor: pointer;"
+             @onclick="() => ToggleBullshit(item)">
+            <strong>👉 @item.Title</strong>
+            @if (item.Show)
+            {
+                <div class="mt-2 text-muted">@item.Body</div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    class BullshitItem
+    {
+        public string Title { get; set; } = "";
+        public string Body { get; set; } = "";
+        public bool Show { get; set; } = false;
+    }
+
+    private List<BullshitItem> bullshitFacts = new()
+    {
+        new() {
+            Title = "👟 Giày càng thối càng đắt",
+            Body = "Ở Ý có hãng chỉ bán giày đã qua sử dụng ít nhất 10 năm — họ gọi đó là 'vintage chân thật'."
+        },
+        new() {
+            Title = "🧼 Không bao giờ giặt giày – bụi là một lớp bảo vệ tự nhiên",
+            Body = "Theo một 'chuyên gia TikTok', lớp bụi giúp chống UV và chống người khác giẫm lên giày bạn."
+        },
+        new() {
+            Title = "🔥 Review từ khách thật: “Tôi mang giày này 3 ngày là có người yêu luôn”",
+            Body = "– Tài khoản @hung_deptraivcc, chưa xác minh, để lại review sau khi mua đôi slip-on màu hồng cánh sen."
+        },
+        new() {
+            Title = "🧠 Giày càng chật thì IQ càng tăng",
+            Body = "Khoa học chưa chứng minh, nhưng đau chân quá sẽ khiến bạn tỉnh táo hơn."
+        },
+        new() {
+            Title = "💩 Đôi giày tệ nhất thế giới đã từng được bán với giá 50 triệu",
+            Body = "Chỉ vì có chữ ký... của một người không nổi tiếng lắm và một vết cà ri đặc trưng."
+        },
+        new() {
+            Title = "👃 Giày tự động tỏa mùi nước mắm để xua đuổi người xấu",
+            Body = "Startup này gọi đó là 'chống cướp bằng mùi' – nhưng phải đóng cửa sau 1 tuần ra mắt."
+        },
+        new() {
+            Title = "🧍‍♂️ Một người dùng nói: “Mang đôi giày này, tôi không còn bị hỏi 'sao chưa có bồ' nữa”",
+            Body = "Không phải vì giày đẹp – mà vì không ai dám lại gần nữa."
+        }
+    };
+
+    void ToggleBullshit(BullshitItem item)
+    {
+        item.Show = !item.Show;
+    }
+}
