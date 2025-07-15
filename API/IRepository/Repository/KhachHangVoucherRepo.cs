@@ -91,5 +91,10 @@ namespace API.IRepository.Repository
 			await _context.SaveChangesAsync();
 			return true;
 		}
-	}
+        public async Task<Voucher?> GetVoucherByIdAsync(Guid voucherId)
+        {
+            return await _context.Vouchers.FindAsync(voucherId);
+        }
+
+    }
 }

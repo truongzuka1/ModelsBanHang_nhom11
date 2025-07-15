@@ -10,86 +10,107 @@
 @inject IKhachHangVoucherService khachHangVoucherService
 @inject NavigationManager manager
 
-<h3>🎁 Thêm Voucher mới</h3>
+<h3 class="mb-4 text-primary">🎁 Thêm Voucher mới</h3>
 
 <EditForm Model="Input" OnValidSubmit="SubmitFormCreate">
     <DataAnnotationsValidator />
     <ValidationSummary />
 
-    <div class="mb-3">
-        <label class="form-label">Tên Voucher:</label>
-        <InputText class="form-control" @bind-Value="Input.TenVoucher" />
-    </div>
+    <div class="row g-4">
+        <!-- Form Voucher -->
+        <div class="col-md-6">
+            <div class="border rounded p-4 shadow-sm bg-light">
+                <h5 class="mb-3">📋 Thông tin Voucher</h5>
 
-    <div class="mb-3">
-        <label class="form-label">Ngày bắt đầu:</label>
-        <InputDate class="form-control" @bind-Value="Input.NgayBatDau" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Ngày kết thúc:</label>
-        <InputDate class="form-control" @bind-Value="Input.NgayKetThuc" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Giá trị giảm:</label>
-        <div class="input-group">
-            <InputNumber class="form-control" @bind-Value="GiaTriGiam" />
-            <button class="btn @(IsPhanTram ? "btn-primary" : "btn-outline-secondary")"
-                    @onclick="() => DoiKieuGiamGia(true)">
-                %
-            </button>
-            <button class="btn @(!IsPhanTram ? "btn-primary" : "btn-outline-secondary")"
-                    @onclick="() => DoiKieuGiamGia(false)">
-                ₫
-            </button>
-        </div>
-        @if (!string.IsNullOrEmpty(LoiSoTienGiam))
-        {
-            <div class="text-danger mt-1">@LoiSoTienGiam</div>
-        }
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Số lượng:</label>
-        <InputNumber class="form-control" @bind-Value="Input.SoLuong" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Điều kiện giảm:</label>
-        <InputNumber class="form-control" @bind-Value="Input.DieuKienToiThieu" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Giảm tối đa:</label>
-        <InputNumber class="form-control" @bind-Value="Input.GiamToiDa" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Gán cho khách hàng:</label>
-        <div class="border p-2 rounded" style="max-height: 250px; overflow-y: auto;">
-            @foreach (var kh in DanhSachKhachHang)
-            {
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="@kh.KhachHangId"
-                           @onchange="e => ToggleKhachHang(kh.KhachHangId, (bool)e.Value!)" />
-                    <label class="form-check-label" for="@kh.KhachHangId">
-                        @kh.HoTen (@kh.Email)
-                    </label>
+                <div class="mb-3">
+                    <label class="form-label">Tên Voucher:</label>
+                    <InputText class="form-control" @bind-Value="Input.TenVoucher" />
                 </div>
-            }
+
+                <div class="mb-3">
+                    <label class="form-label">Ngày bắt đầu:</label>
+                    <InputDate class="form-control" @bind-Value="Input.NgayBatDau" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Ngày kết thúc:</label>
+                    <InputDate class="form-control" @bind-Value="Input.NgayKetThuc" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Giá trị giảm:</label>
+                    <div class="input-group">
+                        <InputNumber class="form-control" @bind-Value="GiaTriGiam" />
+                        <button class="btn @(IsPhanTram ? "btn-primary" : "btn-outline-secondary")"
+                                @onclick="() => DoiKieuGiamGia(true)">
+                            %
+                        </button>
+                        <button class="btn @(!IsPhanTram ? "btn-primary" : "btn-outline-secondary")"
+                                @onclick="() => DoiKieuGiamGia(false)">
+                            ₫
+                        </button>
+                    </div>
+                    @if (!string.IsNullOrEmpty(LoiSoTienGiam))
+                    {
+                        <div class="text-danger mt-1">@LoiSoTienGiam</div>
+                    }
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Số lượng:</label>
+                    <InputNumber class="form-control" @bind-Value="Input.SoLuong" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Điều kiện giảm:</label>
+                    <InputNumber class="form-control" @bind-Value="Input.DieuKienToiThieu" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Giảm tối đa:</label>
+                    <InputNumber class="form-control" @bind-Value="Input.GiamToiDa" />
+                </div>
+
+                <button type="submit" class="btn btn-success w-100">➕ Thêm Voucher</button>
+            </div>
+        </div>
+
+        <!-- Form Gán khách hàng -->
+        <div class="col-md-6">
+            <div class="border rounded p-4 shadow-sm bg-white">
+                <h5 class="mb-3">👥 Gán cho Khách Hàng</h5>
+
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" id="checkAll"
+                           @bind="IsAllChecked" @bind:event="onchange" />
+                    <label class="form-check-label fw-bold" for="checkAll">Chọn tất cả</label>
+                </div>
+
+                <div class="border p-2 rounded" style="max-height: 400px; overflow-y: auto;">
+                    @foreach (var kh in DanhSachKhachHang)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox"
+                                   id="@kh.KhachHangId"
+                                   checked="@Input.KhachHangIds.Contains(kh.KhachHangId)"
+                                   @onchange="e => ToggleKhachHang(kh.KhachHangId, (bool)e.Value!)" />
+                            <label class="form-check-label" for="@kh.KhachHangId">
+                                @kh.HoTen (@kh.Email)
+                            </label>
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
     </div>
-
-    <button type="submit" class="btn btn-success">Thêm mới</button>
 </EditForm>
 
 @code {
     private InputModel Input { get; set; } = new();
     private string? LoiSoTienGiam;
     private bool IsPhanTram = true;
-
     private List<KhachHang> DanhSachKhachHang = new();
+    private bool _isAllChecked;
 
     private float? GiaTriGiam
     {
@@ -106,6 +127,16 @@
                 Input.SoTienGiam = value ?? 0;
                 Input.PhanTram = 0;
             }
+        }
+    }
+
+    private bool IsAllChecked
+    {
+        get => _isAllChecked;
+        set
+        {
+            _isAllChecked = value;
+            ToggleAllKhachHang(_isAllChecked);
         }
     }
 
@@ -133,6 +164,23 @@
         else
         {
             Input.KhachHangIds.Remove(id);
+        }
+
+        _isAllChecked = Input.KhachHangIds.Count == DanhSachKhachHang.Count;
+    }
+
+    private void ToggleAllKhachHang(bool isChecked)
+    {
+        if (isChecked)
+        {
+            Input.KhachHangIds = DanhSachKhachHang
+                .Select(kh => kh.KhachHangId)
+                .Take(Input.SoLuong)
+                .ToList();
+        }
+        else
+        {
+            Input.KhachHangIds.Clear();
         }
     }
 
@@ -173,9 +221,10 @@
 
         await service.Add(newVoucher);
 
-        if (Input.KhachHangIds.Any())
+        var khToAssign = Input.KhachHangIds.Take(Input.SoLuong).ToList();
+        if (khToAssign.Any())
         {
-            await khachHangVoucherService.AssignMultipleAsync(newVoucher.VoucherId, Input.KhachHangIds);
+            await khachHangVoucherService.AssignMultipleAsync(newVoucher.VoucherId, khToAssign);
         }
 
         manager.NavigateTo("/Admin/voucher");
@@ -183,7 +232,7 @@
 
     private sealed class InputModel
     {
-        [Required]
+        [Required(ErrorMessage = "Tên voucher không được để trống")]
         public string TenVoucher { get; set; } = string.Empty;
 
         [Required]
@@ -199,7 +248,7 @@
         public float GiamToiDa { get; set; }
         public float DieuKienToiThieu { get; set; }
 
-        [Range(1, int.MaxValue)]
+        [Range(1, int.MaxValue, ErrorMessage = "Số lượng phải lớn hơn 0")]
         public int SoLuong { get; set; }
 
         public List<Guid> KhachHangIds { get; set; } = new();

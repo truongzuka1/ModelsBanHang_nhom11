@@ -8,7 +8,9 @@ namespace API.IRepository
 		Task<List<KhachHangVoucher>> GetByVoucherIdAsync(Guid voucherId);
 		Task<List<KhachHangVoucher>> GetByKhachHangIdAsync(Guid khachHangId);
 		Task<bool> AddAsync(KhachHangVoucher entity);
-		Task AddMultipleAsync(Guid voucherId, List<Guid> khachHangIds);
+        Task<Voucher?> GetVoucherByIdAsync(Guid voucherId);
+
+        Task AddMultipleAsync(Guid voucherId, List<Guid> khachHangIds);
 		Task<bool> DeleteAsync(Guid id);
 	}
 }
