@@ -19,20 +19,6 @@ namespace API.IRepository.Repository
                 {
                     voucher.VoucherId = Guid.NewGuid();
                 }
-
-                // Xử lý tài khoản nếu là Guid.Empty
-                if (voucher.IdTaiKhoan == Guid.Empty)
-                {
-                    voucher.IdTaiKhoan = null;
-                }
-                if (voucher.IdTaiKhoan != null)
-                {
-                    var tk = await _context.TaiKhoans.FindAsync(voucher.IdTaiKhoan);
-                    if (tk == null)
-                        throw new Exception("Tài khoản không tồn tại.");
-                }
-
-
                 voucher.Validate();
 
                 _context.Vouchers.Add(voucher);

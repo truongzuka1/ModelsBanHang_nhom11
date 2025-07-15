@@ -8,7 +8,7 @@
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Components.Forms
 
-<h3>Cập nhật Voucher</h3>
+<h3>✏️ Cập nhật Voucher</h3>
 
 <EditForm EditContext="editContext" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
@@ -34,13 +34,11 @@
         <div class="input-group">
             <InputNumber class="form-control text-start" @bind-Value="GiaTriGiam" />
             <button class="btn @(IsPhanTram ? "btn-primary" : "btn-outline-secondary")"
-                    type="button"
-                    @onclick="() => DoiKieuGiamGia(true)">
+                    type="button" @onclick="() => DoiKieuGiamGia(true)">
                 %
             </button>
             <button class="btn @(!IsPhanTram ? "btn-primary" : "btn-outline-secondary")"
-                    type="button"
-                    @onclick="() => DoiKieuGiamGia(false)">
+                    type="button" @onclick="() => DoiKieuGiamGia(false)">
                 ₫
             </button>
         </div>
@@ -69,7 +67,7 @@
         </div>
     </div>
 
-    <button class="btn btn-primary">Lưu thay đổi</button>
+    <button class="btn btn-primary">💾 Lưu thay đổi</button>
 </EditForm>
 
 @code {
@@ -78,8 +76,8 @@
     private Voucher voucher = new();
     private bool IsPhanTram = true;
 
-    private EditContext editContext;
-    private ValidationMessageStore messageStore;
+    private EditContext? editContext;
+    private ValidationMessageStore? messageStore;
 
     protected override async Task OnInitializedAsync()
     {
@@ -92,15 +90,15 @@
 
     private async Task HandleValidSubmit()
     {
-        messageStore.Clear();
+        messageStore?.Clear();
 
         if (IsPhanTram)
         {
             float tienGiamTuPhanTram = (voucher.PhanTram / 100f) * voucher.DieuKienToiThieu;
             if (tienGiamTuPhanTram > voucher.GiamToiDa)
             {
-                messageStore.Add(() => voucher.PhanTram, "Phần trăm giảm vượt quá số tiền giảm tối đa.");
-                editContext.NotifyValidationStateChanged();
+                messageStore?.Add(() => voucher.PhanTram, "Phần trăm giảm vượt quá số tiền giảm tối đa.");
+                editContext?.NotifyValidationStateChanged();
                 return;
             }
         }
@@ -108,8 +106,8 @@
         {
             if (voucher.SoTienGiam > voucher.GiamToiDa)
             {
-                messageStore.Add(() => voucher.SoTienGiam, "Số tiền giảm không được lớn hơn số tiền giảm tối đa.");
-                editContext.NotifyValidationStateChanged();
+                messageStore?.Add(() => voucher.SoTienGiam, "Số tiền giảm không được lớn hơn giảm tối đa.");
+                editContext?.NotifyValidationStateChanged();
                 return;
             }
         }

@@ -6,10 +6,11 @@
 @using System.ComponentModel.DataAnnotations
 
 @inject IVoucherService service
-@inject ITaiKhoanService taiKhoanService
+@inject IKhachHangService khachHangService
+@inject IKhachHangVoucherService khachHangVoucherService
 @inject NavigationManager manager
 
-<h3>Thêm Voucher mới</h3>
+<h3>🎁 Thêm Voucher mới</h3>
 
 <EditForm Model="Input" OnValidSubmit="SubmitFormCreate">
     <DataAnnotationsValidator />
@@ -33,14 +34,12 @@
     <div class="mb-3">
         <label class="form-label">Giá trị giảm:</label>
         <div class="input-group">
-            <InputNumber class="form-control" @bind-Value="GiaTriGiam" placeholder="Nhập giá trị" />
+            <InputNumber class="form-control" @bind-Value="GiaTriGiam" />
             <button class="btn @(IsPhanTram ? "btn-primary" : "btn-outline-secondary")"
-                    type="button"
                     @onclick="() => DoiKieuGiamGia(true)">
                 %
             </button>
             <button class="btn @(!IsPhanTram ? "btn-primary" : "btn-outline-secondary")"
-                    type="button"
                     @onclick="() => DoiKieuGiamGia(false)">
                 ₫
             </button>
@@ -67,15 +66,19 @@
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Áp dụng cho khách hàng:</label>
-        <InputSelect class="form-select" @bind-Value="Input.IdTaiKhoan">
-            <option value="">-- Áp dụng cho tất cả --</option>
-            @foreach (var tk in danhSachTaiKhoan)
+        <label class="form-label">Gán cho khách hàng:</label>
+        <div class="border p-2 rounded" style="max-height: 250px; overflow-y: auto;">
+            @foreach (var kh in DanhSachKhachHang)
             {
-                <option value="@tk.TaikhoanId">@tk.Username</option>
-
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="@kh.KhachHangId"
+                           @onchange="e => ToggleKhachHang(kh.KhachHangId, (bool)e.Value!)" />
+                    <label class="form-check-label" for="@kh.KhachHangId">
+                        @kh.HoTen (@kh.Email)
+                    </label>
+                </div>
             }
-        </InputSelect>
+        </div>
     </div>
 
     <button type="submit" class="btn btn-success">Thêm mới</button>
@@ -85,7 +88,8 @@
     private InputModel Input { get; set; } = new();
     private string? LoiSoTienGiam;
     private bool IsPhanTram = true;
-    private List<TaiKhoan> danhSachTaiKhoan = new();
+
+    private List<KhachHang> DanhSachKhachHang = new();
 
     private float? GiaTriGiam
     {
@@ -107,7 +111,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        danhSachTaiKhoan = await taiKhoanService.GetAllTaiKhoanAsync();
+        DanhSachKhachHang = await khachHangService.GetAll();
     }
 
     private void DoiKieuGiamGia(bool laPhanTram)
@@ -116,6 +120,19 @@
         {
             IsPhanTram = laPhanTram;
             GiaTriGiam = null;
+        }
+    }
+
+    private void ToggleKhachHang(Guid id, bool isChecked)
+    {
+        if (isChecked)
+        {
+            if (!Input.KhachHangIds.Contains(id))
+                Input.KhachHangIds.Add(id);
+        }
+        else
+        {
+            Input.KhachHangIds.Remove(id);
         }
     }
 
@@ -141,45 +158,50 @@
         }
 
         var newVoucher = new Voucher
-        {
-            VoucherId = Guid.NewGuid(),
-            TenVoucher = Input.TenVoucher,
-            NgayBatDau = Input.NgayBatDau,
-            NgayKetThuc = Input.NgayKetThuc,
-            PhanTram = Input.PhanTram,
-            SoTienGiam = Input.SoTienGiam,
-            GiamToiDa = Input.GiamToiDa,
-            DieuKienToiThieu = Input.DieuKienToiThieu,
-            TrangThai = true,
-            SoLuong = Input.SoLuong,
-            IdTaiKhoan = Input.IdTaiKhoan
-        };
+            {
+                VoucherId = Guid.NewGuid(),
+                TenVoucher = Input.TenVoucher,
+                NgayBatDau = Input.NgayBatDau,
+                NgayKetThuc = Input.NgayKetThuc,
+                PhanTram = Input.PhanTram,
+                SoTienGiam = Input.SoTienGiam,
+                GiamToiDa = Input.GiamToiDa,
+                DieuKienToiThieu = Input.DieuKienToiThieu,
+                TrangThai = true,
+                SoLuong = Input.SoLuong
+            };
 
         await service.Add(newVoucher);
+
+        if (Input.KhachHangIds.Any())
+        {
+            await khachHangVoucherService.AssignMultipleAsync(newVoucher.VoucherId, Input.KhachHangIds);
+        }
+
         manager.NavigateTo("/Admin/voucher");
     }
 
     private sealed class InputModel
     {
-        [Required(ErrorMessage = "Tên voucher không được bỏ trống")]
+        [Required]
         public string TenVoucher { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Vui lòng chọn ngày bắt đầu")]
+        [Required]
         public DateTime NgayBatDau { get; set; } = DateTime.Today;
 
-        [Required(ErrorMessage = "Vui lòng chọn ngày kết thúc")]
+        [Required]
         public DateTime NgayKetThuc { get; set; } = DateTime.Today.AddDays(7);
 
-        [Range(0, 100, ErrorMessage = "Phần trăm giảm phải từ 0 đến 100")]
+        [Range(0, 100)]
         public float PhanTram { get; set; }
 
         public float SoTienGiam { get; set; }
         public float GiamToiDa { get; set; }
         public float DieuKienToiThieu { get; set; }
 
-        [Range(1, int.MaxValue, ErrorMessage = "Số lượng phải lớn hơn 0")]
+        [Range(1, int.MaxValue)]
         public int SoLuong { get; set; }
 
-        public Guid? IdTaiKhoan { get; set; } // Áp dụng cho khách hàng cụ thể (nếu có)
+        public List<Guid> KhachHangIds { get; set; } = new();
     }
 }
