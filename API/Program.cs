@@ -5,6 +5,7 @@ using Data.IRepository;
 using Data.Models;
 using Data.Repository;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -61,7 +62,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.UseStaticFiles();
+app.UseStaticFiles(); // cái này phải có
+
+// Cấu hình để truy cập được /Uploads/images/*
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Uploads")),
+    RequestPath = "/Uploads"
+});
+
 
 app.UseHttpsRedirection();
 
