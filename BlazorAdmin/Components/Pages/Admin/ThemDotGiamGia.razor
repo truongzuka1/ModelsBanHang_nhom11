@@ -133,12 +133,34 @@
     {
         errorMessage = null;
 
-        dot.GiayDotGiamGias = giayChon.Select(id => new GiayDotGiamGia
+        // Tạo GiamGiaId nếu là thêm mới
+        if (!Id.HasValue || dot.GiamGiaId == Guid.Empty)
         {
-            GiayId = id,
-            GiamGiaId = dot.GiamGiaId
-        }).ToList();
+            dot.GiamGiaId = Guid.NewGuid();
+        }
 
+        // Gán danh sách GiayDotGiamGias kèm object đầy đủ
+        dot.GiayDotGiamGias = giayChon.Select(id =>
+        {
+            var giay = danhSachGiay.FirstOrDefault(g => g.GiayId == id);
+            return new GiayDotGiamGia
+            {
+                GiayId = id,
+                GiamGiaId = dot.GiamGiaId,
+                Giay = new Giay
+                {
+                    GiayId = id,
+                    TenGiay = giay?.TenGiay ?? "Tên không rõ"
+                },
+                GiamGia = new GiamGia
+                {
+                    GiamGiaId = dot.GiamGiaId,
+                    TenGiamGia = dot.TenGiamGia,
+                    NgayBatDau = dot.NgayBatDau,
+                    NgayKetThuc = dot.NgayKetThuc
+                }
+            };
+        }).ToList();
         HttpResponseMessage response;
 
         if (Id.HasValue)
