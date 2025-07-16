@@ -12,7 +12,10 @@
 
 <div class="card shadow-sm p-4">
     <div class="d-flex justify-content-between mb-3">
-        <input class="form-control w-50" placeholder="🔍 Tìm tên đợt..." @bind="searchTerm" @bind:event="oninput" />
+        <div class="input-group w-50">
+            <span class="input-group-text">🔍</span>
+            <input class="form-control" placeholder="Tìm tên đợt..." @bind="searchTerm" @bind:event="oninput" />
+        </div>
         <button class="btn btn-warning" @onclick='() => Navigation.NavigateTo("/ThemDotGiamGia")'>➕ Thêm đợt</button>
     </div>
 
@@ -40,21 +43,29 @@
                     <tr>
                         <td>@((CurrentPage - 1) * PageSize + index + 1)</td>
                         <td>@item.TenGiamGia</td>
-                        <td>@item.NgayBatDau:dd/MM/yyyy - @item.NgayKetThuc:dd/MM/yyyy</td>
+                        <td>@item.NgayBatDau.ToString("dd/MM/yyyy") - @item.NgayKetThuc.ToString("dd/MM/yyyy")</td>
                         <td>@item.PhanTramKhuyenMai%</td>
                         <td><span class="badge bg-@(item.TrangThai ? "success" : "secondary")">@(item.TrangThai ? "Hiển thị" : "Ẩn")</span></td>
                         <td>@(item.GiayDotGiamGias?.Count ?? 0)</td>
                         <td>
-                            <i class="bi bi-pencil-square text-warning me-2"
-                               @onclick='@(() => Navigation.NavigateTo($"/ThemDotGiamGia/{item.GiamGiaId}"))'
-                               title="Sửa"></i>
-                            <i class="bi bi-link text-success" title="Thêm giày"></i>
+                            <button class="btn btn-sm btn-outline-warning me-2" @onclick='@(() => Navigation.NavigateTo($"/ThemDotGiamGia/{item.GiamGiaId}"))'>
+                                <i class="bi bi-pencil-square"></i> Sửa
+                            </button>
+                            <button class="btn btn-sm btn-outline-success">
+                                <i class="bi bi-link"></i> Thêm giày
+                            </button>
                         </td>
                     </tr>
                 }
             }
         </tbody>
     </table>
+
+    <div class="d-flex justify-content-between mt-3">
+        <button class="btn btn-outline-secondary" @onclick="PreviousPage" disabled="@(CurrentPage == 1)">⬅️ Trước</button>
+        <span>Trang @CurrentPage</span>
+        <button class="btn btn-outline-secondary" @onclick="NextPage" disabled="@(CurrentPage* PageSize >= Filtered.Count)">Tiếp ➡️</button>
+    </div>
 </div>
 
 @code {
@@ -71,5 +82,21 @@
     protected override async Task OnInitializedAsync()
     {
         all = (await GiamGiaService.GetAllAsync()).ToList();
+    }
+
+    private void PreviousPage()
+    {
+        if (CurrentPage > 1)
+        {
+            CurrentPage--;
+        }
+    }
+
+    private void NextPage()
+    {
+        if (CurrentPage * PageSize < Filtered.Count)
+        {
+            CurrentPage++;
+        }
     }
 }

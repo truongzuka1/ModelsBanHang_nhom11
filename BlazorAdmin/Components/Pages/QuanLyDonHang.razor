@@ -34,16 +34,18 @@
         </tr>
     </thead>
     <tbody>
-        @if (dsHoaDon != null)
+        @if (dsHoaDon?.Any() == true)
         {
             var index = 1;
             foreach (var hd in dsHoaDon)
             {
                 <tr class="border-b">
                     <td class="p-2">@index</td>
+
                     <td class="p-2">@hd.HoaDonId.ToString().Substring(0, 8)</td>
-                    <td class="p-2">@(string.IsNullOrEmpty(hd.TenCuaKhachHang) ? "Khách lẻ" : hd.TenCuaKhachHang)</td>
-                    <td class="p-2">@hd.NgayTao.ToString("dd/MM/yyyy HH:mm")</td>
+@*                     <td class="p-2">@(string.IsNullOrEmpty(hd.TenCuaKhachHang) ? "Khách lẻ" : hd.TenCuaKhachHang)</td>
+ *@                    <td class="p-2">@hd.NgayTao.ToString("dd/MM/yyyy HH:mm")</td>
+
                     <td class="p-2">@hd.hinhThucThanhToan?.TenHinhThuc</td>
                     <td class="p-2">
                         <span class="badge @(GetBadgeClass(hd.TrangThai))">@hd.TrangThai</span>
@@ -62,10 +64,10 @@
 </table>
 
 @code {
-    private List<HoaDon> dsHoaDon;
-    private string tuKhoa;
-    private string trangThai;
-    private List<string> trangThaiList = new() { "TẤT CẢ", "Chờ xác nhận", "Chờ giao", "Vận chuyển", "Đã giao", "Đã thanh toán", "Đã huỷ", "Hoàn thành" };
+    private List<HoaDon> dsHoaDon = new();
+    private string tuKhoa = string.Empty;
+    private string trangThai = "TẤT CẢ";
+    private readonly List<string> trangThaiList = new() { "TẤT CẢ", "Chờ xác nhận", "Chờ giao", "Vận chuyển", "Đã giao", "Đã thanh toán", "Đã huỷ", "Hoàn thành" };
 
     protected override async Task OnInitializedAsync()
     {
@@ -85,12 +87,16 @@
     private async Task TaiLai()
     {
         var all = await hoaDonService.GetAll();
+
         dsHoaDon = all?
-            .Where(hd => string.IsNullOrEmpty(tuKhoa) || hd.TenCuaKhachHang?.Contains(tuKhoa, StringComparison.OrdinalIgnoreCase) == true)
+            .Where(hd => string.IsNullOrEmpty(tuKhoa) /* || hd.TenCuaKhachHang?.Contains(tuKhoa, StringComparison.OrdinalIgnoreCase) == true */)
             .ToList();
 
+
         if (!string.IsNullOrEmpty(trangThai) && trangThai != "TẤT CẢ")
+        {
             dsHoaDon = dsHoaDon.Where(h => h.TrangThai == trangThai).ToList();
+        }
     }
 
     private async Task LocTheoTrangThai(string tt)

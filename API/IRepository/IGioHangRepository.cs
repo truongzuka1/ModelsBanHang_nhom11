@@ -1,4 +1,5 @@
-﻿using Data.Models;
+﻿using API.Models.DTO;
+using Data.Models;
 
 namespace API.IRepository
 {

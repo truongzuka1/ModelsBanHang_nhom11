@@ -17,7 +17,7 @@
                 @foreach (var product in Products)
                 {
                     <div class="product-select-item">
-                        <img src="@product.AnhGiay" class="order-img" alt="@product.TenGiay" />
+                        <img src="@($"https://localhost:7246{product.AnhGiay ?? "/images/no-image.png"}")" class="order-img" alt="@product.TenGiay" />
                         <div class="item-info">
                             <div class="order-name">@product.TenGiay</div>
                             <div class="order-price">
@@ -54,13 +54,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var all = await GiayChiTietService.GetAllAsync();
-        Products = all.Select(g =>
-        {
-            g.SoLuongCon = 1;
-            g.size = g.size =37;
-            return g;
-        }).ToList();
+        Products = await GiayChiTietService.GetAllAsync();
     }
 
     private async void ChangeQty(GiayChiTietDTO g, int delta)
@@ -94,6 +88,7 @@
             SoLuongCon = g.SoLuongCon,
             TrangThai = true
         };
+
         await OnAddProduct.InvokeAsync(item);
         await OnClose.InvokeAsync();
     }

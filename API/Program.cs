@@ -30,6 +30,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Đăng ký Repository
+builder.Services.AddScoped<IKhachHangVoucherRepo, KhachHangVoucherRepo>();
 builder.Services.AddScoped<IAnhRepository, AnhRepository>();
 builder.Services.AddScoped<IChatLieuRepository, ChatLieuRepository>();
 builder.Services.AddScoped<IDeGiayRepository, DeGiayRepository>();
