@@ -3,7 +3,41 @@
 @using API.Models.DTO
 @inject IJSRuntime JS
 @inject IGiayService GiayService
+@inject IGiayChiTietService GiayChiTietService
 @inject NavigationManager NavigationManager
+<!-- Thống kê -->
+<div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3 mb-4">
+    <div class="col">
+        <div class="bg-light border rounded p-3 shadow-sm text-center">
+            <h6 class="text-muted">Tổng số sản phẩm</h6>
+            <h4>@ListSanPham.Count</h4>
+        </div>
+    </div>
+    <div class="col">
+        <div class="bg-light border rounded p-3 shadow-sm text-center">
+            <h6 class="text-muted">Đang bán</h6>
+            <h4>@ListSanPham.Count(x => x.TrangThai)</h4>
+        </div>
+    </div>
+    <div class="col">
+        <div class="bg-light border rounded p-3 shadow-sm text-center">
+            <h6 class="text-muted">Ngừng bán</h6>
+            <h4>@ListSanPham.Count(x => !x.TrangThai)</h4>
+        </div>
+    </div>
+    <div class="col">
+        <div class="bg-light border rounded p-3 shadow-sm text-center">
+            <h6 class="text-muted">Tổng số biến thể</h6>
+            <h4>@soLuongBienThe</h4>
+        </div>
+    </div>
+    <div class="col">
+        <div class="bg-light border rounded p-3 shadow-sm text-center">
+            <h6 class="text-muted">Tổng tồn kho</h6>
+            <h4>@tongSoLuongCon</h4>
+        </div>
+    </div>
+</div>
 
 <h4 class="fw-bold mb-4"><i class="bi bi-box-seam me-2"></i>Quản lý sản phẩm giày</h4>
 
@@ -48,6 +82,8 @@
                     <th>Thể loại</th>
                     <th>Đế giày</th>
                     <th>Kiểu dáng</th>
+                    <th class="text-center">Biến thể</th>
+                    <th class="text-center">Tồn kho</th>
                     <th>Ngày thêm</th>
                     <th class="text-center">Trạng thái</th>
                     <th class="text-center" style="width: 150px;">Thao tác</th>
@@ -70,6 +106,8 @@
                             <td>@item.TenTheLoaiGiay</td>
                             <td>@item.TenDeGiay</td>
                             <td>@item.TenKieuDang</td>
+                            <td class="text-center">@variantCountByGiay.GetValueOrDefault(item.GiayId)</td>
+                            <td class="text-center">@stockByGiay.GetValueOrDefault(item.GiayId)</td>
                             <td>@item.NgayTao.ToString("dd/MM/yyyy")</td>
                             <td class="text-center">
                                 <span class="badge @(item.TrangThai ? "bg-success text-light" : "bg-secondary")">
@@ -88,7 +126,7 @@
                 }
                 else
                 {
-                    <tr><td colspan="10" class="text-center text-muted py-4">Không tìm thấy sản phẩm nào.</td></tr>
+                    <tr><td colspan="12" class="text-center text-muted py-4">Không tìm thấy sản phẩm nào.</td></tr>
                 }
             </tbody>
         </table>
@@ -126,6 +164,11 @@
     private bool isLoading = true;
     private int currentPage = 1;
     private int pageSize = 10;
+    private int soLuongBienThe = 0;
+    private int tongSoLuongCon = 0;
+    // ngay dưới tongSoLuongCon
+    private Dictionary<Guid, int> variantCountByGiay = new();
+    private Dictionary<Guid, int> stockByGiay = new();
 
     private List<GiayDTO> FilteredList => ListSanPham
         .Where(x => string.IsNullOrWhiteSpace(searchText) || x.TenGiay.Contains(searchText, StringComparison.OrdinalIgnoreCase))
@@ -143,7 +186,6 @@
     {
         await LoadData();
     }
-
     private async Task LoadData()
     {
         isLoading = true;
@@ -152,12 +194,29 @@
             var result = await GiayService.GetAllAsync();
             int stt = 1;
             ListSanPham = result.Select(x => { x.STT = stt++; return x; }).ToList();
+
+            // Lấy TẤT CẢ biến thể
+            var bienTheList = await GiayChiTietService.GetAllAsync();
+
+            // Thống kê toàn cục
+            soLuongBienThe = bienTheList.Count;
+            tongSoLuongCon = bienTheList.Sum(x => x.SoLuongCon);
+
+            // Gom nhóm theo GiayId
+            variantCountByGiay = bienTheList
+                .GroupBy(bt => bt.GiayId)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            stockByGiay = bienTheList
+                .GroupBy(bt => bt.GiayId)
+                .ToDictionary(g => g.Key, g => g.Sum(x => x.SoLuongCon));
         }
         finally
         {
             isLoading = false;
         }
     }
+
 
     private void ViewProduct(Guid GiayId)
     {
