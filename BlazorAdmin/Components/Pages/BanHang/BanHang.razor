@@ -227,8 +227,8 @@
                         <input class="pay-input" type="text" @bind="CustomerPay" />
                     </div>
                     <div class="order-row deficit">
-                        <span>Tiền thiếu</span>
-                        <span>@FormatMoney(DeficitAmount)</span>
+                        <span>Số tiền phải trả</span>
+                        <span>@DeficitAmount</span>
                     </div>
                     <button class="confirm-btn" @onclick="ConfirmOrder">XÁC NHẬN ĐẶT HÀNG</button>
                 </div>
@@ -253,7 +253,17 @@
 
     // 💰 Tính toán đơn hàng
     private float DiscountPercent { get; set; } = 0;
-    private float CustomerPay { get; set; } = 0;
+    private float _CustomerPay;
+    private float CustomerPay 
+    {
+        get => _CustomerPay;
+        set 
+        {
+            FormatMoney(DeficitAmount);
+            _CustomerPay = value;
+        }
+    }
+     
 
     private float Subtotal => CurrentOrder?.Products?.Sum(p => p.Soluong * p.NewPrice) ?? 0f;
     private float ShippingFee => CurrentOrder.ThongTinHoaDon.IsDelivery ? 0f : 0f;

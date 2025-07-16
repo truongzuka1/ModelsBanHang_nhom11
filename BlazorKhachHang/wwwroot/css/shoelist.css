@@ -25,10 +25,9 @@ body {
     margin-bottom: 10px;
 }
 
-/* Layout Container */
 .container {
     display: flex;
-    gap: 20px;
+    gap: 30px;
     max-width: 1300px;
     margin: 0 auto;
     align-items: flex-start;
@@ -59,8 +58,9 @@ body {
     border-radius: 50%;
     border: 1px solid #ccc;
 }
-/*auysgdyuagsd*/
-/* Product section */
+
+
+
 .product-section {
     flex: 1;
 }
@@ -258,3 +258,41 @@ body {
         transform: translateY(-5px);
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     }
+.filter {
+    width: 280px; /* hoặc 300px tùy bạn */
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    font-size: 14px; /* thay vì 8px */
+}
+.color-options .color.selected {
+    outline: 2px solid #000;
+    outline-offset: 2px;
+    border: 2px solid white;
+}
+.color {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-block;
+}
+
+    .color:hover {
+        transform: scale(1.2);
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Khi được chọn */
+    .color.selected {
+        outline: 2px solid #000;
+        outline-offset: 2px;
+        border: 2px solid #fff;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.6);
+    }
+
+
