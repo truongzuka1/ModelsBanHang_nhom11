@@ -58,8 +58,7 @@ namespace API.Controllers
                     result.Add(new ReturnDTO
                     {
                         HoaDonId = hoaDon.HoaDonId,
-                        TenCuaKhachHang = hoaDon.TenCuaKhachHang,
-                        SDTCuaKhachHang = hoaDon.SDTCuaKhachHang,
+                        
                         NgayTao = hoaDon.NgayTao,
                         TongTienSauKhiGiam = hoaDon.TongTienSauKhiGiam,
                         TrangThai = hoaDon.TrangThai,
@@ -106,8 +105,7 @@ namespace API.Controllers
             return Ok(new ReturnDTO
             {
                 HoaDonId = hoaDon.HoaDonId,
-                TenCuaKhachHang = hoaDon.TenCuaKhachHang,
-                SDTCuaKhachHang = hoaDon.SDTCuaKhachHang,
+         
                 NgayTao = hoaDon.NgayTao,
                 TongTienSauKhiGiam = hoaDon.TongTienSauKhiGiam,
                 TrangThai = hoaDon.TrangThai,

@@ -1,0 +1,186 @@
+﻿@page "/shoelist"
+@rendermode InteractiveServer
+@using Data.Models
+@using BlazorKhachHang.Service.IService
+@using API.Models.DTO
+@inject IGiayService service
+@inject NavigationManager manager
+@inject IJSRuntime JS
+
+<link href="css/shoelist.css" rel="stylesheet">
+
+<h3 class="breadcrumb-wrapper">
+    <div class="breadcrumb"><h2>Shoe List</h2></div>
+</h3>
+
+<main class="container">
+    <aside class="filter">
+        <h3>Filter</h3>
+
+        <div class="filter-group">
+            <strong>BRAND</strong><br />
+            <label><input type="checkbox" /> Nike</label><br />
+            <label><input type="checkbox" /> Adidas</label><br />
+            <label><input type="checkbox" /> Puma</label><br />
+            <label><input type="checkbox" /> Skechers</label><br />
+            <label><input type="checkbox" /> Vans</label>
+        </div>
+
+        <div class="filter-group">
+            <strong>PRICE</strong><br />
+            <label><input type="checkbox" /> Under $10</label><br />
+            <label><input type="checkbox" /> $10 - $50</label><br />
+            <label><input type="checkbox" /> $50 - $100</label><br />
+            <label><input type="checkbox" /> $100 - $300</label><br />
+            <label><input type="checkbox" /> $300 - $500</label><br />
+            <label><input type="checkbox" /> $500 - $1000</label>
+        </div>
+
+        <div class="filter-group">
+            <strong>COLOR</strong>
+            <div class="color-options">
+                <span class="color" style="background: red;"></span>
+                <span class="color" style="background: green;"></span>
+                <span class="color" style="background: blue;"></span>
+                <span class="color" style="background: orange;"></span>
+                <span class="color" style="background: black;"></span>
+                <span class="color" style="background: grey;"></span>
+            </div>
+        </div>
+    </aside>
+
+    <section class="product-section">
+        <div class="section-header">
+            <input type="text" class="search-input" placeholder="Tìm theo tên giày..." @bind="searchKeyword" @bind:event="oninput" />
+
+
+            <select class="sort-dropdown">
+                <option>Best selling</option>
+                <option>Price: Low to High</option>
+                <option>Price: High to Low</option>
+            </select>
+        </div>
+
+        <div class="product-grid">
+            @if (giayList != null && giayList.Count > 0)
+            {
+                @foreach (var giay in giayList.Where(g => g.TrangThai && g.ChiTietGiays != null && g.ChiTietGiays.Any()))
+                {
+                    var firstChiTiet = giay.ChiTietGiays.FirstOrDefault();
+                    var groupByColor = giay.ChiTietGiays
+                    .Where(c => !string.IsNullOrWhiteSpace(c.TenMau))
+                    .GroupBy(c => c.TenMau!)
+                    .ToList();
+
+                    if (firstChiTiet != null)
+                    {
+                        <div class="product-card" style="cursor: pointer;" @onclick="@(() => NavigateToDetail(giay.GiayId))">
+                            <div class="product-img-container">
+                                <img src="@($"https://localhost:7246/Uploads/images/{(string.IsNullOrEmpty(firstChiTiet.AnhGiay) ? "no-image.png" : firstChiTiet.AnhGiay)}")"
+                                     alt="Product Image"
+                                     onerror="this.onerror=null;this.src='/images/no-image.png';" />
+
+                                <div class="discount-badge">-10%</div>
+                                <div class="favorite-btn"><i class="far fa-heart"></i></div>
+                            </div>
+
+                            <div class="product-info">
+                                <p class="brand">@giay.TenGiay</p>
+                                <p class="rating">
+                                    <span class="stars">★★★★☆</span>
+                                    <span class="count">(17523)</span>
+                                </p>
+                                @* asdjahsdhbad *@
+                                <div class="bottom-info">
+                                    <span class="price">
+                                        $<span class="main">@firstChiTiet.Gia.ToString("N0")</span><sup>đ</sup>
+                                    </span>
+                                    <span class="sold">@giay.TenTheLoaiGiay</span>
+                                </div>
+
+                                <div class="color-size-list mt-2">
+                                    @foreach (var group in groupByColor)
+                                    {
+                                        var tenMau = group.FirstOrDefault()?.TenMau ?? "Không xác định";
+                                        <div class="mb-1">
+                                            <div class="d-flex align-items-center mb-1">
+                                                <span class="color me-2" style="background:@ConvertTenMauToColor(tenMau)"></span>
+                                                <span>
+                                                    @foreach (var item in group.OrderBy(x => x.size))
+                                                    {
+                                                        <span class="badge bg-secondary me-1">@item.size</span>
+                                                    }
+                                                </span>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                    }
+                }
+            }
+            else
+            {
+                <p>Đang tải sản phẩm...</p>
+            }
+        </div>
+    </section>
+</main>
+
+@code {
+    private List<GiayDTO> giayList = new();
+
+    private string searchKeyword
+    {
+        get => _searchKeyword;
+        set
+        {
+            _searchKeyword = value;
+            FilterGiayList();
+        }
+    }
+    private string _searchKeyword = "";
+    private List<GiayDTO> allGiayList = new(); // chứa tất cả giày
+
+    protected override async Task OnInitializedAsync()
+    {
+        allGiayList = await service.GetAllAsync();
+        FilterGiayList();
+    }
+    private void FilterGiayList()
+    {
+        if (string.IsNullOrWhiteSpace(searchKeyword))
+        {
+            giayList = allGiayList;
+        }
+        else
+        {
+            giayList = allGiayList
+                .Where(g => g.TenGiay != null && g.TenGiay.Contains(searchKeyword, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+    }
+    private void NavigateToDetail(Guid giayId)
+    {
+        manager.NavigateTo($"/detailShoeCategory/{giayId}");
+    }
+
+
+    private string ConvertTenMauToColor(string tenMau)
+    {
+        return tenMau.ToLower() switch
+        {
+            "đỏ" or "do" => "red",
+            "xanh lá" or "xanh la" => "green",
+            "xanh dương" => "blue",
+            "cam" => "orange",
+            "đen" => "black",
+            "trắng" or "trang" => "white",
+            "xám" => "grey",
+            _ => "grey" 
+        };
+    }
+
+}

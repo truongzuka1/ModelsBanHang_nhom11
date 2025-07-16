@@ -46,8 +46,8 @@
                     <td class="p-2">@hd.HoaDonId.ToString().Substring(0, 8)</td>
                     <td class="p-2">@tongSP</td>
                     <td class="p-2">@tongTien.ToString("N0") đ</td>
-                    <td class="p-2">@(string.IsNullOrEmpty(hd.TenCuaKhachHang) ? "Khách lẻ" : hd.TenCuaKhachHang)</td>
-                    <td class="p-2">@hd.NgayTao.ToString("dd/MM/yyyy HH:mm")</td>
+@*                     <td class="p-2">@(string.IsNullOrEmpty(hd.TenCuaKhachHang) ? "Khách lẻ" : hd.TenCuaKhachHang)</td>
+ *@                    <td class="p-2">@hd.NgayTao.ToString("dd/MM/yyyy HH:mm")</td>
                     <td class="p-2">@hd.hinhThucThanhToan?.TenHinhThuc</td>
                     <td class="p-2">
                         <span class="badge @(GetBadgeClass(hd.TrangThai))">@hd.TrangThai</span>
@@ -82,7 +82,7 @@
 
         chiTietMap = dsChiTiet.GroupBy(x => x.HoaDonId).ToDictionary(g => g.Key, g => g.ToList());
 
-        dsHoaDon = all?.Where(hd => string.IsNullOrEmpty(tuKhoa) || hd.TenCuaKhachHang?.Contains(tuKhoa, StringComparison.OrdinalIgnoreCase) == true).ToList();
+        dsHoaDon = all?.Where(hd => string.IsNullOrEmpty(tuKhoa) /*||  hd.TenCuaKhachHang?.Contains(tuKhoa, StringComparison.OrdinalIgnoreCase) == true */).ToList();
         if (!string.IsNullOrEmpty(trangThai) && trangThai != "TẤT CẢ")
             dsHoaDon = dsHoaDon.Where(h => h.TrangThai == trangThai).ToList();
     }
