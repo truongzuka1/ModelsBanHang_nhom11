@@ -506,6 +506,11 @@
         var hoaDon = new HoaDon
         {
             KhachHangId = CurrentOrder.Customer?.KhachHangId,
+
+            // TenCuaKhachHang = CurrentOrder.ThongTinHoaDon.TenNguoiNhan,
+            // SDTCuaKhachHang = CurrentOrder.ThongTinHoaDon.Sdt,
+            // EmailCuaKhachHang = CurrentOrder.Customer?.Email ?? "",
+
             NgayTao = DateTime.Now,
             TongTienSauKhiGiam = TotalAmount,
             TrangThai = "Chờ xác nhận",

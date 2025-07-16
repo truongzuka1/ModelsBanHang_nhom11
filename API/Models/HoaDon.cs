@@ -15,19 +15,9 @@ namespace Data.Models
         public Guid HoaDonId { get; set; } = Guid.NewGuid();
 
         public Guid NhanVienId { get; set; }
-        public Guid ? KhachHangId { get; set; }
-        public Guid? HinhThucThanhToanId { get; set; }
-        public Guid ? VoucherId { get; set; }
-
-        //cần xóa
-        [MaxLength(50)]
-        public string TenCuaKhachHang { get; set; }
-
-        [MaxLength(20)]
-        public string SDTCuaKhachHang { get; set; }
-
-        [MaxLength(50)]
-        public string? EmailCuaKhachHang { get; set; }
+        public Guid? KhachHangId { get; set; }
+        public Guid HinhThucThanhToanId { get; set; }
+        public Guid? VoucherId { get; set; }
 
         public DateTime NgayTao { get; set; }
         public DateTime NgayNhanHang { get; set; }
@@ -44,7 +34,7 @@ namespace Data.Models
         public HinhThucThanhToan? hinhThucThanhToan {  get; set; }
         public KhachHang? khachHang { get; set; }
         public virtual ICollection<HoaDonChiTiet> HoaDonChiTiets { get; set; } = new List<HoaDonChiTiet>();
-        
+
 
     }
 
