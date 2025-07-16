@@ -472,9 +472,9 @@
         var hoaDon = new HoaDon
         {
             KhachHangId = CurrentOrder.Customer?.KhachHangId,
-            TenCuaKhachHang = CurrentOrder.ThongTinHoaDon.TenNguoiNhan,
-            SDTCuaKhachHang = CurrentOrder.ThongTinHoaDon.Sdt,
-            EmailCuaKhachHang = CurrentOrder.Customer?.Email ?? "",
+            // TenCuaKhachHang = CurrentOrder.ThongTinHoaDon.TenNguoiNhan,
+            // SDTCuaKhachHang = CurrentOrder.ThongTinHoaDon.Sdt,
+            // EmailCuaKhachHang = CurrentOrder.Customer?.Email ?? "",
             NgayTao = DateTime.Now,
             NgayNhanHang = DateTime.Now.AddDays(2), 
             TongTienSauKhiGiam = TotalAmount,

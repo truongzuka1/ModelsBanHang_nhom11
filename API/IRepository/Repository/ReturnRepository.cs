@@ -25,10 +25,7 @@ namespace API.IRepository.Repository
 
             if (!string.IsNullOrEmpty(maHoaDon))
                 query = query.Where(h => h.HoaDonId.ToString().Contains(maHoaDon));
-            if (!string.IsNullOrEmpty(tenKhachHang))
-                query = query.Where(h => h.TenCuaKhachHang.ToLower().Contains(tenKhachHang.ToLower()));
-            if (!string.IsNullOrEmpty(sdt))
-                query = query.Where(h => h.SDTCuaKhachHang.Contains(sdt));
+
             if (ngayTao.HasValue)
                 query = query.Where(h => h.NgayTao.Date == ngayTao.Value.Date);
             if (!string.IsNullOrEmpty(trangThai))
