@@ -141,32 +141,45 @@
                         <div class="customer-info-row">
                             <div>
                                 <label for="TinhThanh">Tỉnh/Thành phố</label>
-                                <input id="TinhThanh"  @onchange="OnTinhChanged" style="cursor:pointer" list="Tinh" class="province-input">
-                                <datalist id="Tinh" class="dropdown-address">
+                                <input id="TinhThanh" @onchange="OnTinhChanged"
+                                       list="Tinh"
+                                       value="@Tinh"
+                                       class="province-input" />
+                                <datalist id="Tinh">
                                     @foreach (var t in TinhThanh)
                                     {
-                                        <option value="@t.Ten"></option>
+                                        <option value="@t.Ten" />
                                     }
                                 </datalist>
 
                             </div>
                             <div>
                                 <label for="QuanHuyen">Quận/Huyện</label>
-                                <input id="QuanHuyen" @onchange="OnHuyenChanged" disabled="@(!HuyenXa.Any())" style="cursor:pointer" list="Quan" class="province-input" />
-                                <datalist id="Quan" class="dropdown-address">
+                                <input id="QuanHuyen"
+                                       @onchange="OnHuyenChanged"
+                                       list="Quan"
+                                       value="@Huyen"
+                                       disabled="@string.IsNullOrEmpty(Tinh)"
+                                       class="province-input" />
+                                <datalist id="Quan">
                                     @foreach (var h in HuyenXa)
                                     {
-                                        <option value="@h.Ten">@h.Ten</option>
+                                        <option value="@h.Ten" />
                                     }
                                 </datalist>
                             </div>
                             <div>
                                 <label for="XaPhuongThiTran">Xã/Phường/Thị trấn</label>
-                                <input id="XaPhuongThiTran" @onchange="OnXaPhuongChanged" disabled="@(!XaPhuong.Any())" style="cursor:pointer" list="XaPhuong" />
-                                <datalist id="XaPhuong" class="dropdown-address">
+                                <input id="XaPhuongThiTran"
+                                       @onchange="OnXaPhuongChanged"
+                                       list="XaPhuong"
+                                       value="@Phuong"
+                                       disabled="@string.IsNullOrEmpty(Huyen)"
+                                       class="province-input" />
+                                <datalist id="XaPhuong">
                                     @foreach (var x in XaPhuong)
                                     {
-                                        <option>@x.Ten</option>
+                                        <option value="@x.Ten" />
                                     }
                                 </datalist>
                             </div>
@@ -227,8 +240,8 @@
                         <input class="pay-input" type="text" @bind="CustomerPay" />
                     </div>
                     <div class="order-row deficit">
-                        <span>Tiền thiếu</span>
-                        <span>@FormatMoney(DeficitAmount)</span>
+                        <span>Số tiền phải trả</span>
+                        <span>@DeficitAmount</span>
                     </div>
                     <button class="confirm-btn" @onclick="ConfirmOrder">XÁC NHẬN ĐẶT HÀNG</button>
                 </div>
@@ -253,7 +266,17 @@
 
     // 💰 Tính toán đơn hàng
     private float DiscountPercent { get; set; } = 0;
-    private float CustomerPay { get; set; } = 0;
+    private float _CustomerPay;
+    private float CustomerPay 
+    {
+        get => _CustomerPay;
+        set 
+        {
+            FormatMoney(DeficitAmount);
+            _CustomerPay = value;
+        }
+    }
+     
 
     private float Subtotal => CurrentOrder?.Products?.Sum(p => p.Soluong * p.NewPrice) ?? 0f;
     private float ShippingFee => CurrentOrder.ThongTinHoaDon.IsDelivery ? 0f : 0f;
@@ -342,6 +365,17 @@
     private void SwitchOrder(int index)
     {
         CurrentOrderIndex = index;
+
+
+        Tinh = CurrentOrder.ThongTinHoaDon.TinhThanhPho;
+        Huyen = CurrentOrder.ThongTinHoaDon.QuanHuyen;
+        Phuong = CurrentOrder.ThongTinHoaDon.XaPhuongThiTran;
+
+        var tinh = TinhThanh.FirstOrDefault(t => t.Ten == Tinh);
+        HuyenXa = tinh?.Con ?? new();
+
+        var huyen = HuyenXa.FirstOrDefault(h => h.Ten == Huyen);
+        XaPhuong = huyen?.Con ?? new();
     }
 
     private async void IncreaseQuantity(ProductOrder product)
@@ -472,11 +506,7 @@
         var hoaDon = new HoaDon
         {
             KhachHangId = CurrentOrder.Customer?.KhachHangId,
-            TenCuaKhachHang = CurrentOrder.ThongTinHoaDon.TenNguoiNhan,
-            SDTCuaKhachHang = CurrentOrder.ThongTinHoaDon.Sdt,
-            EmailCuaKhachHang = CurrentOrder.Customer?.Email ?? "",
             NgayTao = DateTime.Now,
-            NgayNhanHang = DateTime.Now.AddDays(2), 
             TongTienSauKhiGiam = TotalAmount,
             TrangThai = "Chờ xác nhận",
             GhiChu = "",
@@ -565,34 +595,38 @@
     private string Tinh = "";
     void OnTinhChanged(ChangeEventArgs e)
     {
-        if (CurrentOrder.ThongTinHoaDon.TinhThanhPho != null)
-        {
-            Tinh = CurrentOrder.ThongTinHoaDon.TinhThanhPho;
-        }
         Tinh = e.Value?.ToString();
+        CurrentOrder.ThongTinHoaDon.TinhThanhPho = Tinh;
+
         var tinh = TinhThanh.FirstOrDefault(t => t.Ten == Tinh);
         HuyenXa = tinh?.Con ?? new();
         XaPhuong = new();
+
+        Huyen = "";
+        Phuong = "";
+
+        CurrentOrder.ThongTinHoaDon.QuanHuyen = "";
+        CurrentOrder.ThongTinHoaDon.XaPhuongThiTran = "";
     }
+
     private string Huyen = "";
     void OnHuyenChanged(ChangeEventArgs e)
     {
-        if (CurrentOrder.ThongTinHoaDon.QuanHuyen != null)
-        {
-            Huyen = CurrentOrder.ThongTinHoaDon.QuanHuyen;
-        }
         Huyen = e.Value?.ToString();
+        CurrentOrder.ThongTinHoaDon.QuanHuyen = Huyen;
+
         var huyen = HuyenXa.FirstOrDefault(h => h.Ten == Huyen);
         XaPhuong = huyen?.Con ?? new();
+
+        Phuong = "";
+        CurrentOrder.ThongTinHoaDon.XaPhuongThiTran = "";
     }
+
     private string Phuong = "";
     void OnXaPhuongChanged(ChangeEventArgs e)
     {
-        if (CurrentOrder.ThongTinHoaDon.XaPhuongThiTran != null)
-        {
-            Phuong = CurrentOrder.ThongTinHoaDon.XaPhuongThiTran;
-        }
         Phuong = e.Value?.ToString();
+        CurrentOrder.ThongTinHoaDon.XaPhuongThiTran = Phuong;
     }
     void OnVoucherChange(ChangeEventArgs e)
     {

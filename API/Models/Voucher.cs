@@ -33,17 +33,18 @@ namespace Data.Models
         public bool TrangThai { get; set; }
 
         public int SoLuong { get; set; }
+		public virtual ICollection<KhachHangVoucher> KhachHangVouchers { get; set; } = new List<KhachHangVoucher>();
 
-        public Guid? IdTaiKhoan { get; set; }
 
-        public void Validate()
+
+
+		public void Validate()
         {
             if (NgayBatDau.Date < DateTime.Today)
                 throw new Exception("Ngày bắt đầu không hợp lệ.");
             if (NgayKetThuc <= NgayBatDau)
                 throw new Exception("Ngày kết thúc phải sau ngày bắt đầu.");
         }
-        public virtual TaiKhoan? TaiKhoan { get; set; }
         public virtual ICollection<HoaDon> HoaDons { get; set; } = new List<HoaDon>();
     }
 

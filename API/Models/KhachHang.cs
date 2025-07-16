@@ -27,7 +27,9 @@ namespace Data.Models
         public DateTime NgayCapNhatCuoiCung { get; set; }
         public Guid? TaiKhoanId { get; set; }
         public virtual TaiKhoan? TaiKhoan { get; set; }
-        public virtual ICollection<HoaDon> HoaDons { get; set; } = new List<HoaDon>();
+		public virtual ICollection<KhachHangVoucher> KhachHangVouchers { get; set; } = new List<KhachHangVoucher>();
+
+		public virtual ICollection<HoaDon> HoaDons { get; set; } = new List<HoaDon>();
         public virtual ICollection<DiaChiKhachHang> DiaChiKhachHangs { get; set; } = new List<DiaChiKhachHang>();
         public virtual ICollection<GioHang> GioHangs { get; set; } = new List<GioHang>();
     }

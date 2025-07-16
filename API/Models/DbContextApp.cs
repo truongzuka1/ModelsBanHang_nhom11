@@ -105,9 +105,21 @@ namespace Data.Models
                 new MauSac { MauSacId = Guid.NewGuid(), TenMau = "Đen", Color = "#000000", MoTa = "Màu đen", TrangThai = true },
                 new MauSac { MauSacId = Guid.NewGuid(), TenMau = "Trắng", Color = "#FFFFFF", MoTa = "Màu trắng", TrangThai = true }
             );
+			modelBuilder.Entity<KhachHangVoucher>()
+	   .HasIndex(x => new { x.KhachHangId, x.VoucherId })
+	   .IsUnique();
 
-            // HoaDon – NhanVien
-            modelBuilder.Entity<HoaDon>()
+			modelBuilder.Entity<KhachHangVoucher>()
+				.HasOne(khv => khv.KhachHang)
+				.WithMany(kh => kh.KhachHangVouchers)
+				.HasForeignKey(khv => khv.KhachHangId);
+
+			modelBuilder.Entity<KhachHangVoucher>()
+				.HasOne(khv => khv.Voucher)
+				.WithMany(vc => vc.KhachHangVouchers)
+				.HasForeignKey(khv => khv.VoucherId);
+			// HoaDon – NhanVien
+			modelBuilder.Entity<HoaDon>()
      .HasOne(h => h.nhanVien)
      .WithMany(nv => nv.HoaDons)
      .HasForeignKey(h => h.NhanVienId)
@@ -164,5 +176,8 @@ namespace Data.Models
         public DbSet<HinhThucThanhToan> hinhThucThanhToans { get; set; }
         public DbSet<DiaChiKhachHang> diaChiKhachHangs { get; set; }
         public DbSet<ThongBao> ThongBaos { get; set; }
-    }
+
+		public DbSet<KhachHangVoucher> KhachHangVouchers { get; set; }
+
+	}
 }

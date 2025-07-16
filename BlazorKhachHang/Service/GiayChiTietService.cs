@@ -12,41 +12,46 @@ namespace BlazorKhachHang.Service
         {
             _httpClient = httpClient;
         }
-
         public async Task<List<GiayChiTietDTO>> GetAllAsync()
         {
-            return await _httpClient.GetFromJsonAsync<List<GiayChiTietDTO>>("api/GiayChiTiet")
-                   ?? new List<GiayChiTietDTO>();
+            var response = await _httpClient.GetAsync("api/GiayChiTiet");
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<List<GiayChiTietDTO>>() ?? new List<GiayChiTietDTO>();
         }
 
         public async Task<GiayChiTietDTO> GetByIdAsync(Guid id)
         {
-            return await _httpClient.GetFromJsonAsync<GiayChiTietDTO>($"api/GiayChiTiet/{id}");
+            var response = await _httpClient.GetAsync($"api/GiayChiTiet/{id}");
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<GiayChiTietDTO>() ?? new GiayChiTietDTO();
         }
 
         public async Task<List<GiayChiTietDTO>> GetByGiayIdAsync(Guid giayId)
         {
-            return await _httpClient.GetFromJsonAsync<List<GiayChiTietDTO>>($"api/GiayChiTiet/giay/{giayId}")
-                   ?? new List<GiayChiTietDTO>();
+            var response = await _httpClient.GetAsync($"api/GiayChiTiet/giay/{giayId}");
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<List<GiayChiTietDTO>>() ?? new List<GiayChiTietDTO>();
         }
 
-        public async Task CreateAsync(GiayChiTietDTO obj)
+        public async Task<GiayChiTietDTO> CreateAsync(GiayChiTietDTO obj)
         {
             var response = await _httpClient.PostAsJsonAsync("api/GiayChiTiet", obj);
             response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<GiayChiTietDTO>() ?? new GiayChiTietDTO();
         }
 
-        public async Task<bool> CreateMultipleAsync(List<GiayChiTietDTO> list)
+        public async Task<List<GiayChiTietDTO>> CreateMultipleAsync(List<GiayChiTietDTO> list)
         {
             var response = await _httpClient.PostAsJsonAsync("api/GiayChiTiet/multiple", list);
-            return response.IsSuccessStatusCode;
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<List<GiayChiTietDTO>>() ?? new List<GiayChiTietDTO>();
         }
 
-
-        public async Task DeleteAsync(Guid id)
+        public async Task<GiayChiTietDTO> UpdateAsync(Guid id, GiayChiTietDTO obj)
         {
-            var response = await _httpClient.DeleteAsync($"api/GiayChiTiet/{id}");
+            var response = await _httpClient.PutAsJsonAsync($"api/GiayChiTiet/{id}", obj);
             response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<GiayChiTietDTO>() ?? new GiayChiTietDTO();
         }
     }
 }

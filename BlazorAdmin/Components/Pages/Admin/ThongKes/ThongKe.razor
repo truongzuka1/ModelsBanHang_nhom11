@@ -95,7 +95,7 @@
 					@foreach (var sp in PagedProducts1[CurrentPage1])
 					{
 						<tr>
-							<td><img src="@sp.Anh" alt="@sp.TenSanPham" style="width: 50px; height: 50px; object-fit: cover;" /></td>
+							<td><img src="@($"https://localhost:7246{sp.Anh ?? "/images/no-image.png"}")" style="width: 50px; height: 50px; object-fit: cover;" /></td>
 							<td>@sp.TenSanPham</td>
 							<td>@sp.SoLuong</td>
 							<td>@sp.GiaTien.ToString("N0") ₫</td>
@@ -169,7 +169,7 @@
 					@foreach (var sp in PagedProducts2[CurrentPage2])
 					{
 						<tr>
-							<td><img src="@sp.Anh" alt="@sp.TenSanPham" style="width: 50px; height: 50px; object-fit: cover;" /></td>
+							<td><img src="@($"https://localhost:7246{sp.Anh ?? "/images/no-image.png"}")" alt="@sp.TenSanPham" style="width: 50px; height: 50px; object-fit: cover;" /></td>
 							<td>@sp.TenSanPham</td>
 							<td>@sp.SoLuong</td>
 							<td>@sp.GiaTien.ToString("N0") ₫</td>
@@ -394,7 +394,7 @@
 			Console.WriteLine($"Loaded {giayChiTiets.Count} GiayChiTiet records.");
 
 			giays2 = giayChiTiets
-		
+
 		.GroupBy(x => x.GiayId)
 		.Select(group =>
 		{
@@ -497,7 +497,7 @@
 		}
 
 	}
-
+	
 
 	private void CalculateStatsForPeriod(DateTime startDate, DateTime endDate,
 		out decimal totalMoney, out int totalProducts, out int successfulOrders, out int cancelledOrders, out int returnedOrders) 
