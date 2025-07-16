@@ -18,6 +18,7 @@ namespace Data.Models
         public Guid? KhachHangId { get; set; }
         public Guid HinhThucThanhToanId { get; set; }
         public Guid? VoucherId { get; set; }
+
         public DateTime NgayTao { get; set; }
         public DateTime NgayNhanHang { get; set; }
 
@@ -28,9 +29,9 @@ namespace Data.Models
         [MaxLength(200)]
         public string GhiChu { get; set; }
 
-        public Voucher? voucher { get; set; }
-        public NhanVien nhanVien { get; set; }
-        public HinhThucThanhToan hinhThucThanhToan { get; set; }
+        public Voucher ? voucher { get; set; }
+        public NhanVien? nhanVien { get; set; }
+        public HinhThucThanhToan? hinhThucThanhToan {  get; set; }
         public KhachHang? khachHang { get; set; }
         public virtual ICollection<HoaDonChiTiet> HoaDonChiTiets { get; set; } = new List<HoaDonChiTiet>();
 

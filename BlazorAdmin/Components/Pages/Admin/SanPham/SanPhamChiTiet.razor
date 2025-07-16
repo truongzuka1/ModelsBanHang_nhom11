@@ -55,6 +55,7 @@
 <table class="table table-bordered">
     <thead>
         <tr>
+            <th>Tên Giầy</th>
             <th>Màu sắc</th>
             <th>Size</th>
             <th>Giá</th>
@@ -71,6 +72,7 @@
         @foreach (var item in filteredDanhSachChiTiet)
         {
             <tr>
+                <td>@item.TenGiay</td>
                 <td>@item.TenMau</td>
                 <td>@item.size</td>
                 <td>@item.Gia.ToString("N0", new CultureInfo("vi-VN"))</td>
