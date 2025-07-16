@@ -22,10 +22,10 @@ namespace Data.Models
         public DateTime NgayTao { get; set; }
         public DateTime NgayNhanHang { get; set; }
 
-        public float TongTienSauKhiGiam { get; set; }
-
+        public float TongTienSauKhiGiam { get; set; }//Tong tiền sau khi áp dụng voucher và giảm giá (nếu có),va phiship
+        public float PhiShip { get; set; }
         public string TrangThai { get; set; }
-
+    
         [MaxLength(200)]
         public string GhiChu { get; set; }
 
