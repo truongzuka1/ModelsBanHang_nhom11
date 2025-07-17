@@ -15,44 +15,54 @@
 
 <main class="container">
     <aside class="filter">
-        <h3>Filter</h3>
+		<strong>Thương Hiệu</strong><br />
+
+        @foreach (var brand in brandList)
+        {
+            <label>
+                <input type="checkbox"
+                       checked="@(IsBrandSelected.ContainsKey(brand) && IsBrandSelected[brand])"
+                       @onchange="(e) => OnBrandChanged(brand, (bool)e.Value!)" />
+                @brand
+            </label>
+            <br />
+        }
 
         <div class="filter-group">
-            <strong>BRAND</strong><br />
-            <label><input type="checkbox" /> Nike</label><br />
-            <label><input type="checkbox" /> Adidas</label><br />
-            <label><input type="checkbox" /> Puma</label><br />
-            <label><input type="checkbox" /> Skechers</label><br />
-            <label><input type="checkbox" /> Vans</label>
+            <strong>Khoảng Giá</strong><br />
+            @foreach (var range in priceRanges)
+            {
+                <label>
+                    <input type="checkbox"
+                           value="@range.Label"
+                           @onchange="@(() => OnPriceRangeChanged(range.Label))"
+                           checked="@selectedPriceLabels.Contains(range.Label)" />
+                    @range.Label
+                </label>
+
+                <br />
+            }
         </div>
 
-        <div class="filter-group">
-            <strong>PRICE</strong><br />
-            <label><input type="checkbox" /> Under $10</label><br />
-            <label><input type="checkbox" /> $10 - $50</label><br />
-            <label><input type="checkbox" /> $50 - $100</label><br />
-            <label><input type="checkbox" /> $100 - $300</label><br />
-            <label><input type="checkbox" /> $300 - $500</label><br />
-            <label><input type="checkbox" /> $500 - $1000</label>
-        </div>
 
         <div class="filter-group">
-            <strong>COLOR</strong>
+            <strong>Màu Sắc</strong>
             <div class="color-options">
-                <span class="color" style="background: red;"></span>
-                <span class="color" style="background: green;"></span>
-                <span class="color" style="background: blue;"></span>
-                <span class="color" style="background: orange;"></span>
-                <span class="color" style="background: black;"></span>
-                <span class="color" style="background: grey;"></span>
+                @foreach (var color in colorList)
+                {
+                    <span class="color @(selectedColors.Contains(color) ? "selected" : "")"
+                          style="background: @color;"
+                          @onclick="() => OnColorFilterChanged(color)">
+                    </span>
+                }
             </div>
         </div>
+
     </aside>
 
     <section class="product-section">
         <div class="section-header">
             <input type="text" class="search-input" placeholder="Tìm theo tên giày..." @bind="searchKeyword" @bind:event="oninput" />
-
 
             <select class="sort-dropdown">
                 <option>Best selling</option>
@@ -68,15 +78,15 @@
                 {
                     var firstChiTiet = giay.ChiTietGiays.FirstOrDefault();
                     var groupByColor = giay.ChiTietGiays
-                    .Where(c => !string.IsNullOrWhiteSpace(c.TenMau))
-                    .GroupBy(c => c.TenMau!)
-                    .ToList();
+                        .Where(c => !string.IsNullOrWhiteSpace(c.TenMau))
+                        .GroupBy(c => c.TenMau!)
+                        .ToList();
 
                     if (firstChiTiet != null)
                     {
                         <div class="product-card" style="cursor: pointer;" @onclick="@(() => NavigateToDetail(giay.GiayId))">
                             <div class="product-img-container">
-                                <img src="@($"https://localhost:7246/Uploads/images/{(string.IsNullOrEmpty(firstChiTiet.AnhGiay) ? "no-image.png" : firstChiTiet.AnhGiay)}")"
+                                <img src="@($"https://localhost:7246{(string.IsNullOrEmpty(firstChiTiet.AnhGiay) ? "/images/no-image.png" : firstChiTiet.AnhGiay)}")"
                                      alt="Product Image"
                                      onerror="this.onerror=null;this.src='/images/no-image.png';" />
 
@@ -90,7 +100,7 @@
                                     <span class="stars">★★★★☆</span>
                                     <span class="count">(17523)</span>
                                 </p>
-                                @* asdjahsdhbad *@
+
                                 <div class="bottom-info">
                                     <span class="price">
                                         $<span class="main">@firstChiTiet.Gia.ToString("N0")</span><sup>đ</sup>
@@ -117,13 +127,12 @@
                                 </div>
                             </div>
                         </div>
-
                     }
                 }
             }
             else
             {
-                <p>Đang tải sản phẩm...</p>
+                <p>Không có sản phẩm nào...</p>
             }
         </div>
     </section>
@@ -131,8 +140,29 @@
 
 @code {
     private List<GiayDTO> giayList = new();
+    private List<GiayDTO> allGiayList = new();
 
+    private HashSet<string> selectedBrands = new();
+    private Dictionary<string, bool> IsBrandSelected = new();
+    private List<string> brandList = new() { "Nike", "Adidas", "Puma", "Skechers", "Vans" };
+
+    private List<(string Label, decimal? Min, decimal? Max)> priceRanges = new()
+    {
+        ("Under 200.000đ ", null, 200_000),
+        ("200.000đ - 500.000đ ", 200_000, 500_000),
+        ("500.000đ - 1.000.000đ", 500_000, 1_000_000),
+        ("1.000.000đ - 1.500.000đ", 1_000_000, 1_500_000),
+        ("1.500.000đ - 2.000.000đ", 1_500_000, 2_000_000),
+        ("Under 5.000.000đ", null, 5_000_000),
+    };
+    private HashSet<string> selectedPriceLabels = new();
+
+    private List<string> colorList = new() { "red", "green", "blue", "yellow", "black", "white" };
+    private HashSet<string> selectedColors = new();
+
+    private string _searchKeyword = "";
     private string searchKeyword
+    //ahihi
     {
         get => _searchKeyword;
         set
@@ -141,46 +171,111 @@
             FilterGiayList();
         }
     }
-    private string _searchKeyword = "";
-    private List<GiayDTO> allGiayList = new(); // chứa tất cả giày
 
     protected override async Task OnInitializedAsync()
     {
         allGiayList = await service.GetAllAsync();
+
+        foreach (var brand in brandList)
+        {
+            IsBrandSelected[brand] = false;
+        }
+
         FilterGiayList();
     }
+
     private void FilterGiayList()
     {
-        if (string.IsNullOrWhiteSpace(searchKeyword))
+        IEnumerable<GiayDTO> query = allGiayList;
+
+        // 🔍 Lọc theo từ khóa tên giày
+        if (!string.IsNullOrWhiteSpace(searchKeyword))
         {
-            giayList = allGiayList;
+            query = query.Where(g =>
+                !string.IsNullOrEmpty(g.TenGiay) &&
+                g.TenGiay.Contains(searchKeyword, StringComparison.OrdinalIgnoreCase));
         }
-        else
+
+        // 🏷 Lọc theo thương hiệu
+        selectedBrands = IsBrandSelected
+            .Where(x => x.Value)
+            .Select(x => x.Key)
+            .ToHashSet();
+
+        if (selectedBrands.Any())
         {
-            giayList = allGiayList
-                .Where(g => g.TenGiay != null && g.TenGiay.Contains(searchKeyword, StringComparison.OrdinalIgnoreCase))
-                .ToList();
+            query = query.Where(g =>
+                !string.IsNullOrEmpty(g.TenThuongHieu) &&
+                selectedBrands.Contains(g.TenThuongHieu));
         }
+
+        // 💰 Lọc theo khoảng giá
+        if (selectedPriceLabels.Any())
+        {
+            query = query.Where(g =>
+            {
+                var firstPrice = (decimal)(g.ChiTietGiays.FirstOrDefault()?.Gia ?? 0);
+                return priceRanges.Any(range =>
+                    selectedPriceLabels.Contains(range.Label) &&
+                    (!range.Min.HasValue || firstPrice >= range.Min.Value) &&
+                    (!range.Max.HasValue || firstPrice <= range.Max.Value));
+            });
+        }
+        if (selectedColors.Any())
+        {
+            query = query.Where(g =>
+                g.ChiTietGiays != null &&
+                g.ChiTietGiays.Any(ct => selectedColors.Contains(ConvertTenMauToColor(ct.TenMau ?? "")))
+            );
+        }
+
+
+        giayList = query.ToList();
     }
+
+    private void OnBrandChanged(string brand, bool isChecked)
+    {
+        IsBrandSelected[brand] = isChecked;
+        FilterGiayList();
+    }
+
+    private void OnPriceRangeChanged(string label)
+    {
+        if (selectedPriceLabels.Contains(label))
+            selectedPriceLabels.Remove(label);
+        else
+            selectedPriceLabels.Add(label);
+
+        FilterGiayList();
+    }
+    private void OnColorFilterChanged(string color)
+    {
+        if (selectedColors.Contains(color))
+            selectedColors.Remove(color);
+        else
+            selectedColors.Add(color);
+
+        FilterGiayList();
+    }
+
+
     private void NavigateToDetail(Guid giayId)
     {
         manager.NavigateTo($"/detailShoeCategory/{giayId}");
     }
 
-
     private string ConvertTenMauToColor(string tenMau)
     {
         return tenMau.ToLower() switch
         {
-            "đỏ" or "do" => "red",
-            "xanh lá" or "xanh la" => "green",
-            "xanh dương" => "blue",
-            "cam" => "orange",
             "đen" => "black",
-            "trắng" or "trang" => "white",
-            "xám" => "grey",
-            _ => "grey" 
+            "đỏ" => "red",
+            "trắng" => "white",
+            "vàng" => "yellow",
+            "xanh dương" => "blue",
+            "xanh lá" => "green",
+            _ => "grey"
         };
     }
-
 }
+
