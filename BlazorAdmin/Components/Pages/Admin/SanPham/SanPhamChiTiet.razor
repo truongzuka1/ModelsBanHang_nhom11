@@ -52,37 +52,37 @@
 
 <button class="btn btn-primary mb-3" @onclick="ShowAddModal">Thêm chi tiết mới</button>
 
-<table class="table table-bordered">
-    <thead>
+<table class="table table-bordered ">
+    <thead class="table-secondary">
         <tr>
-            <th>Tên Giầy</th>
+            <th>Ảnh</th>
             <th>Màu sắc</th>
             <th>Size</th>
             <th>Giá</th>
             <th>Số lượng còn</th>
             <th>Số lượng đặt</th>
-            <th>Ảnh</th>
-            <th>Trạng thái</th>
+     
+            <th style="width:180px">Trạng thái</th>
             <th>Ngày tạo</th>
             <th>Ngày sửa</th>
-            <th>Hành động</th>
+            <th style="width:180px">Hành động</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in filteredDanhSachChiTiet)
         {
             <tr>
-                <td>@item.TenGiay</td>
-                <td>@item.TenMau</td>
-                <td>@item.size</td>
-                <td>@item.Gia.ToString("N0", new CultureInfo("vi-VN"))</td>
-                <td>@item.SoLuongCon</td>
-                <td>@item.SoLuongDat</td>
                 <td>
                     <img src="@($"https://localhost:7246{item.AnhGiay ?? "/images/no-image.png"}")"
                          style="height: 50px;"
                          onerror="this.src='/images/no-image.png';" />
                 </td>
+                <td>@item.TenMau</td>
+                <td>@item.size</td>
+                <td>@item.Gia.ToString("N0", new CultureInfo("vi-VN"))</td>
+                <td>@item.SoLuongCon</td>
+                <td>@item.SoLuongDat</td>
+            
                 <td>@(item.TrangThai ? "Đang bán" : "Ngừng bán")</td>
                 <td>@item.NgayTao.ToString("dd/MM/yyyy")</td>
                 <td>@item.NgaySua.ToString("dd/MM/yyyy")</td>

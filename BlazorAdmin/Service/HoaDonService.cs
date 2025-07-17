@@ -1,5 +1,6 @@
 ﻿using BlazorAdmin.Service.IService;
 using Data.Models;
+using System.Text.Json;
 
 namespace BlazorAdmin.Service
 {
@@ -12,10 +13,31 @@ namespace BlazorAdmin.Service
             _httpClient = httpClient;
         }
 
-        public async Task<bool> Add(HoaDon hoaDon)
+        public async Task<HoaDon> Add(HoaDon hoaDon)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/HoaDon", hoaDon);
-            return response.IsSuccessStatusCode;
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync("api/HoaDon", hoaDon);
+                var content = await response.Content.ReadAsStringAsync();
+                if (response.IsSuccessStatusCode)
+                {
+                    return JsonSerializer.Deserialize<HoaDon>(content, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                }
+                else
+                {
+                    return default;
+                }
+            }
+            catch (Exception)
+            {
+
+                return default;
+            }
+            
+            
         }
 
         public async Task<List<HoaDon>> GetAll() =>
