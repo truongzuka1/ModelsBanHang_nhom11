@@ -1,5 +1,6 @@
 ﻿@page "/ThemDotGiamGia"
 @page "/ThemDotGiamGia/{Id:guid}"
+
 @using Data.Models
 @using API.Models.DTO
 @using BlazorAdmin.Service.IService
@@ -23,18 +24,21 @@
             <div class="alert alert-danger">@errorMessage</div>
         }
 
+        <!-- Tên đợt -->
         <div class="mb-3">
             <label class="form-label">Tên đợt</label>
             <InputText class="form-control" @bind-Value="dot.TenGiamGia" />
             <ValidationMessage For="@(() => dot.TenGiamGia)" />
         </div>
 
+        <!-- Phần trăm giảm -->
         <div class="mb-3">
             <label class="form-label">Giảm (%)</label>
             <InputNumber class="form-control" @bind-Value="dot.PhanTramKhuyenMai" />
             <ValidationMessage For="@(() => dot.PhanTramKhuyenMai)" />
         </div>
 
+        <!-- Thời gian -->
         <div class="mb-3">
             <label class="form-label">Thời gian áp dụng</label>
             <div class="d-flex gap-2">
@@ -49,6 +53,7 @@
             </div>
         </div>
 
+        <!-- Danh sách giày áp dụng -->
         <div class="mb-3">
             <label class="form-label fw-bold">Sản phẩm được áp dụng (theo màu/số)</label>
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-2">
@@ -58,9 +63,10 @@
                     <div class="col">
                         <label class="form-check-label w-100 border rounded p-2 d-flex align-items-start gap-2 @(isChecked ? "bg-light border-primary" : "")"
                                style="cursor: pointer;">
-                            <input class="form-check-input mt-1" type="checkbox" value="@sp.GiayChiTietId"
+                            <input type="checkbox"
+                                   class="form-check-input mt-1"
                                    checked="@isChecked"
-                                   @onchange="@(() => ToggleChiTiet(sp.GiayChiTietId))" />
+                                   @onchange="() => ToggleChiTiet(sp.GiayChiTietId)" />
                             <div>
                                 <div class="fw-bold">@sp.TenGiay</div>
                                 <div class="small text-muted">
@@ -84,6 +90,7 @@
             </div>
         </div>
 
+        <!-- Hành động -->
         <div class="d-flex justify-content-end mt-3">
             <button type="submit" class="btn btn-primary">
                 <i class="bi bi-save"></i> Lưu
@@ -96,8 +103,7 @@
 </div>
 
 @code {
-    [Parameter]
-    public Guid? Id { get; set; }
+    [Parameter] public Guid? Id { get; set; }
 
     private GiamGiaCreateDTO dot = new();
     private string? errorMessage;
@@ -115,19 +121,19 @@
             if (existing != null)
             {
                 dot = new GiamGiaCreateDTO
-                {
-                    GiamGiaId = existing.GiamGiaId,
-                    TenGiamGia = existing.TenGiamGia,
-                    SanPhamKhuyenMai = existing.SanPhamKhuyenMai,
-                    PhanTramKhuyenMai = existing.PhanTramKhuyenMai,
-                    NgayBatDau = existing.NgayBatDau,
-                    NgayKetThuc = existing.NgayKetThuc,
-                    TrangThai = existing.TrangThai,
-                    GiayChiTietIds = existing.GiayDotGiamGias?
-                        .Where(x => x.GiayChiTietId.HasValue)
-                        .Select(x => x.GiayChiTietId!.Value)
-                        .ToList() ?? new()
-                };
+                    {
+                        GiamGiaId = existing.GiamGiaId,
+                        TenGiamGia = existing.TenGiamGia,
+                        SanPhamKhuyenMai = existing.SanPhamKhuyenMai,
+                        PhanTramKhuyenMai = existing.PhanTramKhuyenMai,
+                        NgayBatDau = existing.NgayBatDau,
+                        NgayKetThuc = existing.NgayKetThuc,
+                        TrangThai = existing.TrangThai,
+                        GiayChiTietIds = existing.GiayDotGiamGias?
+                            .Where(x => x.GiayChiTietId.HasValue)
+                            .Select(x => x.GiayChiTietId!.Value)
+                            .ToList() ?? new()
+                    };
 
                 chiTietChon = dot.GiayChiTietIds.ToList();
             }
@@ -135,12 +141,12 @@
         else
         {
             dot = new GiamGiaCreateDTO
-            {
-                NgayBatDau = DateTime.Today,
-                NgayKetThuc = DateTime.Today.AddDays(7),
-                TrangThai = true,
-                SanPhamKhuyenMai = "Nhiều sản phẩm"
-            };
+                {
+                    NgayBatDau = DateTime.Today,
+                    NgayKetThuc = DateTime.Today.AddDays(7),
+                    TrangThai = true,
+                    SanPhamKhuyenMai = "Nhiều sản phẩm"
+                };
         }
     }
 
@@ -157,15 +163,20 @@
         errorMessage = null;
         dot.GiayChiTietIds = chiTietChon;
 
-        HttpResponseMessage response;
+        if (dot.NgayKetThuc < dot.NgayBatDau)
+        {
+            errorMessage = "Ngày kết thúc phải sau ngày bắt đầu.";
+            return;
+        }
 
-        if (Id.HasValue)
-            response = await GiamGiaService.UpdateAsyncReturnResponse(dot);
-        else
-            response = await GiamGiaService.AddAsync(dot);
+        HttpResponseMessage response = Id.HasValue
+            ? await GiamGiaService.UpdateAsyncReturnResponse(dot)
+            : await GiamGiaService.AddAsync(dot);
 
         if (response.IsSuccessStatusCode)
+        {
             Navigation.NavigateTo("/DotGiamGia");
+        }
         else
         {
             var content = await response.Content.ReadAsStringAsync();
