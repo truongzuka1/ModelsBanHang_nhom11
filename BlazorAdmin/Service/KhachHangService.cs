@@ -1,6 +1,8 @@
-﻿using Data.Models;
-using BlazorAdmin.Service.IService;
+﻿using Azure;
 using BlazorAdmin.Components.Pages;
+using BlazorAdmin.Service.IService;
+using Data.Models;
+using System.Text.Json;
 
 namespace BlazorAdmin.Service
 {
@@ -14,9 +16,30 @@ namespace BlazorAdmin.Service
             _httpClient = httpClient;
         }
 
-        public async Task Create(KhachHang khachHang)
+        public async Task<KhachHang> Create(KhachHang khachHang)
         {
-            await _httpClient.PostAsJsonAsync("api/KhachHang", khachHang);
+            try
+            {
+                var re = await _httpClient.PostAsJsonAsync("api/KhachHang", khachHang);
+                var content = await re.Content.ReadAsStringAsync();
+                if (re.IsSuccessStatusCode)
+                {
+                    return JsonSerializer.Deserialize<KhachHang>(content, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                }
+                else
+                {
+                    return default;
+                }
+            }
+            catch (Exception)
+            {
+
+                return default; 
+            }
+            
         }
 
         public async Task Delete(Guid id)

@@ -3,6 +3,9 @@
 @inject IXuLyDiaChi xuLyDiaChi
 @inject IVoucherService voucherService
 @inject IHoaDonService HoaDonService
+@inject IKhachHangService khachHangService
+@inject IDiaChiKhachHangService DiaChiKhachHangService
+@inject IHoaDonChiTietService HoaDonChiTietService
 @inject IJSRuntime JS
 @using API.Models.DTO.BanHang
 @using API.Models.DTO
@@ -276,7 +279,7 @@
             _CustomerPay = value;
         }
     }
-     
+
 
     private float Subtotal => CurrentOrder?.Products?.Sum(p => p.Soluong * p.NewPrice) ?? 0f;
     private float ShippingFee => CurrentOrder.ThongTinHoaDon.IsDelivery ? 0f : 0f;
@@ -288,7 +291,7 @@
     private List<DiaChi> HuyenXa = new();
     private List<DiaChi> XaPhuong = new();
     private List<Voucher> vouchers = new();
-
+    private Voucher selectedVoucher = new();
 
 
     // 🛒 Hành động
@@ -503,28 +506,63 @@
 
         // ✅ Thành công
 
+
+        if (CurrentOrder.Customer != null && CurrentOrder.ThongTinHoaDon.IsDelivery)
+        {
+            var khachhang = new KhachHang()
+            {
+                HoTen = CurrentOrder.ThongTinHoaDon.TenNguoiNhan,
+                SoDienThoai = CurrentOrder.ThongTinHoaDon.Sdt,
+            };
+            var result1 = await khachHangService.Create(khachhang);
+            if (result1 != null)
+            {
+                await JS.InvokeVoidAsync("Swal.fire", new
+                {
+                    toast = true,
+                    position = "top-end",
+                    icon = "info",
+                    title = $"Tạo thành công khách hàng {CurrentOrder.ThongTinHoaDon.TenNguoiNhan}",
+                    showConfirmButton = false,
+                    timer = 3000,
+                    timerProgressBar = true
+                });
+                CurrentOrder.Customer = result1;
+                var diachi = new Application.DTOs.DiaChiKhachHangDto()
+                {   
+                    KhachHangId = result1.KhachHangId,
+                    ThanhPho = CurrentOrder.ThongTinHoaDon.TinhThanhPho,
+                    QuanHuyen = CurrentOrder.ThongTinHoaDon.QuanHuyen,
+                    PhuongXa = CurrentOrder.ThongTinHoaDon.XaPhuongThiTran,
+                    DiaChiCuThe = CurrentOrder.ThongTinHoaDon.DiaChiCuThe
+                };
+                var resul2 = await DiaChiKhachHangService.CreateAsync(diachi);
+                if (resul2)
+                {
+                    await JS.InvokeVoidAsync("Swal.fire", new
+                    {
+                        toast = true,
+                        position = "top-end",
+                        icon = "info",
+                        title = $"Tạo thành công khách hàng {CurrentOrder.ThongTinHoaDon.TenNguoiNhan}",
+                        showConfirmButton = false,
+                        timer = 3000,
+                        timerProgressBar = true
+                    });
+                }
+                
+            }
+        }
         var hoaDon = new HoaDon
         {
-            KhachHangId = CurrentOrder.Customer?.KhachHangId,
-
-            // TenCuaKhachHang = CurrentOrder.ThongTinHoaDon.TenNguoiNhan,
-            // SDTCuaKhachHang = CurrentOrder.ThongTinHoaDon.Sdt,
-            // EmailCuaKhachHang = CurrentOrder.Customer?.Email ?? "",
-
-            NgayTao = DateTime.Now,
-            TongTienSauKhiGiam = TotalAmount,
-            TrangThai = "Chờ xác nhận",
-            GhiChu = "",
-            HoaDonChiTiets = CurrentOrder.Products.Select(p => new HoaDonChiTiet
-            {
-                GiayId = p.GiayId,
-                SoLuongSanPham = p.Quantity,
-                Gia = (decimal)p.NewPrice
-            }).ToList()
+            KhachHangId = CurrentOrder.Customer.KhachHangId,
+            VoucherId = selectedVoucher.VoucherId,
+            GhiChu = CurrentOrder.ThongTinHoaDon.GhiChu ?? "",
+            
         };
         var result = await HoaDonService.Add(hoaDon);
 
-        if (result)
+        if (result != null)
         {
             await JS.InvokeVoidAsync("Swal.fire", new
             {
@@ -532,17 +570,41 @@
                 title = "Thành công",
                 text = "Đơn hàng đã được ghi nhận."
             });
+            foreach (var item in CurrentOrder.Products)
+            {
+                var hoadonchitiet = new HoaDonChiTiet()
+                {
+                    GiayId = item.GiayId,
+                    HoaDonId = result.HoaDonId,
+                    SoLuongSanPham = item.Soluong,
+
+                };
+                var result3 = await HoaDonChiTietService.Create(hoadonchitiet);
+                if (result3 != null)
+                {
+                    continue;
+                }
+                else
+                {
+                    return;
+                }
+            }
+
+
             RemoveOrder(CurrentOrderIndex);
         }
         else
         {
-            await JS.InvokeVoidAsync("Swal.fire",  new
+            await JS.InvokeVoidAsync("Swal.fire", new
             {
                 icon = "warning",
                 title = "Lỗi!",
                 text = "Có lỗi khi lưu đơn hàng."
             });
         }
+
+
+
     }
 
     private string FormatMoney(float amount)
@@ -633,14 +695,16 @@
         Phuong = e.Value?.ToString();
         CurrentOrder.ThongTinHoaDon.XaPhuongThiTran = Phuong;
     }
+
     void OnVoucherChange(ChangeEventArgs e)
     {
-        string selectedVoucher = e.Value?.ToString()?.Trim();
+        string selectedvoucher = e.Value?.ToString()?.Trim();
 
-        var voucher = vouchers.FirstOrDefault(v => v.TenVoucher == selectedVoucher);
+        var voucher = vouchers.FirstOrDefault(v => v.TenVoucher == selectedvoucher);
 
         if (voucher != null)
         {
+            selectedVoucher = voucher;
             DiscountPercent = voucher.PhanTram;
         }
         else

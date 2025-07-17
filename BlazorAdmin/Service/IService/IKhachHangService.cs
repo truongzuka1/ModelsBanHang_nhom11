@@ -5,7 +5,7 @@ namespace BlazorAdmin.Service.IService
     {
         Task<List<KhachHang>> GetAll();
         Task<KhachHang?> GetById(Guid id);
-        Task Create(KhachHang khachHang);
+        Task<KhachHang> Create(KhachHang khachHang);
         Task Update(KhachHang khachHang);
         Task Delete(Guid id);
         Task<List<KhachHang>> SearchKhachHangAsync(string keyword);
