@@ -2,6 +2,7 @@
 @using System.ComponentModel.DataAnnotations
 @inject ITaiKhoanService taiKhoanService
 @inject NavigationManager Navigation
+@inject IJSRuntime JS
 @using API.Models.DTO
 @using BlazorAdmin.Service.IService
 <link href="css/Login.css" rel="stylesheet" />
@@ -104,6 +105,10 @@
                 {
                     customProvider.MarkUserAsAuthenticated(Input.UserName, loginResponseDto.Role);
                 }
+
+                await JS.InvokeVoidAsync("localStorage.setItem", "currentId", loginResponseDto.Id);
+                await JS.InvokeVoidAsync("localStorage.setItem", "currentRole", loginResponseDto.Role);
+                await JS.InvokeVoidAsync("localStorage.setItem", "currentUserName", loginResponseDto.Username);
 
                 Navigation.NavigateTo(loginResponseDto.Role == "Admin" ? "/thongke" :
                                       loginResponseDto.Role == "NhanVien" ? "/TraHang" : "/");
