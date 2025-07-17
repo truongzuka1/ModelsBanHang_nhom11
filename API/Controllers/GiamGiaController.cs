@@ -10,11 +10,16 @@ namespace API.Controllers
     public class GiamGiaController : ControllerBase
     {
         private readonly IGiamGiaRepository _giamGiaRepository;
+        private readonly IGiayDotGiamGiaRepository _giayDotGiamGiaRepository;
         private readonly IThongBaoRepository _thongBaoRepository;
 
-        public GiamGiaController(IGiamGiaRepository giamGiaRepository, IThongBaoRepository thongBaoRepository)
+        public GiamGiaController(
+            IGiamGiaRepository giamGiaRepository,
+            IGiayDotGiamGiaRepository giayDotGiamGiaRepository,
+            IThongBaoRepository thongBaoRepository)
         {
             _giamGiaRepository = giamGiaRepository;
+            _giayDotGiamGiaRepository = giayDotGiamGiaRepository;
             _thongBaoRepository = thongBaoRepository;
         }
 
@@ -60,7 +65,8 @@ namespace API.Controllers
             };
 
             var created = await _giamGiaRepository.AddAsync(giamGia);
-            await _thongBaoRepository.ThemThongBaoAsync($"🎯 Thêm đợt giảm giá: {giamGia.TenGiamGia}");
+
+            await _thongBaoRepository.ThemThongBaoAsync($"🎯 Đã tạo đợt giảm giá: **{giamGia.TenGiamGia}** từ {giamGia.NgayBatDau:dd/MM} đến {giamGia.NgayKetThuc:dd/MM}");
 
             return CreatedAtAction(nameof(GetById), new { id = created.GiamGiaId }, created);
         }
@@ -70,7 +76,7 @@ namespace API.Controllers
         public async Task<ActionResult<GiamGia>> Update(Guid id, [FromBody] GiamGia giamGia)
         {
             if (id != giamGia.GiamGiaId)
-                return BadRequest("Id mismatch");
+                return BadRequest("ID không khớp");
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -78,7 +84,7 @@ namespace API.Controllers
             var updated = await _giamGiaRepository.UpdateAsync(giamGia);
             if (updated == null) return NotFound();
 
-            await _thongBaoRepository.ThemThongBaoAsync($"✏️ Cập nhật đợt giảm giá: {giamGia.TenGiamGia}");
+            await _thongBaoRepository.ThemThongBaoAsync($"✏️ Đã cập nhật đợt giảm giá: **{giamGia.TenGiamGia}**");
 
             return Ok(updated);
         }
@@ -93,11 +99,12 @@ namespace API.Controllers
             var deleted = await _giamGiaRepository.DeleteAsync(id);
             if (!deleted) return BadRequest();
 
-            await _thongBaoRepository.ThemThongBaoAsync($"🗑️ Đã xoá đợt giảm giá: {giamGia.TenGiamGia}");
+            await _thongBaoRepository.ThemThongBaoAsync($"🗑️ Đã xóa đợt giảm giá: **{giamGia.TenGiamGia}**");
 
             return NoContent();
         }
 
+        // POST: api/GiamGia/{giamGiaId}/giaychitiet/{giayChiTietId}
         [HttpPost("{giamGiaId}/giaychitiet/{giayChiTietId}")]
         public async Task<IActionResult> AddGiayToDotGiamGia(Guid giamGiaId, Guid giayChiTietId)
         {
@@ -105,17 +112,20 @@ namespace API.Controllers
             if (!added)
                 return BadRequest("Không thể thêm Giày Chi Tiết vào đợt giảm giá");
 
-            await _thongBaoRepository.ThemThongBaoAsync($"➕ Gán sản phẩm vào đợt giảm giá");
+            await _thongBaoRepository.ThemThongBaoAsync($"➕ Đã thêm sản phẩm vào đợt giảm giá ID: `{giamGiaId}`");
+
             return Ok();
         }
 
+        // DELETE: api/GiamGia/{giamGiaId}/giaychitiet/{giayChiTietId}
         [HttpDelete("{giamGiaId}/giaychitiet/{giayChiTietId}")]
         public async Task<IActionResult> RemoveGiayFromDotGiamGia(Guid giamGiaId, Guid giayChiTietId)
         {
             var removed = await _giamGiaRepository.RemoveGiayFromDotGiamGia(giamGiaId, giayChiTietId);
             if (!removed) return NotFound();
 
-            await _thongBaoRepository.ThemThongBaoAsync($"➖ Gỡ sản phẩm khỏi đợt giảm giá");
+            await _thongBaoRepository.ThemThongBaoAsync($"➖ Đã gỡ sản phẩm khỏi đợt giảm giá ID: `{giamGiaId}`");
+
             return Ok();
         }
     }
