@@ -16,7 +16,7 @@ namespace Data.Models
 
         public Guid NhanVienId { get; set; }
         public Guid? KhachHangId { get; set; }
-        public Guid HinhThucThanhToanId { get; set; }
+        public Guid? HinhThucThanhToanId { get; set; }
         public Guid? VoucherId { get; set; }
 
         public DateTime NgayTao { get; set; }

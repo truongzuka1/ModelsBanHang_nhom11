@@ -114,12 +114,12 @@ namespace API.Controllers
             {
                 string role = _chucVuRepository
                     .GetByIdChucVuAsync(
-                        _nhanVienRepository
-                            .GetIdNhanVienTaiKhoan(userChucVu.TaikhoanId).Result.ChucVuId.Value
+                        _nhanVienRepository.GetIdNhanVienTaiKhoan(userChucVu.TaikhoanId).Result.ChucVuId.Value
                     ).Result.TenChucVu;
 
                 return Ok(new LoginResponseDto
                 {
+                    Id = userChucVu.NhanVien.NhanVienId,
                     IsSuccess = true,
                     Username = username,
                     Role = role,
