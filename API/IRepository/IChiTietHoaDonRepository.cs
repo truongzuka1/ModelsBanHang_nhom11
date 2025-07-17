@@ -9,5 +9,6 @@ namespace API.IRepository
         Task<IEnumerable<HoaDonChiTiet>> GetByHoaDonChiTietIdAsync(Guid hdctID);
         Task<HoaDonChiTiet> GetByIdHDCTAsync(Guid IdCTHD);
         Task<HoaDonChiTiet> GetByHoaDonChiTietvaGiayAsync(Guid hdctID, Guid giayId);
+        Task<bool> Create(HoaDonChiTiet hoaDonChiTiet);
     }
 }

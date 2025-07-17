@@ -557,7 +557,7 @@
         {
             KhachHangId = CurrentOrder.Customer.KhachHangId,
             VoucherId = selectedVoucher.VoucherId,
-            GhiChu = CurrentOrder.ThongTinHoaDon.GhiChu ?? "",
+            GhiChu = CurrentOrder.ThongTinHoaDon.GhiChu ?? "123",
             
         };
         var result = await HoaDonService.Add(hoaDon);

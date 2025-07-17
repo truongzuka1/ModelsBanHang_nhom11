@@ -1,4 +1,5 @@
-﻿using Data.Models;
+﻿using API.Models;
+using Data.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace Data.Models
@@ -32,5 +33,6 @@ namespace Data.Models
 		public virtual ICollection<HoaDon> HoaDons { get; set; } = new List<HoaDon>();
         public virtual ICollection<DiaChiKhachHang> DiaChiKhachHangs { get; set; } = new List<DiaChiKhachHang>();
         public virtual ICollection<GioHang> GioHangs { get; set; } = new List<GioHang>();
+        public virtual ICollection<GiayYeuThich> GiayYeuThichs { get; set; } = new List<GiayYeuThich>();
     }
 }

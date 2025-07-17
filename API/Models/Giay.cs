@@ -1,4 +1,5 @@
-﻿using System;
+﻿using API.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -31,6 +32,7 @@ namespace Data.Models
         public virtual ICollection<GiayDotGiamGia> GiayDotGiamGias { get; set; } = new List<GiayDotGiamGia>();
         public virtual ICollection<GiayChiTiet> GiayChiTiets { get; set; } = new List<GiayChiTiet>();
         public virtual ICollection<GioHangChiTiet>? GioHangChiTiets { get; set; } = new List<GioHangChiTiet>();
+        public virtual ICollection<GiayYeuThich> GiayYeuThiches { get; set; } = new List<GiayYeuThich>();
     }
 
 }

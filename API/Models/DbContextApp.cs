@@ -178,6 +178,7 @@ namespace Data.Models
         public DbSet<HinhThucThanhToan> hinhThucThanhToans { get; set; }
         public DbSet<DiaChiKhachHang> diaChiKhachHangs { get; set; }
         public DbSet<ThongBao> ThongBaos { get; set; }
+        public DbSet<GiayYeuThich> giayYeuThiches { get; set; }
 
 		public DbSet<KhachHangVoucher> KhachHangVouchers { get; set; }
 

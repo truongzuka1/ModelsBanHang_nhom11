@@ -44,5 +44,21 @@ namespace API.IRepository.Repository
                 .Include(x => x.HoaDons)
                 .FirstOrDefaultAsync(x => x.HoaDonId == hoaDonId && x.GiayId == giayId);
         }
+
+        public async Task<bool> Create(HoaDonChiTiet hoaDonChiTiet)
+        {
+            try
+            {
+                await _contextApp.HoaDonChiTiets.AddAsync(hoaDonChiTiet);
+                await _contextApp.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi khi thêm hóa đơn chi tiết: " + ex.Message);
+                return false; 
+            }
+        }
+
     }
 }
