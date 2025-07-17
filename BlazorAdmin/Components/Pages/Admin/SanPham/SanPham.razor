@@ -118,7 +118,9 @@
                                 <div class="btn-group btn-group-sm">
                                     <button class="btn btn-outline-primary" @onclick="() => ViewProduct(item.GiayId)"><i class="bi bi-eye"></i></button>
                                     <button class="btn btn-outline-warning" @onclick="() => EditProduct(item.GiayId)"><i class="bi bi-pencil"></i></button>
-                                    <button class="btn btn-outline-danger" @onclick="() => DeleteProduct(item)"><i class="bi bi-trash"></i></button>
+                                    @* <button class="btn btn-outline-danger" @onclick="() => DeleteProduct(item)"><i class="bi bi-trash"></i></button> *@
+                                    <button class="btn btn-outline-info" @onclick="() => ToggleTrangThai(item)"><i class="bi bi-shuffle"></i></button>
+
                                 </div>
                             </td>
                         </tr>
@@ -167,6 +169,8 @@
     private int soLuongBienThe = 0;
     private int tongSoLuongCon = 0;
     // ngay dưới tongSoLuongCon
+    private bool isAutoSyncing = false;
+
     private Dictionary<Guid, int> variantCountByGiay = new();
     private Dictionary<Guid, int> stockByGiay = new();
 
@@ -210,6 +214,24 @@
             stockByGiay = bienTheList
                 .GroupBy(bt => bt.GiayId)
                 .ToDictionary(g => g.Key, g => g.Sum(x => x.SoLuongCon));
+
+            if (!isAutoSyncing)
+            {
+                isAutoSyncing = true;
+
+                foreach (var item in ListSanPham)
+                {
+                    int tonKho = stockByGiay.GetValueOrDefault(item.GiayId);
+                    if (tonKho == 0 && item.TrangThai)
+                    {
+                        item.TrangThai = false;
+                        await GiayService.UpdateAsync(item);
+                    }
+                }
+
+                isAutoSyncing = false;
+            }
+
         }
         finally
         {
@@ -250,4 +272,42 @@
     {
         currentPage = page;
     }
+    private async Task ToggleTrangThai(GiayDTO giay)
+    {
+        // Lấy tồn kho của giày
+        int tonKho = stockByGiay.GetValueOrDefault(giay.GiayId);
+
+        // Nếu tồn kho = 0 và đang muốn bật trạng thái lại => không cho phép
+        if (tonKho == 0 && !giay.TrangThai)
+        {
+            await JS.InvokeVoidAsync("alert", "Không thể chuyển sang Đang bán vì sản phẩm đã hết hàng.");
+            return;
+        }
+
+        // Nếu tồn kho = 0 thì luôn set là Ngừng bán
+        if (tonKho == 0)
+        {
+            if (giay.TrangThai) // chỉ cập nhật nếu trạng thái chưa đúng
+            {
+                giay.TrangThai = false;
+                await GiayService.UpdateAsync(giay);
+                await JS.InvokeVoidAsync("alert", "Tự động chuyển sang Ngừng bán vì tồn kho bằng 0.");
+            }
+            return;
+        }
+
+        // Ngược lại: tồn kho > 0 thì cho phép đổi trạng thái
+        giay.TrangThai = !giay.TrangThai;
+        try
+        {
+            await GiayService.UpdateAsync(giay);
+            await LoadData();
+        }
+        catch
+        {
+            await JS.InvokeVoidAsync("alert", "Đổi trạng thái thất bại.");
+        }
+    }
+
+
 }

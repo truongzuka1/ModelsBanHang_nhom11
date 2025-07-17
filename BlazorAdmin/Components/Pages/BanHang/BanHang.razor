@@ -5,6 +5,7 @@
 @inject IHoaDonService HoaDonService
 @inject IKhachHangService khachHangService
 @inject IDiaChiKhachHangService DiaChiKhachHangService
+@inject IGiayChiTietService GiayChiTietService
 @inject IHoaDonChiTietService HoaDonChiTietService
 @inject IJSRuntime JS
 @using API.Models.DTO.BanHang
@@ -21,7 +22,7 @@
                 Đơn hàng @(order.index + 1)
                 @if (order.value.Products.Count > 0)
                 {
-                    <span class="order-qty-badge">@order.value.Products.Sum(p => p.Soluong)</span>
+                    <span class="order-qty-badge">@order.value.Products.Sum(p => p.SoLuongDat)</span>
                 }
                 <span class="close" @onclick="() => RemoveOrderSafe(order.index)">×</span>
             </div>
@@ -64,21 +65,21 @@
                 @foreach (var product in CurrentOrder.Products)
                 {
                     <div class="order-item">
-                        <img src="@product.Img" class="order-img" />
+                        <img src="@product.AnhGiay" class="order-img" />
                         <div class="item-info">
                             <div class="order-name">@product.TenGiay</div>
                             <div class="order-price">
-                                <span class="old-price">@FormatMoney((int)product.OldPrice)</span>
-                                <span class="new-price">@FormatMoney((int)product.NewPrice)</span>
+                                <span class="old-price">@FormatMoney((int)product.Gia)</span>
+                                <span class="new-price">@FormatMoney((int)product.Gia)</span>
                             </div>
-                            <div class="order-size">Size: @product.Size</div>
+                            <div class="order-size">Size: @product.size</div>
                         </div>
                         <div class="order-qty">
                             <button class="decrease-btn" @onclick="() => DecreaseQuantity(product)">-</button>
-                            <input class="qty-input" type="number" value="@product.Soluong" readonly />
+                            <input class="qty-input" type="number" value="@product.SoLuongDat" readonly />
                             <button class="increase-btn" @onclick="() => IncreaseQuantity(product)">+</button>
                         </div>
-                        <div class="order-total">@FormatMoney(product.Soluong * (int)product.NewPrice)</div>
+                        <div class="order-total">@FormatMoney(product.SoLuongDat * (int)product.Gia)</div>
                         <button class="order-remove" @onclick="() => RemoveProduct(product)">×</button>
                     </div>
                 }
@@ -118,6 +119,7 @@
         </div>
         
     }
+
 
 
     <!-- Footer đặt hàng -->
@@ -281,7 +283,7 @@
     }
 
 
-    private float Subtotal => CurrentOrder?.Products?.Sum(p => p.Soluong * p.NewPrice) ?? 0f;
+    private float Subtotal => CurrentOrder?.Products?.Sum(p => p.SoLuongDat * p.Gia) ?? 0f;
     private float ShippingFee => CurrentOrder.ThongTinHoaDon.IsDelivery ? 0f : 0f;
     private float DiscountAmount => (Subtotal * DiscountPercent) / 100f;
     private float TotalAmount => Subtotal + ShippingFee - DiscountAmount;
@@ -381,12 +383,12 @@
         XaPhuong = huyen?.Con ?? new();
     }
 
-    private async void IncreaseQuantity(ProductOrder product)
+    private async void IncreaseQuantity(GiayChiTietDTO product)
     {
-        product.Soluong++;
-        if (product.Soluong > product.Quantity)
+        product.SoLuongDat++;
+        if (product.SoLuongDat > product.SoLuongCon)
         {
-            product.Soluong = product.Quantity;
+            product.SoLuongDat = product.SoLuongCon;
             await JS.InvokeVoidAsync("Swal.fire", new
             {
                 toast = true,
@@ -400,14 +402,14 @@
         }
     }
 
-    private void DecreaseQuantity(ProductOrder product)
+    private void DecreaseQuantity(GiayChiTietDTO product)
     {
-        product.Soluong--;
-        if (product.Soluong < 1) RemoveProduct(product);
+        product.SoLuongDat--;
+        if (product.SoLuongDat < 1) RemoveProduct(product);
 
     }
 
-    private void RemoveProduct(ProductOrder product)
+    private void RemoveProduct(GiayChiTietDTO product)
     {
         CurrentOrder.Products.Remove(product);
     }
@@ -550,48 +552,65 @@
                         timerProgressBar = true
                     });
                 }
-                
+
             }
         }
+        var nhanVienId = await JS.InvokeAsync<Guid>("localStorage.getItem", "currentId");
+        Console.WriteLine(nhanVienId);
         var hoaDon = new HoaDon
         {
-            KhachHangId = CurrentOrder.Customer.KhachHangId,
-            VoucherId = selectedVoucher.VoucherId,
-            GhiChu = CurrentOrder.ThongTinHoaDon.GhiChu ?? "123",
-            
+
+            NhanVienId = nhanVienId,
+            KhachHangId = CurrentOrder.Customer?.KhachHangId,
+            GhiChu = CurrentOrder.ThongTinHoaDon.GhiChu ?? "",
+            TrangThai = "hoàn thành",
+            PhiShip = ShippingFee,
+            TongTienSauKhiGiam = TotalAmount,
         };
         var result = await HoaDonService.Add(hoaDon);
 
         if (result != null)
         {
-            await JS.InvokeVoidAsync("Swal.fire", new
-            {
-                icon = "success",
-                title = "Thành công",
-                text = "Đơn hàng đã được ghi nhận."
-            });
+
             foreach (var item in CurrentOrder.Products)
             {
                 var hoadonchitiet = new HoaDonChiTiet()
                 {
                     GiayId = item.GiayId,
                     HoaDonId = result.HoaDonId,
-                    SoLuongSanPham = item.Soluong,
+                    SoLuongSanPham = item.SoLuongDat    ,
 
                 };
                 var result3 = await HoaDonChiTietService.Create(hoadonchitiet);
                 if (result3 != null)
                 {
-                    continue;
+
                 }
                 else
                 {
-                    return;
+                    continue;
                 }
             }
+            foreach (var item2 in CurrentOrder.Products)
+            {
+                var result4 = await GiayChiTietService.UpdateAsync(item2.GiayChiTietId , item2);
+                if (result4 != null)
+                {
 
-
+                }
+                else
+                {
+                    continue;
+                }
+            }
+            await JS.InvokeVoidAsync("Swal.fire", new
+            {
+                icon = "success",
+                title = "Thành công",
+                text = "Đơn hàng đã được ghi nhận."
+            });
             RemoveOrder(CurrentOrderIndex);
+            StateHasChanged();
         }
         else
         {
@@ -617,13 +636,14 @@
     {
         if (CurrentOrder == null) return;
 
-        CurrentOrder.Products.Add(new ProductOrder
+        CurrentOrder.Products.Add(new GiayChiTietDTO
         {
+            GiayChiTietId = item.GiayChiTietId,
             GiayId = item.GiayId,
             TenGiay = item.TenGiay ?? "Không tên",
-            Quantity = item.SoLuongCon,
-            Price = item.Gia,
-            Soluong = item.SoLuongCon
+            SoLuongCon = item.SoLuongCon,
+            Gia = item.Gia,
+            SoLuongDat = item.SoLuongDat
 
         });
     }

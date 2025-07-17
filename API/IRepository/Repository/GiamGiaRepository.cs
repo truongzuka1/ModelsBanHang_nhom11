@@ -1,6 +1,5 @@
 ﻿using Data.Models;
 using Microsoft.EntityFrameworkCore;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace API.IRepository.Repository
 {
@@ -17,7 +16,7 @@ namespace API.IRepository.Repository
         {
             return await _context.GiamGias
                 .Include(x => x.GiayDotGiamGias)
-                .ThenInclude(y => y.Giay)
+                .ThenInclude(y => y.GiayChiTiet) // ✅ sửa Giay → GiayChiTiet
                 .ToListAsync();
         }
 
@@ -25,7 +24,7 @@ namespace API.IRepository.Repository
         {
             return await _context.GiamGias
                 .Include(x => x.GiayDotGiamGias)
-                .ThenInclude(y => y.Giay)
+                .ThenInclude(y => y.GiayChiTiet) // ✅ sửa Giay → GiayChiTiet
                 .FirstOrDefaultAsync(x => x.GiamGiaId == id);
         }
 
@@ -57,37 +56,39 @@ namespace API.IRepository.Repository
         {
             var giamGia = await _context.GiamGias.FindAsync(id);
             if (giamGia == null) return false;
+
             var links = _context.GiayDotGiamGias.Where(x => x.GiamGiaId == id);
             _context.GiayDotGiamGias.RemoveRange(links);
+
             _context.GiamGias.Remove(giamGia);
             await _context.SaveChangesAsync();
             return true;
         }
 
-        public async Task<bool> AddGiayToDotGiamGia(Guid giamGiaId, Guid giayId)
+        public async Task<bool> AddGiayToDotGiamGia(Guid giamGiaId, Guid giayChiTietId)
         {
             var giamGia = await _context.GiamGias.FindAsync(giamGiaId);
-            var giay = await _context.Giays.FindAsync(giayId);
-            if (giamGia == null || giay == null) return false;
+            var chiTiet = await _context.GiayChiTiets.FindAsync(giayChiTietId);
+            if (giamGia == null || chiTiet == null) return false;
 
             var exists = await _context.GiayDotGiamGias
-                .AnyAsync(x => x.GiamGiaId == giamGiaId && x.GiayId == giayId);
+                .AnyAsync(x => x.GiamGiaId == giamGiaId && x.GiayChiTietId == giayChiTietId);
             if (exists) return false;
 
             var link = new GiayDotGiamGia
             {
                 GiamGiaId = giamGiaId,
-                GiayId = giayId
+                GiayChiTietId = giayChiTietId
             };
             _context.GiayDotGiamGias.Add(link);
             await _context.SaveChangesAsync();
             return true;
         }
 
-        public async Task<bool> RemoveGiayFromDotGiamGia(Guid giamGiaId, Guid giayId)
+        public async Task<bool> RemoveGiayFromDotGiamGia(Guid giamGiaId, Guid giayChiTietId)
         {
             var link = await _context.GiayDotGiamGias
-                .FirstOrDefaultAsync(x => x.GiamGiaId == giamGiaId && x.GiayId == giayId);
+                .FirstOrDefaultAsync(x => x.GiamGiaId == giamGiaId && x.GiayChiTietId == giayChiTietId);
             if (link == null) return false;
 
             _context.GiayDotGiamGias.Remove(link);

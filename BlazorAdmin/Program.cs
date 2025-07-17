@@ -142,6 +142,11 @@ builder.Services.AddScoped<IKhachHangService, KhachHangService>();
 builder.Services.AddScoped<IReturnService, ReturnService>();
 builder.Services.AddScoped<IThongBaoService, ThongBaoService>();
 builder.WebHost.UseWebRoot("wwwroot");
+builder.Services.AddServerSideBlazor()
+    .AddCircuitOptions(options =>
+    {
+        options.DetailedErrors = true;
+    });
 
 var app = builder.Build();
 

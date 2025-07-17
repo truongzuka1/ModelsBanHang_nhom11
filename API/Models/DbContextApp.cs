@@ -16,7 +16,6 @@ namespace Data.Models
             optionsBuilder.UseSqlServer(@"Data Source=.\SQLEXPRESS;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
 
         }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -28,9 +27,10 @@ namespace Data.Models
             // Quan hệ GiayDotGiamGia
             modelBuilder.Entity<GiayDotGiamGia>().HasKey(x => x.GiayDotGiamGiaId);
             modelBuilder.Entity<GiayDotGiamGia>()
-                .HasOne(x => x.Giay)
-                .WithMany(x => x.GiayDotGiamGias)
-                .HasForeignKey(x => x.GiayId);
+                .HasOne(x => x.GiayChiTiet)
+                .WithMany()
+                .HasForeignKey(x => x.GiayChiTietId)
+                .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<GiayDotGiamGia>()
                 .HasOne(x => x.GiamGia)
                 .WithMany(x => x.GiayDotGiamGias)

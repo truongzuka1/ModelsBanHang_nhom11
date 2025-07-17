@@ -2,10 +2,7 @@
 using API.Models.DTO;
 using Data.Models;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
@@ -14,14 +11,39 @@ namespace API.Controllers
     public class GiayChiTietController : ControllerBase
     {
         private readonly IGiayChiTietRepository _repo;
+        private readonly DbContextApp _context;
 
-        public GiayChiTietController(IGiayChiTietRepository repo)
+        public GiayChiTietController(IGiayChiTietRepository repo, DbContextApp context)
         {
             _repo = repo;
+            _context = context;
+        }
+
+        private (float giaSauGiam, bool daGiam) TinhGiaSauGiam(GiayChiTiet entity)
+        {
+            var now = DateTime.UtcNow;
+
+            var dot = _context.GiamGias
+                .Include(g => g.GiayDotGiamGias)
+                .FirstOrDefault(g =>
+                    g.TrangThai &&
+                    g.NgayBatDau <= now &&
+                    g.NgayKetThuc >= now &&
+                    g.GiayDotGiamGias.Any(x => x.GiayChiTietId == entity.GiayChiTietId));
+
+            if (dot != null)
+            {
+                var giaSau = (float)Math.Round(entity.Gia * (1 - dot.PhanTramKhuyenMai / 100f), 0);
+                return (giaSau, true);
+            }
+
+            return (entity.Gia, false);
         }
 
         private GiayChiTietDTO MapToDTO(GiayChiTiet entity)
         {
+            var (giaSauGiam, daGiamGia) = TinhGiaSauGiam(entity);
+
             return new GiayChiTietDTO
             {
                 GiayChiTietId = entity.GiayChiTietId,
@@ -31,9 +53,11 @@ namespace API.Controllers
                 TenGiay = entity.Giay?.TenGiay,
                 TenMau = entity.MauSac?.TenMau,
                 size = entity.KichCo?.size ?? 0,
-                Gia = entity.Gia,
+                Gia = giaSauGiam,
+                GiaGoc = entity.Gia,
+                DaGiamGia = daGiamGia,
                 SoLuongCon = entity.SoLuongCon,
-                SoLuongDat = 1, // Giá trị mặc định vì GiayChiTiet không có SoLuongDat
+                SoLuongDat = 1,
                 MoTa = entity.MoTa,
                 TrangThai = entity.TrangThai,
                 AnhGiay = entity.Anhs.FirstOrDefault()?.DuongDan,
@@ -45,16 +69,9 @@ namespace API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GiayChiTietDTO>>> GetAll()
         {
-            try
-            {
-                var entities = await _repo.GetAllAsync();
-                var dtos = entities.Select(MapToDTO);
-                return Ok(dtos);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Lỗi khi lấy dữ liệu: {ex.Message}");
-            }
+            var entities = await _repo.GetAllAsync();
+            var dtos = entities.Select(MapToDTO);
+            return Ok(dtos);
         }
 
         [HttpGet("{id}")]
@@ -76,9 +93,7 @@ namespace API.Controllers
         public async Task<IActionResult> Create([FromBody] GiayChiTietDTO dto)
         {
             if (dto.GiayId == Guid.Empty)
-            {
                 return BadRequest("GiayId là bắt buộc.");
-            }
 
             var entity = new GiayChiTiet
             {
@@ -93,17 +108,15 @@ namespace API.Controllers
                 NgaySua = DateTime.UtcNow
             };
 
-            var createdEntity = await _repo.AddAsync(entity);
-            return CreatedAtAction(nameof(GetById), new { id = createdEntity.GiayChiTietId }, MapToDTO(createdEntity));
+            var created = await _repo.AddAsync(entity);
+            return CreatedAtAction(nameof(GetById), new { id = created.GiayChiTietId }, MapToDTO(created));
         }
 
         [HttpPost("multiple")]
         public async Task<IActionResult> CreateMultiple([FromBody] List<GiayChiTietDTO> dtos)
         {
             if (dtos == null || !dtos.Any())
-            {
-                return BadRequest("Danh sách DTO không được rỗng.");
-            }
+                return BadRequest("Danh sách không được rỗng.");
 
             var entities = dtos.Select(dto => new GiayChiTiet
             {
@@ -118,26 +131,26 @@ namespace API.Controllers
                 NgaySua = DateTime.UtcNow
             }).ToList();
 
-            var createdEntities = await _repo.AddMultipleReturnAsync(entities);
-            return Ok(createdEntities.Select(MapToDTO));
+            var createdList = await _repo.AddMultipleReturnAsync(entities);
+            return Ok(createdList.Select(MapToDTO));
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] GiayChiTietDTO dto)
         {
-            var existingEntity = await _repo.GetByIdAsync(id);
-            if (existingEntity == null) return NotFound();
+            var existing = await _repo.GetByIdAsync(id);
+            if (existing == null) return NotFound();
 
-            existingEntity.KichCoId = dto.KichCoId;
-            existingEntity.MauSacId = dto.MauSacId;
-            existingEntity.Gia = dto.Gia;
-            existingEntity.SoLuongCon = dto.SoLuongCon;
-            existingEntity.MoTa = dto.MoTa;
-            existingEntity.TrangThai = dto.TrangThai;
-            existingEntity.NgaySua = DateTime.UtcNow;
+            existing.KichCoId = dto.KichCoId;
+            existing.MauSacId = dto.MauSacId;
+            existing.Gia = dto.Gia;
+            existing.SoLuongCon = dto.SoLuongCon;
+            existing.MoTa = dto.MoTa;
+            existing.TrangThai = dto.TrangThai;
+            existing.NgaySua = DateTime.UtcNow;
 
-            var updatedEntity = await _repo.UpdateAsync(existingEntity);
-            return Ok(MapToDTO(updatedEntity));
+            var updated = await _repo.UpdateAsync(existing);
+            return Ok(MapToDTO(updated));
         }
     }
 }
