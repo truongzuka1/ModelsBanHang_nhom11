@@ -86,12 +86,12 @@
                     {
                         <div class="product-card" style="cursor: pointer;" @onclick="@(() => NavigateToDetail(giay.GiayId))">
                             <div class="product-img-container">
-                                <img src="@($"https://localhost:7246{(string.IsNullOrEmpty(firstChiTiet.AnhGiay) ? "/images/no-image.png" : firstChiTiet.AnhGiay)}")"
+                                <img src="@($"https://localhost:7246/{(string.IsNullOrEmpty(firstChiTiet.AnhGiay) ? "images/no-image.png" : firstChiTiet.AnhGiay.TrimStart('/'))}")"
                                      alt="Product Image"
                                      onerror="this.onerror=null;this.src='/images/no-image.png';" />
 
                                 <div class="discount-badge">-10%</div>
-                                <div class="favorite-btn"><i class="far fa-heart"></i></div>
+                               @*  <div class="favorite-btn"><i class="far fa-heart"></i></div> *@
                             </div>
 
                             <div class="product-info">
