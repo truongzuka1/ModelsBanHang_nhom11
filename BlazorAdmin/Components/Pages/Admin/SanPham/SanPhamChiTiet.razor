@@ -231,6 +231,13 @@
                     await JSRuntime.InvokeVoidAsync("alert", "Lỗi: Không thể cập nhật sản phẩm chi tiết.");
                     return;
                 }
+                // Tự động ngừng bán nếu số lượng còn là 0
+                if (savedItem.SoLuongCon == 0 && savedItem.TrangThai)
+                {
+                    savedItem.TrangThai = false;
+                    savedItem = await giayChiTietService.UpdateAsync(savedItem.GiayChiTietId, savedItem);
+                }
+
             }
             else
             {
@@ -373,14 +380,28 @@
         pendingFile = null; // Reset file khi chỉnh sửa
         StateHasChanged();
     }
-
     private async Task ToggleStatus(GiayChiTietDTO item)
     {
         try
         {
-            item.TrangThai = !item.TrangThai;
-            item.NgaySua = DateTime.UtcNow;
+            if (!item.TrangThai && item.SoLuongCon == 0)
+            {
+                // Trường hợp đang là ngừng bán và muốn bật lại => cấm nếu hết hàng
+                await JSRuntime.InvokeVoidAsync("alert", "Đã hết hàng, không thể bán sản phẩm...");
+                return;
+            }
 
+            // Nếu số lượng còn = 0 => luôn phải là ngừng bán
+            if (item.SoLuongCon == 0)
+            {
+                item.TrangThai = false;
+            }
+            else
+            {
+                item.TrangThai = !item.TrangThai;
+            }
+
+            item.NgaySua = DateTime.UtcNow;
             var updatedItem = await giayChiTietService.UpdateAsync(item.GiayChiTietId, item);
             if (updatedItem != null)
             {
@@ -397,7 +418,7 @@
         catch (Exception ex)
         {
             await JSRuntime.InvokeVoidAsync("alert", $"Lỗi khi đổi trạng thái: {ex.Message}");
-            await JSRuntime.InvokeVoidAsync("console.error", $"Chi tiết lỗi đổi trạng thái: {ex.ToString()}");
+            await JSRuntime.InvokeVoidAsync("console.error", $"Chi tiết lỗi đổi trạng thái: {ex}");
         }
     }
 

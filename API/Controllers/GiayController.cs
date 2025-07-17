@@ -2,6 +2,7 @@
 using API.Models.DTO;
 using Data.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
@@ -10,12 +11,42 @@ namespace API.Controllers
     public class GiayController : ControllerBase
     {
         private readonly IGiayRepository _giayRepo;
-
-        public GiayController(IGiayRepository giayRepo)
+        private readonly DbContextApp _context;
+        public GiayController(IGiayRepository giayRepo, DbContextApp context)
         {
             _giayRepo = giayRepo;
+            _context = context;
         }
-
+        [HttpGet("dropdown-options")]
+        public async Task<IActionResult> GetDropdownOptions()
+        {
+            try
+            {
+                var options = new
+                {
+                    thuongHieus = await _context.ThuongHieus
+                        .Select(th => new { id = th.ThuongHieuId, name = th.TenThuongHieu })
+                        .ToListAsync(),
+                    chatLieus = await _context.ChatLieus
+                        .Select(cl => new { id = cl.ChatLieuId, name = cl.TenChatLieu })
+                        .ToListAsync(),
+                    theLoaiGiays = await _context.TheLoaiGiays
+                        .Select(tl => new { id = tl.TheLoaiGiayId, name = tl.TenTheLoai })
+                        .ToListAsync(),
+                    deGiays = await _context.DeGiays
+                        .Select(dg => new { id = dg.DeGiayId, name = dg.TenDeGiay })
+                        .ToListAsync(),
+                    kieuDangs = await _context.KieuDangs
+                        .Select(kd => new { id = kd.KieuDangId, name = kd.TenKieuDang })
+                        .ToListAsync()
+                };
+                return Ok(options);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi khi lấy dữ liệu dropdown: {ex.Message}");
+            }
+        }
         // Helper để map sang GiayDTO
         private GiayDTO MapToDTO(Giay giay)
         {
