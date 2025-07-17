@@ -7,6 +7,27 @@
 
 <div class="container mt-5">
     <h4 class="mb-3">🏢 Quản lý thương hiệu</h4>
+    <div class="row mb-4 text-center">
+        <div class="col-md-4">
+            <div class="bg-light border rounded p-4 shadow-sm h-100">
+                <h6 class="text-muted">Tổng số thương hiệu</h6>
+                <h4>@ThuongHieus.Count</h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="bg-light border rounded p-4 shadow-sm h-100">
+                <h6 class="text-muted">Thương hiệu đang hoạt động</h6>
+                <h4>@ThuongHieus.Count(v => v.TrangThai)</h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="bg-light border rounded p-4 shadow-sm h-100">
+                <h6 class="text-muted">Thương hiệu ngừng hoạt động</h6>
+                <h4>@ThuongHieus.Count(v => !v.TrangThai)</h4>
+            </div>
+        </div>
+    </div>
+
 
     <div class="card shadow-sm p-4">
         <!-- Tìm kiếm & nút -->
@@ -14,6 +35,7 @@
             <input type="text" class="form-control w-50" placeholder="🔍 Tìm kiếm thương hiệu..." @bind="SearchText" @bind:event="oninput" />
             <button class="btn btn-outline-primary" @onclick="ShowAddModal">➕ Thêm thương hiệu</button>
         </div>
+       
 
         <!-- Bảng dữ liệu -->
         <table class="table table-bordered table-hover">

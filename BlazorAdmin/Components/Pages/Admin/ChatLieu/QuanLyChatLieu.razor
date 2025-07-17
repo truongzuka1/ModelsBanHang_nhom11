@@ -6,13 +6,33 @@
 <div class="container mt-5">
     <h4 class="mb-3">🧵 Quản lý chất liệu</h4>
 
+    <div class="row mb-4 text-center">
+        <div class="col-md-4">
+            <div class="bg-light border rounded p-4 shadow-sm h-100">
+                <h6 class="text-muted">Tổng số chất liệu</h6>
+                <h4>@DanhSachChatLieu.Count</h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="bg-light border rounded p-4 shadow-sm h-100">
+                <h6 class="text-muted">chất liệu đang hoạt động</h6>
+                <h4>@DanhSachChatLieu.Count(v => v.TrangThai)</h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="bg-light border rounded p-4 shadow-sm h-100">
+                <h6 class="text-muted">chất liệu ngừng hoạt động</h6>
+                <h4>@DanhSachChatLieu.Count(v => !v.TrangThai)</h4>
+            </div>
+        </div>
+    </div>
+
     <div class="card shadow-sm p-4">
         <!-- Tìm kiếm & nút -->
         <div class="d-flex justify-content-between mb-3">
             <input type="text" class="form-control w-50" placeholder="🔍 Tìm kiếm chất liệu..." @bind="SearchText" @bind:event="oninput" />
             <button class="btn btn-outline-primary" @onclick="ShowModal">➕ Thêm chất liệu</button>
         </div>
-
         <!-- Bảng dữ liệu -->
         <table class="table table-bordered table-hover">
             <thead class="table-light">
