@@ -4,6 +4,7 @@
 @using BlazorKhachHang.Service.IService
 @using API.Models.DTO
 @inject IGiayService service
+@inject IGiayYeuThichService giayYeuThichService
 @inject NavigationManager manager
 @inject IJSRuntime JS
 
@@ -86,12 +87,20 @@
                     {
                         <div class="product-card" style="cursor: pointer;" @onclick="@(() => NavigateToDetail(giay.GiayId))">
                             <div class="product-img-container">
-                                <img src="@($"https://localhost:7246{(string.IsNullOrEmpty(firstChiTiet.AnhGiay) ? "/images/no-image.png" : firstChiTiet.AnhGiay)}")"
+                                <img src="@($"https://localhost:7246/{(string.IsNullOrEmpty(firstChiTiet.AnhGiay) ? "images/no-image.png" : firstChiTiet.AnhGiay.TrimStart('/'))}")"
                                      alt="Product Image"
                                      onerror="this.onerror=null;this.src='/images/no-image.png';" />
 
                                 <div class="discount-badge">-10%</div>
-                                <div class="favorite-btn"><i class="far fa-heart"></i></div>
+                                <div class="favorite-btn"
+                                     @onclick:stopPropagation="true"
+                                     @onclick="@(async () => await ToggleFavorite(giay.GiayId))">
+                                    <i class="fa-heart @(IsFavorite(giay.GiayId) ? "fas" : "far")"
+                                       id="heart-@giay.GiayId"></i>
+                                </div>
+
+
+
                             </div>
 
                             <div class="product-info">
@@ -141,9 +150,14 @@
 @code {
     private List<GiayDTO> giayList = new();
     private List<GiayDTO> allGiayList = new();
+    private List<GiayYeuThichDTO> danhSachYeuThich = new();
+    private Guid khachHangId = new("31842850-7A2D-4F94-973F-F936DCAE5A12"); // Đang fix tạm Id Khách hàng có sẵn trong db, vì chưa làm đăng nhập cho khách hàng 
+
+
 
     private HashSet<string> selectedBrands = new();
     private Dictionary<string, bool> IsBrandSelected = new();
+    private HashSet<string> favoriteIds = new();
     private List<string> brandList = new() { "Nike", "Adidas", "Puma", "Skechers", "Vans" };
 
     private List<(string Label, decimal? Min, decimal? Max)> priceRanges = new()
@@ -176,6 +190,8 @@
     {
         allGiayList = await service.GetAllAsync();
 
+        danhSachYeuThich = (await giayYeuThichService.GetAllByKhachHangAsync(khachHangId)).ToList();
+
         foreach (var brand in brandList)
         {
             IsBrandSelected[brand] = false;
@@ -183,6 +199,7 @@
 
         FilterGiayList();
     }
+
 
     private void FilterGiayList()
     {
@@ -230,7 +247,10 @@
         }
 
 
-        giayList = query.ToList();
+        giayList = query
+      .OrderByDescending(g => IsFavorite(g.GiayId)) 
+      .ToList();
+
     }
 
     private void OnBrandChanged(string brand, bool isChecked)
@@ -257,6 +277,39 @@
 
         FilterGiayList();
     }
+
+
+    private async Task ToggleFavorite(Guid giayId)
+    {
+        try
+        {
+            await giayYeuThichService.ToggleFavoriteAsync(giayId, khachHangId);
+
+            danhSachYeuThich = (await giayYeuThichService.GetAllByKhachHangAsync(khachHangId)).ToList();
+            FilterGiayList();
+
+            await JS.InvokeVoidAsync("alert", "Cập nhật yêu thích thành công!");
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("⚠️ Lỗi ToggleFavorite:");
+            Console.WriteLine("Message: " + ex.Message);
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine("Inner: " + ex.InnerException.Message);
+            }
+
+            await JS.InvokeVoidAsync("alert", "❌ Lỗi khi yêu thích sản phẩm! Vui lòng thử lại.");
+        }
+    }
+
+
+    private bool IsFavorite(Guid giayId)
+    {
+        return danhSachYeuThich.Any(f => f.GiayId == giayId);
+    }
+
 
 
     private void NavigateToDetail(Guid giayId)

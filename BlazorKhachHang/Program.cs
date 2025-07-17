@@ -80,6 +80,10 @@ builder.Services.AddHttpClient("giay", client =>
 {
     client.BaseAddress = new Uri(url); // thay đổi tùy theo API của bạn
 });
+builder.Services.AddHttpClient<IGiayYeuThichService, GiayYeuThichService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7246/"); 
+});
 
 builder.Services.AddHttpClient<IVoucherService, VoucherService>(client =>
 {
@@ -138,6 +142,7 @@ builder.Services.AddScoped<IKichCoService, KichCoService>();
 builder.Services.AddScoped<IKhachHangService, KhachHangService>();
 builder.Services.AddScoped<IReturnService, ReturnService>();
 builder.Services.AddScoped<IThongBaoService, ThongBaoService>();
+builder.Services.AddScoped<IGiayYeuThichService, GiayYeuThichService>();
 
 var app = builder.Build();
 

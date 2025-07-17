@@ -295,4 +295,24 @@ body {
         box-shadow: 0 0 5px rgba(0, 0, 0, 0.6);
     }
 
+.product-card.animate-favorite {
+    transform: scale(1.03);
+    box-shadow: 0 0 12px rgba(255, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+.favorite-btn {
+    cursor: pointer;
+    z-index: 10;
+    position: absolute; /* nếu chưa có */
+    top: 10px;
+    right: 10px;
+}
+    .favorite-btn .fa-heart.fas {
+        color: red;
+        transition: 0.2s ease;
+    }
 
+    .favorite-btn .fa-heart.far {
+        color: gray;
+        transition: 0.2s ease;
+    }
