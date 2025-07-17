@@ -50,5 +50,11 @@ namespace BlazorAdmin.Service
             return await _httpClient.GetFromJsonAsync<List<GiayDTO>>($"api/Giay/search?keyword={keyword}")
                    ?? new List<GiayDTO>();
         }
+
+        public async Task<DropdownOptionsDTO> GetDropdownOptionsAsync()
+        {
+            return await _httpClient.GetFromJsonAsync<DropdownOptionsDTO>("api/Giay/dropdown-options")
+                   ?? new DropdownOptionsDTO();
+        }
     }
 }

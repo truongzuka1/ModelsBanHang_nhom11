@@ -10,5 +10,6 @@ namespace BlazorAdmin.Service.IService
         Task UpdateAsync(GiayDTO obj);
         Task DeleteAsync(Guid id);
         Task<List<GiayDTO>> SearchAsync(string keyword);
+        Task<DropdownOptionsDTO> GetDropdownOptionsAsync();
     }
 }
