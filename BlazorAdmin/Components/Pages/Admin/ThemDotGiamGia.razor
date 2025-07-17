@@ -4,7 +4,7 @@
 @using API.Models.DTO
 @using BlazorAdmin.Service.IService
 @inject IGiamGiaService GiamGiaService
-@inject IGiayService GiayService
+@inject IGiayChiTietService GiayChiTietService
 @inject NavigationManager Navigation
 
 @rendermode InteractiveServer
@@ -50,18 +50,34 @@
         </div>
 
         <div class="mb-3">
-            <label class="form-label fw-bold">Sản phẩm được áp dụng</label>
+            <label class="form-label fw-bold">Sản phẩm được áp dụng (theo màu/số)</label>
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-2">
-                @foreach (var sp in danhSachGiay)
+                @foreach (var sp in danhSachChiTiet)
                 {
-                    var isChecked = giayChon.Contains(sp.GiayId);
+                    var isChecked = chiTietChon.Contains(sp.GiayChiTietId);
                     <div class="col">
-                        <label class="form-check-label w-100 border rounded p-2 d-flex align-items-center gap-2 @(isChecked ? "bg-light border-primary" : "")"
+                        <label class="form-check-label w-100 border rounded p-2 d-flex align-items-start gap-2 @(isChecked ? "bg-light border-primary" : "")"
                                style="cursor: pointer;">
-                            <input class="form-check-input" type="checkbox" value="@sp.GiayId"
+                            <input class="form-check-input mt-1" type="checkbox" value="@sp.GiayChiTietId"
                                    checked="@isChecked"
-                                   @onchange="@(() => ToggleGiay(sp.GiayId))" />
-                            <span>@sp.TenGiay</span>
+                                   @onchange="@(() => ToggleChiTiet(sp.GiayChiTietId))" />
+                            <div>
+                                <div class="fw-bold">@sp.TenGiay</div>
+                                <div class="small text-muted">
+                                    Màu: @sp.TenMau | Size: @sp.size<br />
+                                    @if (sp.DaGiamGia)
+                                    {
+                                        <span>
+                                            <del>@sp.GiaGoc.ToString("N0") đ</del> ➝
+                                            <strong class="text-danger">@sp.Gia.ToString("N0") đ</strong>
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span>Giá: @sp.Gia.ToString("N0") đ</span>
+                                    }
+                                </div>
+                            </div>
                         </label>
                     </div>
                 }
@@ -83,35 +99,42 @@
     [Parameter]
     public Guid? Id { get; set; }
 
-    private GiamGia dot = new();
+    private GiamGiaCreateDTO dot = new();
     private string? errorMessage;
 
-    private List<GiayDTO> danhSachGiay = new();
-    private List<Guid> giayChon = new();
+    private List<GiayChiTietDTO> danhSachChiTiet = new();
+    private List<Guid> chiTietChon = new();
 
     protected override async Task OnInitializedAsync()
     {
-        danhSachGiay = await GiayService.GetAllAsync();
+        danhSachChiTiet = await GiayChiTietService.GetAllAsync();
 
         if (Id.HasValue)
         {
             var existing = await GiamGiaService.GetByIdAsync(Id.Value);
             if (existing != null)
             {
-                dot = existing;
-
-                if (existing.GiayDotGiamGias != null)
+                dot = new GiamGiaCreateDTO
                 {
-                    giayChon = existing.GiayDotGiamGias
-                        .Where(g => g.GiayId.HasValue)
-                        .Select(g => g.GiayId!.Value)
-                        .ToList();
-                }
+                    GiamGiaId = existing.GiamGiaId,
+                    TenGiamGia = existing.TenGiamGia,
+                    SanPhamKhuyenMai = existing.SanPhamKhuyenMai,
+                    PhanTramKhuyenMai = existing.PhanTramKhuyenMai,
+                    NgayBatDau = existing.NgayBatDau,
+                    NgayKetThuc = existing.NgayKetThuc,
+                    TrangThai = existing.TrangThai,
+                    GiayChiTietIds = existing.GiayDotGiamGias?
+                        .Where(x => x.GiayChiTietId.HasValue)
+                        .Select(x => x.GiayChiTietId!.Value)
+                        .ToList() ?? new()
+                };
+
+                chiTietChon = dot.GiayChiTietIds.ToList();
             }
         }
         else
         {
-            dot = new GiamGia
+            dot = new GiamGiaCreateDTO
             {
                 NgayBatDau = DateTime.Today,
                 NgayKetThuc = DateTime.Today.AddDays(7),
@@ -121,46 +144,19 @@
         }
     }
 
-    private void ToggleGiay(Guid giayId)
+    private void ToggleChiTiet(Guid id)
     {
-        if (giayChon.Contains(giayId))
-            giayChon.Remove(giayId);
+        if (chiTietChon.Contains(id))
+            chiTietChon.Remove(id);
         else
-            giayChon.Add(giayId);
+            chiTietChon.Add(id);
     }
 
     private async Task HandleSubmit()
     {
         errorMessage = null;
+        dot.GiayChiTietIds = chiTietChon;
 
-        // Tạo GiamGiaId nếu là thêm mới
-        if (!Id.HasValue || dot.GiamGiaId == Guid.Empty)
-        {
-            dot.GiamGiaId = Guid.NewGuid();
-        }
-
-        // Gán danh sách GiayDotGiamGias kèm object đầy đủ
-        dot.GiayDotGiamGias = giayChon.Select(id =>
-        {
-            var giay = danhSachGiay.FirstOrDefault(g => g.GiayId == id);
-            return new GiayDotGiamGia
-            {
-                GiayId = id,
-                GiamGiaId = dot.GiamGiaId,
-                Giay = new Giay
-                {
-                    GiayId = id,
-                    TenGiay = giay?.TenGiay ?? "Tên không rõ"
-                },
-                GiamGia = new GiamGia
-                {
-                    GiamGiaId = dot.GiamGiaId,
-                    TenGiamGia = dot.TenGiamGia,
-                    NgayBatDau = dot.NgayBatDau,
-                    NgayKetThuc = dot.NgayKetThuc
-                }
-            };
-        }).ToList();
         HttpResponseMessage response;
 
         if (Id.HasValue)

@@ -11,7 +11,8 @@ namespace API.IRepository
         Task<bool> DeleteAsync(Guid id);
 
         // Thêm/Xóa giày vào/ra đợt giảm giá
-        Task<bool> AddGiayToDotGiamGia(Guid giamGiaId, Guid giayId);
-        Task<bool> RemoveGiayFromDotGiamGia(Guid giamGiaId, Guid giayId);
+        Task<bool> AddGiayToDotGiamGia(Guid giamGiaId, Guid giayChiTietId);
+        Task<bool> RemoveGiayFromDotGiamGia(Guid giamGiaId, Guid giayChiTietId);
+
     }
 }

@@ -10,12 +10,6 @@ namespace Data.Models
 
         public DbContextApp(DbContextOptions options) : base(options) { }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-
-            optionsBuilder.UseSqlServer(@"Data Source=.;Initial Catalog=DuanNhom11ModelsBanHang;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True");
-
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -28,9 +22,10 @@ namespace Data.Models
             // Quan hệ GiayDotGiamGia
             modelBuilder.Entity<GiayDotGiamGia>().HasKey(x => x.GiayDotGiamGiaId);
             modelBuilder.Entity<GiayDotGiamGia>()
-                .HasOne(x => x.Giay)
-                .WithMany(x => x.GiayDotGiamGias)
-                .HasForeignKey(x => x.GiayId);
+                .HasOne(x => x.GiayChiTiet)
+                .WithMany()
+                .HasForeignKey(x => x.GiayChiTietId)
+                .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<GiayDotGiamGia>()
                 .HasOne(x => x.GiamGia)
                 .WithMany(x => x.GiayDotGiamGias)

@@ -51,16 +51,15 @@ namespace API.Controllers
                 NgayBatDau = dto.NgayBatDau,
                 NgayKetThuc = dto.NgayKetThuc,
                 TrangThai = dto.TrangThai,
-                GiayDotGiamGias = dto.GiayIds.Select(id => new GiayDotGiamGia
+                GiayDotGiamGias = dto.GiayChiTietIds.Select(id => new GiayDotGiamGia
                 {
                     GiayDotGiamGiaId = Guid.NewGuid(),
-                    GiayId = id,
+                    GiayChiTietId = id,
                     GiamGiaId = dto.GiamGiaId
                 }).ToList()
             };
 
             var created = await _giamGiaRepository.AddAsync(giamGia);
-
             await _thongBaoRepository.ThemThongBaoAsync($"🎯 Thêm đợt giảm giá: {giamGia.TenGiamGia}");
 
             return CreatedAtAction(nameof(GetById), new { id = created.GiamGiaId }, created);
@@ -99,28 +98,24 @@ namespace API.Controllers
             return NoContent();
         }
 
-        // POST: api/GiamGia/{giamGiaId}/add-giay/{giayId}
-        [HttpPost("{giamGiaId}/add-giay/{giayId}")]
-        public async Task<IActionResult> AddGiayToDotGiamGia(Guid giamGiaId, Guid giayId)
+        [HttpPost("{giamGiaId}/giaychitiet/{giayChiTietId}")]
+        public async Task<IActionResult> AddGiayToDotGiamGia(Guid giamGiaId, Guid giayChiTietId)
         {
-            var added = await _giamGiaRepository.AddGiayToDotGiamGia(giamGiaId, giayId);
+            var added = await _giamGiaRepository.AddGiayToDotGiamGia(giamGiaId, giayChiTietId);
             if (!added)
-                return BadRequest("Không thể thêm giày vào đợt giảm giá (đã tồn tại hoặc không tìm thấy)");
+                return BadRequest("Không thể thêm Giày Chi Tiết vào đợt giảm giá");
 
-            await _thongBaoRepository.ThemThongBaoAsync($"➕ Thêm giày vào đợt giảm giá ID: {giamGiaId}");
-
+            await _thongBaoRepository.ThemThongBaoAsync($"➕ Gán sản phẩm vào đợt giảm giá");
             return Ok();
         }
 
-        // DELETE: api/GiamGia/{giamGiaId}/remove-giay/{giayId}
-        [HttpDelete("{giamGiaId}/remove-giay/{giayId}")]
-        public async Task<IActionResult> RemoveGiayFromDotGiamGia(Guid giamGiaId, Guid giayId)
+        [HttpDelete("{giamGiaId}/giaychitiet/{giayChiTietId}")]
+        public async Task<IActionResult> RemoveGiayFromDotGiamGia(Guid giamGiaId, Guid giayChiTietId)
         {
-            var removed = await _giamGiaRepository.RemoveGiayFromDotGiamGia(giamGiaId, giayId);
+            var removed = await _giamGiaRepository.RemoveGiayFromDotGiamGia(giamGiaId, giayChiTietId);
             if (!removed) return NotFound();
 
-            await _thongBaoRepository.ThemThongBaoAsync($"➖ Gỡ giày khỏi đợt giảm giá ID: {giamGiaId}");
-
+            await _thongBaoRepository.ThemThongBaoAsync($"➖ Gỡ sản phẩm khỏi đợt giảm giá");
             return Ok();
         }
     }
