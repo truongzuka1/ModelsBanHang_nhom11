@@ -47,6 +47,9 @@ namespace API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            if (dto.PhanTramKhuyenMai > 60)
+                return BadRequest("Phần trăm khuyến mãi không được vượt quá 60%.");
+
             var giamGia = new GiamGia
             {
                 GiamGiaId = dto.GiamGiaId,
@@ -66,10 +69,12 @@ namespace API.Controllers
 
             var created = await _giamGiaRepository.AddAsync(giamGia);
 
-            await _thongBaoRepository.ThemThongBaoAsync($"🎯 Đã tạo đợt giảm giá: **{giamGia.TenGiamGia}** từ {giamGia.NgayBatDau:dd/MM} đến {giamGia.NgayKetThuc:dd/MM}");
+            await _thongBaoRepository.ThemThongBaoAsync(
+                $"🎯 Đã tạo đợt giảm giá: **{giamGia.TenGiamGia}** từ {giamGia.NgayBatDau:dd/MM} đến {giamGia.NgayKetThuc:dd/MM}");
 
             return CreatedAtAction(nameof(GetById), new { id = created.GiamGiaId }, created);
         }
+
 
         // PUT: api/GiamGia/{id}
         [HttpPut("{id}")]
@@ -80,6 +85,9 @@ namespace API.Controllers
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            if (giamGia.PhanTramKhuyenMai > 60)
+                return BadRequest("Phần trăm khuyến mãi không được vượt quá 60%.");
 
             var updated = await _giamGiaRepository.UpdateAsync(giamGia);
             if (updated == null) return NotFound();

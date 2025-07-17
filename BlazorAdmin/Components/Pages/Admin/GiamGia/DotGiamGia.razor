@@ -98,11 +98,11 @@
                         <td>@(item.GiayDotGiamGias?.Count ?? 0)</td>
                         <td>
                             <button class="btn btn-sm btn-outline-warning me-2"
-                                    @onclick='@(() => Navigation.NavigateTo($"/dotgiamgia/sua/{item.GiamGiaId}"))'>
+                                    @onclick='@(() => Navigation.NavigateTo($"/ThemDotGiamGia/{item.GiamGiaId}"))'>
                                 ✏️ Sửa
                             </button>
                             <button class="btn btn-sm btn-outline-success"
-                                    @onclick='@(() => Navigation.NavigateTo($"/dotgiamgia/gan/{item.GiamGiaId}"))'>
+                                    @onclick='@(() => Navigation.NavigateTo($"/ThemDotGiamGia/{item.GiamGiaId}"))'>
                                 🔗 Gán giày
                             </button>
                         </td>
