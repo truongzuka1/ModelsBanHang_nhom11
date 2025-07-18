@@ -121,19 +121,19 @@
             if (existing != null)
             {
                 dot = new GiamGiaCreateDTO
-                    {
-                        GiamGiaId = existing.GiamGiaId,
-                        TenGiamGia = existing.TenGiamGia,
-                        SanPhamKhuyenMai = existing.SanPhamKhuyenMai,
-                        PhanTramKhuyenMai = existing.PhanTramKhuyenMai,
-                        NgayBatDau = existing.NgayBatDau,
-                        NgayKetThuc = existing.NgayKetThuc,
-                        TrangThai = existing.TrangThai,
-                        GiayChiTietIds = existing.GiayDotGiamGias?
+                {
+                    GiamGiaId = existing.GiamGiaId,
+                    TenGiamGia = existing.TenGiamGia,
+                    SanPhamKhuyenMai = existing.SanPhamKhuyenMai,
+                    PhanTramKhuyenMai = existing.PhanTramKhuyenMai,
+                    NgayBatDau = existing.NgayBatDau,
+                    NgayKetThuc = existing.NgayKetThuc,
+                    TrangThai = existing.TrangThai,
+                    GiayChiTietIds = existing.GiayDotGiamGias?
                             .Where(x => x.GiayChiTietId.HasValue)
                             .Select(x => x.GiayChiTietId!.Value)
                             .ToList() ?? new()
-                    };
+                };
 
                 chiTietChon = dot.GiayChiTietIds.ToList();
             }
@@ -141,12 +141,12 @@
         else
         {
             dot = new GiamGiaCreateDTO
-                {
-                    NgayBatDau = DateTime.Today,
-                    NgayKetThuc = DateTime.Today.AddDays(7),
-                    TrangThai = true,
-                    SanPhamKhuyenMai = "Nhiều sản phẩm"
-                };
+            {
+                NgayBatDau = DateTime.Today,
+                NgayKetThuc = DateTime.Today.AddDays(7),
+                TrangThai = true,
+                SanPhamKhuyenMai = "Nhiều sản phẩm"
+            };
         }
     }
 
