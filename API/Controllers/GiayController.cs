@@ -78,7 +78,7 @@ namespace API.Controllers
                     SoLuongCon = ct.SoLuongCon,
                     MoTa = ct.MoTa,
                     TrangThai = ct.TrangThai,
-                    size = ct.KichCo.size,
+                    size = (int)ct.KichCo?.size,
                     TenMau = ct.MauSac?.TenMau,
                     AnhGiay = ct.Anhs.FirstOrDefault()?.DuongDan,
                     NgayTao = ct.NgayTao,

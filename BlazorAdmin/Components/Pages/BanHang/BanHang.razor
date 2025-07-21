@@ -65,7 +65,7 @@
                 @foreach (var product in CurrentOrder.Products)
                 {
                     <div class="order-item">
-                        <img src="@product.AnhGiay" class="order-img" />
+                        <img src="@($"https://localhost:7246{product.AnhGiay}" ?? "")" class="order-img" />
                         <div class="item-info">
                             <div class="order-name">@product.TenGiay</div>
                             <div class="order-price">

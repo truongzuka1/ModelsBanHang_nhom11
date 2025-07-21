@@ -21,7 +21,7 @@ namespace BlazorAdmin.Service
         {
             try
             {
-                var response = await _httpClient.PostAsJsonAsync("api/HoaDonChiTiet", hoaDon);
+                var response = await _httpClient.PostAsJsonAsync("api/HoaDonChiTiets", hoaDon);
                 var content = await response.Content.ReadAsStringAsync();
                 if (response.IsSuccessStatusCode)
                 {
