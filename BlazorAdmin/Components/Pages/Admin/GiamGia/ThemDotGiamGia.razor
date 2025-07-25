@@ -121,19 +121,19 @@
             if (existing != null)
             {
                 dot = new GiamGiaCreateDTO
-                    {
-                        GiamGiaId = existing.GiamGiaId,
-                        TenGiamGia = existing.TenGiamGia,
-                        SanPhamKhuyenMai = existing.SanPhamKhuyenMai,
-                        PhanTramKhuyenMai = existing.PhanTramKhuyenMai,
-                        NgayBatDau = existing.NgayBatDau,
-                        NgayKetThuc = existing.NgayKetThuc,
-                        TrangThai = existing.TrangThai,
-                        GiayChiTietIds = existing.GiayDotGiamGias?
+                {
+                    GiamGiaId = existing.GiamGiaId,
+                    TenGiamGia = existing.TenGiamGia,
+                    SanPhamKhuyenMai = existing.SanPhamKhuyenMai,
+                    PhanTramKhuyenMai = existing.PhanTramKhuyenMai,
+                    NgayBatDau = existing.NgayBatDau,
+                    NgayKetThuc = existing.NgayKetThuc,
+                    TrangThai = existing.TrangThai,
+                    GiayChiTietIds = existing.GiayDotGiamGias?
                             .Where(x => x.GiayChiTietId.HasValue)
                             .Select(x => x.GiayChiTietId!.Value)
                             .ToList() ?? new()
-                    };
+                };
 
                 chiTietChon = dot.GiayChiTietIds.ToList();
             }
@@ -141,12 +141,12 @@
         else
         {
             dot = new GiamGiaCreateDTO
-                {
-                    NgayBatDau = DateTime.Today,
-                    NgayKetThuc = DateTime.Today.AddDays(7),
-                    TrangThai = true,
-                    SanPhamKhuyenMai = "Nhiều sản phẩm"
-                };
+            {
+                NgayBatDau = DateTime.Today,
+                NgayKetThuc = DateTime.Today.AddDays(7),
+                TrangThai = true,
+                SanPhamKhuyenMai = "Nhiều sản phẩm"
+            };
         }
     }
 
@@ -161,7 +161,6 @@
     private async Task HandleSubmit()
     {
         errorMessage = null;
-        dot.GiayChiTietIds = chiTietChon;
 
         if (dot.NgayKetThuc < dot.NgayBatDau)
         {
@@ -169,18 +168,62 @@
             return;
         }
 
-        HttpResponseMessage response = Id.HasValue
-            ? await GiamGiaService.UpdateAsyncReturnResponse(dot)
-            : await GiamGiaService.AddAsync(dot);
-
-        if (response.IsSuccessStatusCode)
+        // Nếu là tạo mới
+        if (!Id.HasValue)
         {
-            Navigation.NavigateTo("/DotGiamGia");
+            dot.GiayChiTietIds = chiTietChon;
+            var response = await GiamGiaService.AddAsync(dot);
+            if (response.IsSuccessStatusCode)
+            {
+                Navigation.NavigateTo("/DotGiamGia");
+            }
+            else
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                errorMessage = $"Không lưu được: {content}";
+            }
         }
         else
         {
-            var content = await response.Content.ReadAsStringAsync();
-            errorMessage = $"Không lưu được: {content}";
+            // Cập nhật thông tin đợt (chưa xử lý giày)
+            var basicDto = new GiamGiaCreateDTO
+            {
+                GiamGiaId = dot.GiamGiaId,
+                TenGiamGia = dot.TenGiamGia,
+                SanPhamKhuyenMai = dot.SanPhamKhuyenMai,
+                PhanTramKhuyenMai = dot.PhanTramKhuyenMai,
+                NgayBatDau = dot.NgayBatDau,
+                NgayKetThuc = dot.NgayKetThuc,
+                TrangThai = dot.TrangThai,
+                GiayChiTietIds = new List<Guid>() // bỏ qua giày lúc cập nhật
+            };
+
+            var response = await GiamGiaService.UpdateAsyncReturnResponse(basicDto);
+            if (!response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                errorMessage = $"Không lưu được: {content}";
+                return;
+            }
+
+            // So sánh danh sách cũ - mới
+            var cu = dot.GiayChiTietIds ?? new();
+            var moi = chiTietChon;
+
+            var canRemove = cu.Except(moi).ToList();
+            var canAdd = moi.Except(cu).ToList();
+
+            foreach (var id in canRemove)
+            {
+                await GiamGiaService.RemoveGiayFromDotGiamGia(dot.GiamGiaId, id);
+            }
+
+            foreach (var id in canAdd)
+            {
+                await GiamGiaService.AddGiayToDotGiamGia(dot.GiamGiaId, id);
+            }
+
+            Navigation.NavigateTo("/DotGiamGia");
         }
     }
 }
