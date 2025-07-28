@@ -1,32 +1,25 @@
 ﻿@page "/admin/hoadon"
 @layout AdminLayout
-@inject IHoaDonService HoaDonService
-@inject IHoaDonChiTietService HoaDonChiTietService
-@inject IJSRuntime JS
+@inject IHoaDonService hoaDonService
+@inject IHoaDonChiTietService chiTietHoaDonService
 
 @using Data.Models
 <link href="css/HoaDon.css" rel="stylesheet" />
 
 <h2 class="text-xl font-semibold mb-4">Quản lý đơn hàng</h2>
 
-<!-- Ô tìm kiếm và nút tải lại -->
 <div class="search-row">
-    <input @bind="TuKhoa" @bind:event="oninput" placeholder="Tìm kiếm..." />
+    <input @bind="tuKhoa" @bind:event="oninput" placeholder="Tìm kiếm..." />
     <button @onclick="TaiLai">Tải lại</button>
 </div>
 
-<!-- Tabs lọc theo trạng thái -->
 <div class="tabs">
-    @foreach (var trangThaiItem in TrangThaiList)
+    @foreach (var status in trangThaiList)
     {
-        <button class="@(TrangThai == trangThaiItem ? "active" : "")"
-                @onclick='() => LocTheoTrangThai(trangThaiItem)'>
-            @trangThaiItem
-        </button>
+        <button class="@(trangThai == status ? "active" : "")" @onclick='() => LocTheoTrangThai(status)'>@status</button>
     }
 </div>
 
-<!-- Bảng danh sách hóa đơn -->
 <table class="table-auto w-full text-sm">
     <thead>
         <tr class="bg-gray-100">
@@ -38,130 +31,71 @@
             <th class="p-2">Ngày tạo</th>
             <th class="p-2">Loại</th>
             <th class="p-2">Trạng thái</th>
-            <th class="p-2">Hành động</th>
         </tr>
     </thead>
     <tbody>
-        @if (DanhSachHoaDon?.Any() == true)
+        @if (dsHoaDon != null)
         {
-            var stt = 1;
-            foreach (var hoaDon in DanhSachHoaDon)
+            var index = 1;
+            foreach (var hd in dsHoaDon)
             {
-                var chiTiets = ChiTietTheoHoaDon.GetValueOrDefault(hoaDon.HoaDonId);
-                var tongSoSP = chiTiets?.Sum(c => c.SoLuongSanPham) ?? 0;
-                var tongTien = chiTiets?.Sum(c => c.SoLuongSanPham * c.Gia) ?? 0m;
-
+                var tongSP = chiTietMap.GetValueOrDefault(hd.HoaDonId)?.Sum(c => c.SoLuongSanPham) ?? 0;
+                var tongTien = chiTietMap.GetValueOrDefault(hd.HoaDonId)?.Sum(c => c.SoLuongSanPham * c.Gia) ?? 0m;
                 <tr class="border-b">
-                    <td class="p-2">@stt</td>
-                    <td class="p-2">@hoaDon.HoaDonId.ToString().Substring(0, 8)</td>
-                    <td class="p-2">@tongSoSP</td>
+                    <td class="p-2">@index</td>
+                    <td class="p-2">@hd.HoaDonId.ToString().Substring(0, 8)</td>
+                    <td class="p-2">@tongSP</td>
                     <td class="p-2">@tongTien.ToString("N0") đ</td>
-                    <td class="p-2">@(string.IsNullOrWhiteSpace(hoaDon.khachHang?.HoTen) ? "Khách lẻ" : hoaDon.khachHang.HoTen)</td>
-                    <td class="p-2">@hoaDon.NgayTao.ToString("dd/MM/yyyy HH:mm")</td>
-                    <td class="p-2">@hoaDon.hinhThucThanhToan?.TenHinhThuc</td>
+@*                     <td class="p-2">@(string.IsNullOrEmpty(hd.TenCuaKhachHang) ? "Khách lẻ" : hd.TenCuaKhachHang)</td>
+ *@                    <td class="p-2">@hd.NgayTao.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td class="p-2">@hd.hinhThucThanhToan?.TenHinhThuc</td>
                     <td class="p-2">
-                        <span class="badge @(GetBadgeClass(hoaDon.TrangThai))">@hoaDon.TrangThai</span>
+                        <span class="badge @(GetBadgeClass(hd.TrangThai))">@hd.TrangThai</span>
                     </td>
-                 <td class="p-2 space-x-1">
-    @if (hoaDon.TrangThai == "Chờ xác nhận")
-    {
-        <button @onclick="@(() => CapNhatTrangThai(hoaDon.HoaDonId, "Chờ giao"))" class="btn-action">Xác nhận</button>
-        <button @onclick="@(() => HuyDon(hoaDon.HoaDonId))" class="btn-danger">Huỷ đơn</button>
-    }
-    else if (hoaDon.TrangThai == "Chờ giao")
-    {
-        <button @onclick="@(() => CapNhatTrangThai(hoaDon.HoaDonId, "Vận chuyển"))" class="btn-action">Giao hàng</button>
-        <button @onclick="@(() => HuyDon(hoaDon.HoaDonId))" class="btn-danger">Huỷ đơn</button>
-    }
-    else if (hoaDon.TrangThai == "Vận chuyển")
-    {
-        <button @onclick="@(() => CapNhatTrangThai(hoaDon.HoaDonId, "Đã giao"))" class="btn-action">Đã giao</button>
-    }
-    else if (hoaDon.TrangThai == "Đã giao")
-    {
-        <button @onclick="@(() => CapNhatTrangThai(hoaDon.HoaDonId, "Đã thanh toán"))" class="btn-action">Thanh toán</button>
-    }
-    else if (hoaDon.TrangThai == "Đã thanh toán")
-    {
-        <button @onclick="@(() => CapNhatTrangThai(hoaDon.HoaDonId, "hoàn thành"))" class="btn-action">Hoàn thành</button>
-    }
-    else if (hoaDon.TrangThai == "hoàn thành")
-    {
-        <button @onclick="@(() => XemChiTiet(hoaDon.HoaDonId))" class="btn-view">Xem</button>
-    }
-    else if (hoaDon.TrangThai == "Đã huỷ")
-    {
-        <span class="text-red-500 italic">Đã huỷ</span>
-    }
-    else
-    {
-        <span class="text-gray-400 italic">---</span>
-    }
-</td>
-
                 </tr>
-
-                stt++;
+                index++;
             }
         }
         else
         {
             <tr>
-                <td colspan="9" class="text-center text-gray-500 p-4">Chưa có dữ liệu</td>
+                <td colspan="8" class="text-center text-gray-500 p-4">Chưa có dữ liệu</td>
             </tr>
         }
     </tbody>
 </table>
 
 @code {
-    private List<HoaDon> DanhSachHoaDon;
-    private List<HoaDonChiTiet> DanhSachChiTiet;
-    private Dictionary<Guid, List<HoaDonChiTiet>> ChiTietTheoHoaDon = new();
-    private HoaDon selectedHoaDon;
-private List<HoaDonChiTiet> selectedChiTiet;
+    private List<HoaDon> dsHoaDon;
+    private List<HoaDonChiTiet> dsChiTiet;
+    private Dictionary<Guid, List<HoaDonChiTiet>> chiTietMap = new();
+    private string tuKhoa;
+    private string trangThai;
+    private List<string> trangThaiList = new() { "TẤT CẢ", "Chờ xác nhận", "Chờ giao", "Vận chuyển", "Đã giao", "Đã thanh toán", "Đã huỷ", "Hoàn thành" };
 
-    private string TuKhoa;
-    private string TrangThai;
-    private readonly List<string> TrangThaiList = new()
-    {
-        "TẤT CẢ", "Chờ xác nhận", "Chờ giao", "Vận chuyển", "Đã giao", "Đã thanh toán", "Đã huỷ", "hoàn thành"
-    };
-
-    protected override async Task OnInitializedAsync()
-    {
-        await TaiLai();
-    }
+    protected override async Task OnInitializedAsync() => await TaiLai();
 
     private async Task TaiLai()
     {
-        var allHoaDon = await HoaDonService.GetAll();
-        DanhSachChiTiet = await HoaDonChiTietService.GetAllAsync();
+        var all = await hoaDonService.GetAll();
+        dsChiTiet = await chiTietHoaDonService.GetAllAsync();
 
-        ChiTietTheoHoaDon = DanhSachChiTiet
-            .GroupBy(ct => ct.HoaDonId)
-            .ToDictionary(g => g.Key, g => g.ToList());
+        chiTietMap = dsChiTiet.GroupBy(x => x.HoaDonId).ToDictionary(g => g.Key, g => g.ToList());
 
-        DanhSachHoaDon = allHoaDon?
-            .Where(hd => string.IsNullOrEmpty(TuKhoa) || hd.khachHang?.HoTen.Contains(TuKhoa, StringComparison.OrdinalIgnoreCase) == true)
-            .ToList();
-
-        if (!string.IsNullOrEmpty(TrangThai) && TrangThai != "TẤT CẢ")
-        {
-            DanhSachHoaDon = DanhSachHoaDon
-                .Where(hd => hd.TrangThai == TrangThai)
-                .ToList();
-        }
+        dsHoaDon = all?.Where(hd => string.IsNullOrEmpty(tuKhoa) /*||  hd.TenCuaKhachHang?.Contains(tuKhoa, StringComparison.OrdinalIgnoreCase) == true */).ToList();
+        if (!string.IsNullOrEmpty(trangThai) && trangThai != "TẤT CẢ")
+            dsHoaDon = dsHoaDon.Where(h => h.TrangThai == trangThai).ToList();
     }
 
     private async Task LocTheoTrangThai(string tt)
     {
-        TrangThai = tt;
+        trangThai = tt;
         await TaiLai();
     }
 
     private string GetBadgeClass(string status) => status switch
     {
-        "hoàn thành" => "badge-purple",
+        "Hoàn thành" => "badge-purple",
         "Chờ xác nhận" => "badge-blue",
         "Chờ giao" => "badge-orange",
         "Vận chuyển" => "badge-blue",
@@ -170,35 +104,5 @@ private List<HoaDonChiTiet> selectedChiTiet;
         "Đã huỷ" => "badge-red",
         _ => "badge-gray"
     };
-
-    private async Task HuyDon(Guid hoaDonId)
-    {
-        bool xacNhan = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc muốn huỷ đơn hàng này không?");
-        if (xacNhan)
-        {
-            var hoaDon = await HoaDonService.GetById(hoaDonId);
-            if (hoaDon != null)
-            {
-                hoaDon.TrangThai = "Đã huỷ";
-                await HoaDonService.Update(hoaDon);
-                await TaiLai();
-            }
-        }
-    }
-
-    private async Task CapNhatTrangThai(Guid hoaDonId, string trangThaiMoi)
-    {
-        var hoaDon = await HoaDonService.GetById(hoaDonId);
-        if (hoaDon != null)
-        {
-            hoaDon.TrangThai = trangThaiMoi;
-            await HoaDonService.Update(hoaDon);
-            await TaiLai();
-        }
-    }
-
-    private void XemChiTiet(Guid hoaDonId)
-    {
-        
-    }
 }
+

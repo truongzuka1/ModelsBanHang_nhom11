@@ -15,7 +15,7 @@
 <EditForm Model="Input" OnValidSubmit="SubmitFormCreate">
     <DataAnnotationsValidator />
     <ValidationSummary />
-    @* aisygduyasgduyg *@
+
     <div class="row g-4">
         <!-- Form Voucher -->
         <div class="col-md-6">
@@ -58,7 +58,7 @@
 
                 <div class="mb-3">
                     <label class="form-label">Số lượng:</label>
-                    <InputNumber class="form-control" @bind-Value="Input.SoLuong" @onchange="OnSoLuongChanged" />
+                    <InputNumber class="form-control" @bind-Value="Input.SoLuong" />
                 </div>
 
                 <div class="mb-3">
@@ -173,17 +173,10 @@
     {
         if (isChecked)
         {
-            if (Input.SoLuong <= 0 || Input.SoLuong >= DanhSachKhachHang.Count)
-            {
-                Input.KhachHangIds = DanhSachKhachHang.Select(kh => kh.KhachHangId).ToList();
-            }
-            else
-            {
-                Input.KhachHangIds = DanhSachKhachHang
-                    .Select(kh => kh.KhachHangId)
-                    .Take(Input.SoLuong)
-                    .ToList();
-            }
+            Input.KhachHangIds = DanhSachKhachHang
+                .Select(kh => kh.KhachHangId)
+                .Take(Input.SoLuong)
+                .ToList();
         }
         else
         {
@@ -191,30 +184,9 @@
         }
     }
 
-    private void OnSoLuongChanged(ChangeEventArgs e)
-    {
-        if (int.TryParse(e.Value?.ToString(), out int newValue))
-        {
-            Input.SoLuong = newValue;
-
-            if (Input.KhachHangIds.Count > newValue)
-            {
-                Input.KhachHangIds = Input.KhachHangIds.Take(newValue).ToList();
-            }
-
-            _isAllChecked = Input.KhachHangIds.Count == DanhSachKhachHang.Count;
-        }
-    }
-
     private async Task SubmitFormCreate()
     {
         LoiSoTienGiam = null;
-
-        if (Input.NgayKetThuc < Input.NgayBatDau)
-        {
-            LoiSoTienGiam = "Ngày kết thúc phải sau ngày bắt đầu.";
-            return;
-        }
 
         if (IsPhanTram)
         {
@@ -233,24 +205,19 @@
             }
         }
 
-        if (Input.KhachHangIds.Count > Input.SoLuong)
-        {
-            LoiSoTienGiam = $"Bạn đã chọn {Input.KhachHangIds.Count} khách, nhưng số lượng voucher chỉ là {Input.SoLuong}. Chỉ {Input.SoLuong} khách đầu tiên được áp dụng.";
-        }
-
         var newVoucher = new Voucher
-        {
-            VoucherId = Guid.NewGuid(),
-            TenVoucher = Input.TenVoucher,
-            NgayBatDau = Input.NgayBatDau,
-            NgayKetThuc = Input.NgayKetThuc,
-            PhanTram = Input.PhanTram,
-            SoTienGiam = Input.SoTienGiam,
-            GiamToiDa = Input.GiamToiDa,
-            DieuKienToiThieu = Input.DieuKienToiThieu,
-            TrangThai = true,
-            SoLuong = Input.SoLuong
-        };
+            {
+                VoucherId = Guid.NewGuid(),
+                TenVoucher = Input.TenVoucher,
+                NgayBatDau = Input.NgayBatDau,
+                NgayKetThuc = Input.NgayKetThuc,
+                PhanTram = Input.PhanTram,
+                SoTienGiam = Input.SoTienGiam,
+                GiamToiDa = Input.GiamToiDa,
+                DieuKienToiThieu = Input.DieuKienToiThieu,
+                TrangThai = true,
+                SoLuong = Input.SoLuong
+            };
 
         await service.Add(newVoucher);
 
