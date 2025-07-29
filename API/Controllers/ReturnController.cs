@@ -41,16 +41,16 @@ namespace API.Controllers
                     foreach (var chiTiet in hoaDon.HoaDonChiTiets.Where(hdc => !hdc.TrangThai))
                     {
                         var soLuongDaTra = hoaDon.HoaDonChiTiets
-                            .Where(hdc => hdc.GiayId == chiTiet.GiayId && hdc.TrangThai)
+                            .Where(hdc => hdc.GiayChiTietId == chiTiet.GiayChiTietId && hdc.TrangThai)
                             .Sum(hdc => hdc.SoLuongSanPham);
 
                         returnItems.Add(new ReturnItemDTO
                         {
-                            GiayId = chiTiet.GiayId,
-                            TenSanPham = chiTiet.Giays?.TenGiay ?? "Không xác định",
+                            GiayChiTietId = chiTiet.GiayChiTietId,
+                            TenSanPham = chiTiet.GiayChiTiet.Giay.TenGiay ?? "Không xác định",
                             SoLuongMua = chiTiet.SoLuongSanPham,
                             SoLuongDaTra = soLuongDaTra,
-                            SoLuongConLai = soLuongConLai.ContainsKey(chiTiet.GiayId) ? soLuongConLai[chiTiet.GiayId] : 0,
+                            SoLuongConLai = soLuongConLai.ContainsKey(chiTiet.GiayChiTietId) ? soLuongConLai[chiTiet.GiayChiTietId] : 0,
                             Gia = chiTiet.Gia
                         });
                     }
@@ -88,16 +88,16 @@ namespace API.Controllers
             foreach (var chiTiet in hoaDon.HoaDonChiTiets.Where(hdc => !hdc.TrangThai))
             {
                 var soLuongDaTra = hoaDon.HoaDonChiTiets
-                    .Where(hdc => hdc.GiayId == chiTiet.GiayId && hdc.TrangThai)
+                    .Where(hdc => hdc.GiayChiTietId == chiTiet.GiayChiTietId && hdc.TrangThai)
                     .Sum(hdc => hdc.SoLuongSanPham);
 
                 returnItems.Add(new ReturnItemDTO
                 {
-                    GiayId = chiTiet.GiayId,
-                    TenSanPham = chiTiet.Giays.TenGiay,
+                    GiayChiTietId = chiTiet.GiayChiTietId,
+                    TenSanPham = chiTiet.GiayChiTiet.Giay.TenGiay,
                     SoLuongMua = chiTiet.SoLuongSanPham,
                     SoLuongDaTra = soLuongDaTra,
-                    SoLuongConLai = soLuongConLai.ContainsKey(chiTiet.GiayId) ? soLuongConLai[chiTiet.GiayId] : 0,
+                    SoLuongConLai = soLuongConLai.ContainsKey(chiTiet.GiayChiTietId) ? soLuongConLai[chiTiet.GiayChiTietId] : 0,
                     Gia = chiTiet.Gia
                 });
             }
@@ -122,8 +122,8 @@ namespace API.Controllers
             var result = lichSu.Select(hdc => new ReturnHistoryDTO
             {
                 HoaDonChiTietId = hdc.HoaDonChiTietId,
-                GiayId = hdc.GiayId,
-                TenSanPham = hdc.Giays.TenGiay,
+                GiayId = hdc.GiayChiTietId,
+                TenSanPham = hdc.GiayChiTiet.Giay.TenGiay,
                 SoLuong = hdc.SoLuongSanPham,
                 Gia = hdc.Gia,
                 NgayTraHang = hdc.NgayTraHang,
@@ -200,13 +200,13 @@ namespace API.Controllers
 
             foreach (var item in request.Items)
             {
-                var tenSanPham = await _returnRepository.GetTenGiayAsync(item.GiayId);
+                var tenSanPham = await _returnRepository.GetTenGiayAsync(item.GiayChiTietId);
 
                 if (!canReturn)
                 {
                     results.Add(new ValidateReturnResultDTO
                     {
-                        GiayId = item.GiayId,
+                        GiayId = item.GiayChiTietId,
                         TenSanPham = tenSanPham,
                         CanReturn = false,
                         SoLuongConLai = 0,
@@ -215,13 +215,13 @@ namespace API.Controllers
                 }
                 else
                 {
-                    var canReturnItem = await _returnRepository.KiemTraDuocPhepTra(request.HoaDonId, item.GiayId, item.SoLuong);
+                    var canReturnItem = await _returnRepository.KiemTraDuocPhepTra(request.HoaDonId, item.GiayChiTietId, item.SoLuong);
                     results.Add(new ValidateReturnResultDTO
                     {
-                        GiayId = item.GiayId,
+                        GiayId = item.GiayChiTietId,
                         TenSanPham = tenSanPham,
                         CanReturn = canReturnItem,
-                        SoLuongConLai = soLuongConLai.ContainsKey(item.GiayId) ? soLuongConLai[item.GiayId] : 0,
+                        SoLuongConLai = soLuongConLai.ContainsKey(item.GiayChiTietId) ? soLuongConLai[item.GiayChiTietId] : 0,
                         LyDoTuChoi = canReturnItem ? "" : "Số lượng trả vượt quá số lượng còn lại"
                     });
                 }

@@ -1,0 +1,90 @@
+﻿@page "/login"
+@layout Layout.Layoutgeneral
+@inject NavigationManager Nav
+@inject LoginPhanQuyen LoginPhanQuyen
+
+<script src="js/Login.js"></script>
+<link href="css/Login.css" rel="stylesheet" />
+
+@if (IsLoginFormVisible)
+{
+    <div class="form-container" id="login-form">
+        <div class="user-icon"><i class="fas fa-user"></i></div>
+        <h2>Login</h2>
+        <EditForm Model="Input" OnValidSubmit="OnLogin" FormName="login">
+            <div class="form-group">
+                <i class="fas fa-envelope"></i>
+                <InputText type="Username" class="form-control" placeholder="Username" required @bind-Value="Input.UserName" />
+            </div>
+            <div class="form-group">
+                <i class="fas fa-lock"></i>
+                <InputText type="password" class="form-control" placeholder="Password" required @bind-Value="Input.Password" />
+            </div>
+            <div class="options">
+                <label><InputCheckbox @bind-Value="Input.Rememberme"/> Remember me</label>
+                <a href="#">Forgot Password?</a>
+            </div>
+            <button type="submit" class="btn-primary">LOGIN</button>
+        </EditForm>
+
+        <div class="social-login">
+            <button class="social-btn google-btn"><i class="fab fa-google"></i> Login with Google</button>
+            <button class="social-btn facebook-btn"><i class="fab fa-facebook-f"></i> Login with Facebook</button>
+        </div>
+
+        <div class="toggle-link">
+            Don't have an account? <a @onclick="ShowSignup">Sign Up</a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="form-container" id="signup-form">
+        <div class="user-icon"><i class="fas fa-user-plus"></i></div>
+        <h2>Sign Up</h2>
+        <EditForm Model="Input" OnValidSubmit="OnSignup" FormName="register">
+            <div class="form-group">
+                <i class="fas fa-user"></i>
+                <InputText class="form-control" placeholder="Full Name" required @bind-Value="Input.Ten" />
+            </div>
+            <div class="form-group">
+                <i class="fas fa-envelope"></i>
+                <InputText type="Username" class="form-control" placeholder="Username" required @bind-Value="Input.UserName" />
+            </div>
+            <div class="form-group">
+                <i class="fas fa-lock"></i>
+                <InputText type="password" class="form-control" placeholder="Password" required @bind-Value="Input.Password" />
+            </div>
+            <div class="form-group">
+                <i class="fas fa-lock"></i>
+                <InputText type="password" class="form-control" placeholder="Confirm Password" required @bind-Value="Input.RePassword" />
+            </div>
+            <button type="submit" class="btn-primary">SIGN UP</button>
+        </EditForm>
+
+        <div class="toggle-link">
+            Already have an account? <a @onclick="ShowLogin">Login</a>
+        </div>
+    </div>
+}
+
+@code {
+    private bool IsLoginFormVisible = true;
+
+    private void ShowSignup() => IsLoginFormVisible = false;
+    private void ShowLogin() => IsLoginFormVisible = true;
+    private LoginRegist Input = new();
+    private async Task OnLogin()
+    {
+        var check = await LoginPhanQuyen.PhanQuyen(Input.UserName , Input.Password);
+        if (check)
+        {
+            Nav.NavigateTo("/");
+        }
+    }
+
+    private void OnSignup()
+    {
+        // Xử lý đăng ký tại đây
+    }
+}

@@ -2,7 +2,7 @@
 {
     public class ChiTietTraHangDTO
     {
-        public Guid GiayId { get; set; }
+        public Guid GiayChiTietId { get; set; }
         public int SoLuong { get; set; }
         public string? GhiChu { get; set; }
     }

@@ -1,5 +1,5 @@
 ﻿@using Data.Models
-
+<link href="css/ChonDiaChi.css    " rel="stylesheet" />
 @if (Visible && Addresses != null)
 {
     <div class="address-select-overlay"></div>
@@ -44,6 +44,23 @@
     [Parameter] public EventCallback<DiaChiKhachHang> OnAddressSelected { get; set; }
 
     [Parameter] public EventCallback OnClose { get; set; }
+    protected override void OnInitialized()
+    {
+        if (Addresses == null || Addresses.Count == 0)
+        {
+            Addresses = new List<DiaChiKhachHang>
+        {
+            new DiaChiKhachHang
+            {
+                ThanhPho = "Hà Nội",
+                QuanHuyen = "Quận Đống Đa",
+                PhuongXa = "Phường Nam Đồng",
+                DiaChiCuThe = "Căn hộ 12A, Block B",
+                TrangThai = true
+            }
+        };
+        }
+    }
 
     private async Task SelectAddress(DiaChiKhachHang diaChi)
     {

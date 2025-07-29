@@ -386,9 +386,9 @@
 		try
 		{
 
-			hoaDons = await hoaDonService.GetAll();
-			hoaDonChiTiets = await chiTietHoaDonService.GetAllHDCTAsync();
-			giayChiTiets = await giayChiTietService.GetAllAsync();
+			hoaDons = await hoaDonService.GetAll() ?? new();
+			hoaDonChiTiets = await chiTietHoaDonService.GetAllHDCTAsync() ?? new();
+			giayChiTiets = await giayChiTietService.GetAllAsync() ?? new();
 			Console.WriteLine($"Loaded {hoaDons.Count} HoaDon records.");
 			Console.WriteLine($"Loaded {hoaDonChiTiets.Count} HoaDonChiTiet records.");
 			Console.WriteLine($"Loaded {giayChiTiets.Count} GiayChiTiet records.");
@@ -588,7 +588,7 @@
 
 		sanPhamBanChays = (from hd in hoaDons
 									join hdct in hoaDonChiTiets on hd.HoaDonId equals hdct.HoaDonId
-									join gct in giayChiTiets on hdct.GiayId equals gct.GiayId
+									join gct in giayChiTiets on hdct.GiayChiTietId equals gct.GiayId
 									where hd.NgayTao.Date >= startDateFilter &&
 									hd.NgayTao.Date <= endDateFilter &&
 									hd.TrangThai.ToLower() == "hoàn thành" &&

@@ -1,5 +1,5 @@
 ﻿@inherits LayoutComponentBase
-<link href="/css/Layoutgeneral.css" rel="stylesheet" />
+<link href="css/Layoutgeneral.css" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <header>
@@ -21,7 +21,7 @@
         <button type="submit">SEARCH</button>
     </form>
     <div class="user-icons">
-        <a href="#" class="user-icon" id="userIcon">
+        <a href="login" class="user-icon" id="userIcon">
             <i class="fa-regular fa-user"></i>
         </a>
         <a href="#" class="notification">
@@ -36,9 +36,8 @@
 </div>
 <nav class="main-nav">
     <a href="#" class="active">HOME</a>
-    <a href="/shoelist">SHOE LIST</a>
-    <a href="#">SHOE SNEAKERS</a>
-    <a href="#">SHOE SLIP-ON</a>
+    <NavLink href="/shoelist" class="nav-link" activeClass="active">SHOES LIST</NavLink>
+  
     <NavLink href="/shoes-sole" class="nav-link" activeClass="active">SHOES SOLE</NavLink>
     <NavLink href="/blog" class="nav-link" activeClass="active">BLOGS</NavLink>
     <NavLink href="/polish" class="nav-link" activeClass="active">SHOE POLISH</NavLink>

@@ -20,7 +20,6 @@ namespace API.Controllers
 
         public GiayYeuThichController(IGiayYeuThichRepository repository)
         {
-
             _repository = repository;
         }
 

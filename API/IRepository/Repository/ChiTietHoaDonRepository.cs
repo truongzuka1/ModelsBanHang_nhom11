@@ -15,7 +15,7 @@ namespace API.IRepository.Repository
         public async Task<IEnumerable<HoaDonChiTiet>> GetAllHDCTAsync()
         {
             return await _contextApp.HoaDonChiTiets
-                .Include(x => x.Giays)
+                .Include(x => x.GiayChiTiet)
                 .Include(x => x.HoaDons)
                 .ToListAsync();
         }
@@ -24,7 +24,7 @@ namespace API.IRepository.Repository
         {
             return await _contextApp.HoaDonChiTiets
                 .Where(x => x.HoaDonChiTietId == hdctID)
-                .Include(x => x.Giays)
+                .Include(x => x.GiayChiTiet)
                 .Include(x => x.HoaDons)
                 .ToListAsync();
         }
@@ -32,7 +32,7 @@ namespace API.IRepository.Repository
         public async Task<HoaDonChiTiet?> GetByIdHDCTAsync(Guid IdCTHD)
         {
             return await _contextApp.HoaDonChiTiets
-                .Include(x => x.Giays)
+                .Include(x => x.GiayChiTiet)
                 .Include(x => x.HoaDons)
                 .FirstOrDefaultAsync(x => x.HoaDonChiTietId == IdCTHD);
         }
@@ -40,9 +40,9 @@ namespace API.IRepository.Repository
         public async Task<HoaDonChiTiet?> GetByHoaDonChiTietvaGiayAsync(Guid hoaDonId, Guid giayId)
         {
             return await _contextApp.HoaDonChiTiets
-                .Include(x => x.Giays)
+                .Include(x => x.GiayChiTiet)
                 .Include(x => x.HoaDons)
-                .FirstOrDefaultAsync(x => x.HoaDonId == hoaDonId && x.GiayId == giayId);
+                .FirstOrDefaultAsync(x => x.HoaDonId == hoaDonId && x.GiayChiTietId == giayId);
         }
 
         public async Task<bool> Create(HoaDonChiTiet hoaDonChiTiet)

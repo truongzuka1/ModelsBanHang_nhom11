@@ -1,0 +1,699 @@
+﻿@page "/checkout"
+@using System.Globalization
+@using System.ComponentModel.DataAnnotations
+@using API.Models.DTO.BanHang
+@using BlazorKhachHang.Service.IService
+@using Data.Models
+@inject IXuLyDiaChi xuLyDiaChi
+@inject NavigationManager Nav
+<PageTitle>Checkout - Đặt hàng</PageTitle>
+
+<style>
+    body {
+        background: #fcfcfa;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        color: #222;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 0 20px;
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 30px;
+        align-items: flex-start;
+    }
+
+    .checkout-form {
+        background: #fff;
+        padding: 30px 30px 20px 30px;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+    }
+
+    .form-title {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 18px;
+        color: #222;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .address-btn {
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 7px 18px;
+        border-radius: 6px;
+        font-size: 13px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+        .address-btn:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+        }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 0;
+    }
+
+    .form-group {
+        margin-bottom: 0;
+    }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+            margin-top: 15px;
+        }
+
+    .form-row.address-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin-bottom: 0;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 500;
+        color: #222;
+        font-size: 15px;
+    }
+
+    .required {
+        color: #e74c3c;
+        margin-right: 3px;
+    }
+
+    input,
+    select,
+    textarea {
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        padding: 11px 12px;
+        border: 2px solid #e1e8ed;
+        border-radius: 8px;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        background: white;
+        height: 44px;
+        appearance: none;
+    }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.08);
+        }
+
+    textarea {
+        height: auto;
+        min-height: 44px;
+        resize: vertical;
+    }
+
+    .payment-section {
+        margin-top: 18px;
+        padding-top: 18px;
+        border-top: 2px solid #f2f2f2;
+    }
+
+    .payment-title {
+        font-size: 17px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #222;
+    }
+
+    .payment-options {
+        display: flex;
+        gap: 15px;
+    }
+
+    .payment-option {
+        flex: 1 1 0;
+        border: 2px solid #e1e8ed;
+        border-radius: 10px;
+        padding: 14px 18px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: #fff;
+        min-width: 0;
+        justify-content: center;
+        height: 60px;
+        box-sizing: border-box;
+    }
+
+        .payment-option:hover {
+            border-color: #3498db;
+            background: #f8fafc;
+        }
+
+        .payment-option.selected {
+            border-color: #3498db;
+            background: #e3f2fd;
+        }
+
+    .payment-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+
+        .payment-icon.cod {
+            background: #ff9800;
+        }
+
+        .payment-icon.vnpay {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+        }
+
+    .submit-btn {
+        width: 100%;
+        background: #222;
+        color: white;
+        border: none;
+        padding: 15px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        margin-top: 22px;
+        transition: all 0.3s ease;
+        letter-spacing: 1px;
+    }
+
+        .submit-btn:hover {
+            background: #444;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+        }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #8e44ad;
+        text-decoration: none;
+        margin-top: 18px;
+        font-weight: 500;
+        font-size: 15px;
+        transition: all 0.3s ease;
+    }
+
+        .back-link:hover {
+            color: #9b59b6;
+            transform: translateX(-3px);
+        }
+
+    .order-summary {
+        background: #fff;
+        padding: 25px 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+        height: fit-content;
+        position: sticky;
+        top: 20px;
+        min-width: 340px;
+    }
+
+    .product-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px 0;
+        border-bottom: 1px solid #ecf0f1;
+        position: relative;
+    }
+
+    .product-image {
+        width: 70px;
+        height: 70px;
+        border-radius: 8px;
+        object-fit: cover;
+    }
+
+    .product-info h4 {
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 3px;
+        color: #222;
+    }
+
+    .product-size {
+        background: #f39c12;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-top: 2px;
+        display: inline-block;
+    }
+
+    .product-price {
+        font-size: 15px;
+        font-weight: 700;
+        color: #e74c3c;
+        margin-left: auto;
+    }
+
+    .quantity-badge {
+        position: absolute;
+        top: 8px;
+        left: -10px;
+        background: #ff9800;
+        color: white;
+        border-radius: 50%;
+        width: 22px;
+        height: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .discount-section {
+        margin: 18px 0;
+        display: flex;
+        gap: 10px;
+    }
+
+    .discount-input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 15px;
+    }
+
+    .apply-btn {
+        background: #222;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 15px;
+        transition: all 0.3s ease;
+    }
+
+        .apply-btn:hover {
+            background: #444;
+        }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin: 10px 0;
+        font-size: 14px;
+    }
+
+        .summary-row.shipping {
+            color: #e74c3c;
+        }
+
+        .summary-row.discount {
+            color: #27ae60;
+        }
+
+        .summary-row.total {
+            border-top: 2px solid #ecf0f1;
+            padding-top: 15px;
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #e74c3c;
+        }
+
+    .delivery-date {
+        text-align: center;
+        margin: 15px 0;
+        font-size: 14px;
+        color: #7f8c8d;
+    }
+
+        .delivery-date strong {
+            color: #e74c3c;
+        }
+
+    .alert {
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+
+    .alert-info {
+        background-color: #cce7ff;
+        border: 1px solid #b3d9ff;
+        color: #004085;
+    }
+</style>
+
+<div class="container">
+    <div class="checkout-form">
+        <div class="form-title">
+            Thông tin giao hàng
+            <button type="button" class="address-btn" @onclick="() => IsAddressModalVisible = true ">CHỌN ĐỊA CHỈ</button>
+        </div>
+
+        <EditForm Model="checkoutModel" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label><span class="required">*</span>Họ và tên</label>
+                    <InputText @bind-Value="checkoutModel.FullName" required />
+                    <ValidationMessage For="@(() => checkoutModel.FullName)" />
+                </div>
+                <div class="form-group">
+                    <label><span class="required">*</span>Số điện thoại</label>
+                    <InputText @bind-Value="checkoutModel.PhoneNumber" required />
+                    <ValidationMessage For="@(() => checkoutModel.PhoneNumber)" />
+                </div>
+            </div>
+
+            <div class="form-row address-row">
+                <div class="form-group">
+                    <label><span class="required">*</span>Tỉnh/thành phố</label>
+                    <InputSelect Value="@Tinh"
+                                 ValueChanged="@((string value) => OnTinhChanged(value))"
+                                 ValueExpression="() => Tinh">
+                        <option value="">Chọn Tỉnh</option>
+                        @foreach (var t in TinhThanh)
+                        {
+                            <option value="@t.Ten">@t.Ten</option>
+                        }
+                    </InputSelect>
+
+                    <ValidationMessage For="@(() => checkoutModel.Province)" />
+                </div>
+                <div class="form-group">
+                    <label><span class="required">*</span>Quận/huyện</label>
+                    <InputSelect Value="@Huyen"
+                                 ValueChanged="@((string value) => OnHuyenChanged(value))"
+                                 ValueExpression="() => Huyen">
+                        <option value="">Chọn quận/huyện</option>
+                        @foreach (var h in HuyenXa)
+                        {
+                            <option value="@h.Ten">@h.Ten</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => checkoutModel.District)" />
+                </div>
+                <div class="form-group">
+                    <label><span class="required">*</span>Xã/thị trấn</label>
+                    <InputSelect Value="@Phuong"
+                                 ValueChanged="@((string value) => OnXaPhuongChanged(value))"
+                                 ValueExpression="() => Phuong">
+                        <option value="">Chọn xã/thị trấn</option>
+                        @foreach (var x in XaPhuong)
+                        {
+                            <option value="@x.Ten">@x.Ten</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => checkoutModel.Ward)" />
+                </div>
+            </div>
+
+            <div class="form-group full-width">
+                <label><span class="required">*</span>Địa chỉ cụ thể</label>
+                <InputText @bind-Value="checkoutModel.SpecificAddress" required />
+                <ValidationMessage For="@(() => checkoutModel.SpecificAddress)" />
+            </div>
+
+            <div class="form-group full-width">
+                <label>Ghi chú</label>
+                <InputTextArea @bind-Value="checkoutModel.Notes" placeholder="Nhập ghi chú đơn hàng..." />
+            </div>
+
+            <div class="payment-section">
+                <div class="payment-title">Phương thức thanh toán</div>
+                <div class="payment-options">
+                    <div class="payment-option @(checkoutModel.PaymentMethod == "cod" ? "selected" : "")"
+                         @onclick='() => SelectPayment("cod")'>
+                        <div class="payment-icon cod">📦</div>
+                        <span>Thanh toán khi nhận hàng</span>
+                    </div>
+                    <div class="payment-option @(checkoutModel.PaymentMethod == "vnpay" ? "selected" : "")"
+                         @onclick='() => SelectPayment("vnpay")'>
+                        <div class="payment-icon vnpay">💳</div>
+                        <span>Thanh toán ngay</span>
+                    </div>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(successMessage))
+            {
+                <div class="alert alert-success">@successMessage</div>
+            }
+
+            @if (!string.IsNullOrEmpty(infoMessage))
+            {
+                <div class="alert alert-info">@infoMessage</div>
+            }
+
+            <button type="submit" class="submit-btn">HOÀN THÀNH ĐẶT HÀNG</button>
+        </EditForm>
+
+        <a href="/cart" class="back-link">
+            ← Quay lại giỏ hàng
+        </a>
+    </div>
+
+    <div class="order-summary">
+        <div class="product-item">
+            <div class="quantity-badge">@product.Quantity</div>
+            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iOCIgZmlsbD0iIzM0OThlZGEiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJ3aGl0ZSI+CjxwYXRoIGQ9Ik0yMC4xNSA4SDMuODVhLjg1Ljg1IDAgMCAwLS43OC45NGwuNTcgNi44M2EyIDIgMCAwIDAgMiAyLjc3aDEyLjc2YTIgMiAwIDAgMCAyLS43N2wuNTctNi44M2EuODUuODUgMCAwIDAtLjc4LS45NFoiLz4KPHBhdGggZD0iTTEyIDJjMS4xIDAgMiAuOSAyIDJ2M0gyVjRjMC0xLjEuOS0yIDItMloiLz4KPGF0dGggZD0iTTEyIDJjLS4xNSAyLjItLjMgNC40LS40NSA2LjZNMTIgMmMuMTUgMi4yLjMgNC40LjQ1IDYuNiIvPgo8L3N2Zz4KPC9zdmc+"
+                 alt="@product.Name" class="product-image">
+            <div class="product-info">
+                <h4>@product.Name</h4>
+                <div class="product-size">Size: @product.Size</div>
+            </div>
+            <div class="product-price">@product.Price.ToString("N0", CultureInfo.GetCultureInfo("vi-VN")) ₫</div>
+        </div>
+
+        <div class="discount-section">
+            <input type="text" placeholder="Phiếu giảm giá" class="discount-input" @bind="discountCode" @bind:event="oninput">
+            <button type="button" class="apply-btn" @onclick="ApplyDiscount">CHỌN</button>
+        </div>
+
+        <div class="summary-row shipping">
+            <span>Phí vận chuyển</span>
+            <span>@shippingFee.ToString("N0", CultureInfo.GetCultureInfo("vi-VN")) VNĐ</span>
+        </div>
+
+        <div class="summary-row discount">
+            <span>Giảm giá</span>
+            <span>@discountAmount.ToString("N0", CultureInfo.GetCultureInfo("vi-VN")) ₫</span>
+        </div>
+
+        <div class="delivery-date">
+            Ngày nhận dự kiến: <strong>@deliveryDate.ToString("dd-MM-yyyy")</strong>
+        </div>
+
+        <div class="summary-row total">
+            <span>Tổng số tiền</span>
+            <span>@TotalAmount.ToString("N0", CultureInfo.GetCultureInfo("vi-VN")) ₫</span>
+        </div>
+    </div>
+</div>
+<ChonDiaChi Visible="@IsAddressModalVisible"
+                                   OnAddressSelected="HandleAddressSelected"
+                                   OnClose="@(() => IsAddressModalVisible = false)" />
+@code {
+    private CheckoutModel checkoutModel = new();
+    private ProductItem product = new();
+    private string discountCode = "";
+    private int discountAmount = 0;
+    private int shippingFee = 34000;
+    private DateTime deliveryDate;
+    private string successMessage = "";
+    private string infoMessage = "";
+    private bool IsAddressModalVisible = false;
+    private List<DiaChi> TinhThanh = new();
+    private List<DiaChi> HuyenXa = new();
+    private List<DiaChi> XaPhuong = new();
+
+    protected override void OnInitialized()
+    {
+        product = new ProductItem
+        {
+            Name = "Balen Grey 2023 Bạc Dế nhựa",
+            Size = "42",
+            Price = 100000,
+            Quantity = 1
+        };
+
+        deliveryDate = DateTime.Now.AddDays(3);
+
+
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        TinhThanh = await xuLyDiaChi.ParseDiaChiAsync("wwwroot/Files/ThanhPho.txt");
+    }
+    private string Tinh = "";
+    private async Task OnTinhChanged(string value)
+    {
+        Tinh = value;
+
+        var tinh = TinhThanh.FirstOrDefault(t => t.Ten == Tinh);
+        HuyenXa = tinh?.Con ?? new();
+        XaPhuong = new();
+
+        Huyen = "";
+        Phuong = "";
+        checkoutModel.Province = Tinh;
+    }
+
+
+    private string Huyen = "";
+    void OnHuyenChanged(string value)
+    {
+        Huyen = value;
+
+        var huyen = HuyenXa.FirstOrDefault(h => h.Ten == Huyen);
+        XaPhuong = huyen?.Con ?? new();
+
+        Phuong = "";
+        checkoutModel.District = Huyen;
+    }
+
+    private string Phuong = "";
+    void OnXaPhuongChanged(string value)
+    {
+        Phuong = value;
+        checkoutModel.Ward = Phuong;
+    }
+
+
+    private void SelectPayment(string paymentType)
+    {
+        checkoutModel.PaymentMethod = paymentType;
+        StateHasChanged();
+    }
+
+
+
+    private void ApplyDiscount()
+    {
+        if (!string.IsNullOrEmpty(discountCode))
+        {
+            switch (discountCode.ToUpper())
+            {
+                case "GIAM10K":
+                    discountAmount = 10000;
+                    infoMessage = $"Mã giảm giá \"{discountCode}\" đã được áp dụng!";
+                    break;
+                case "GIAM20K":
+                    discountAmount = 20000;
+                    infoMessage = $"Mã giảm giá \"{discountCode}\" đã được áp dụng!";
+                    break;
+                default:
+                    discountAmount = 0;
+                    infoMessage = $"Mã giảm giá \"{discountCode}\" không hợp lệ!";
+                    break;
+            }
+            successMessage = "";
+            StateHasChanged();
+        }
+    }
+
+    private int TotalAmount => (product.Price * product.Quantity) + shippingFee - discountAmount;
+
+    private async Task HandleSubmit()
+    {
+        await Task.Delay(1000);
+        if (checkoutModel.PaymentMethod == "cod")
+        {
+            Nav.NavigateTo("/");
+        }
+        else if (checkoutModel.PaymentMethod == "vnpay")
+        {
+
+        }
+
+
+        StateHasChanged();
+
+    }
+    private void HandleAddressSelected(DiaChiKhachHang diaChi)
+    {
+        Tinh = diaChi.ThanhPho;
+        var tinh = TinhThanh.FirstOrDefault(t => t.Ten == Tinh);
+        HuyenXa = tinh?.Con ?? new();
+        Huyen = diaChi.QuanHuyen;
+        var huyen = HuyenXa.FirstOrDefault(h => h.Ten == Huyen);
+        XaPhuong = huyen?.Con ?? new();
+        Phuong = diaChi.PhuongXa;
+        checkoutModel.SpecificAddress = diaChi.DiaChiCuThe;
+    }
+    public class CheckoutModel
+    {
+        [Required(ErrorMessage = "Họ và tên là bắt buộc")]
+        public string FullName { get; set; } = "";
+
+        [Required(ErrorMessage = "Số điện thoại là bắt buộc")]
+        [Phone(ErrorMessage = "Số điện thoại không hợp lệ")]
+        public string PhoneNumber { get; set; } = "";
+
+        [Required(ErrorMessage = "Tỉnh/thành phố là bắt buộc")]
+        public string Province { get; set; } = "";
+
+        [Required(ErrorMessage = "Quận/huyện là bắt buộc")]
+        public string District { get; set; } = "";
+
+        [Required(ErrorMessage = "Xã/thị trấn là bắt buộc")]
+        public string Ward { get; set; } = "";
+
+        [Required(ErrorMessage = "Địa chỉ cụ thể là bắt buộc")]
+        public string SpecificAddress { get; set; } = "";
+
+        public string Notes { get; set; } = "";
+
+        [Required]
+        public string PaymentMethod { get; set; } = "cod";
+    }
+
+    public class ProductItem
+    {
+        public string Name { get; set; } = "";
+        public string Size { get; set; } = "";
+        public int Price { get; set; }
+        public int Quantity { get; set; }
+    }
+}

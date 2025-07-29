@@ -143,7 +143,8 @@ builder.Services.AddScoped<IKhachHangService, KhachHangService>();
 builder.Services.AddScoped<IReturnService, ReturnService>();
 builder.Services.AddScoped<IThongBaoService, ThongBaoService>();
 builder.Services.AddScoped<IGiayYeuThichService, GiayYeuThichService>();
-
+builder.Services.AddScoped<IXuLyDiaChi, XuLyDiaChi>();
+builder.Services.AddScoped<LoginPhanQuyen>();
 var app = builder.Build();
 
 
