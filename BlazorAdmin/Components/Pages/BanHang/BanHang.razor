@@ -7,6 +7,7 @@
 @inject IDiaChiKhachHangService DiaChiKhachHangService
 @inject IGiayChiTietService GiayChiTietService
 @inject IHoaDonChiTietService HoaDonChiTietService
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject IJSRuntime JS
 @using API.Models.DTO.BanHang
 @using API.Models.DTO
@@ -317,14 +318,16 @@
         Orders.Add(new Order());
         CurrentOrderIndex = Orders.Count - 1;
         StateHasChanged();
+        await SaveOrdersToStorage();
     }
 
-    private void RemoveOrder(int index)
+    private async Task RemoveOrder(int index)
     {
         if (Orders.Count < 1)
         {
             Orders = new() { new Order() };
             CurrentOrderIndex = 0;
+            await SaveOrdersToStorage();
             return;
         }
 
@@ -339,6 +342,7 @@
         {
             CurrentOrderIndex = Orders.Count - 1;
         }
+        await SaveOrdersToStorage();
     }
 
     private bool IsRemovingOrder = false;
@@ -367,7 +371,7 @@
     }
 
 
-    private void SwitchOrder(int index)
+    private async Task SwitchOrder(int index)
     {
         CurrentOrderIndex = index;
 
@@ -381,6 +385,7 @@
 
         var huyen = HuyenXa.FirstOrDefault(h => h.Ten == Huyen);
         XaPhuong = huyen?.Con ?? new();
+        await SaveOrdersToStorage();
     }
 
     private async void IncreaseQuantity(GiayChiTietDTO product)
@@ -400,23 +405,41 @@
                 timerProgressBar = true
             });
         }
+        await SaveOrdersToStorage();
     }
 
-    private void DecreaseQuantity(GiayChiTietDTO product)
+    private async Task DecreaseQuantity(GiayChiTietDTO product)
     {
         product.SoLuongDat--;
         if (product.SoLuongDat < 1) RemoveProduct(product);
+        await SaveOrdersToStorage();
 
     }
 
-    private void RemoveProduct(GiayChiTietDTO product)
+    private async Task RemoveProduct(GiayChiTietDTO product)
     {
         CurrentOrder.Products.Remove(product);
+        await SaveOrdersToStorage(); 
     }
 
+
+    private System.Threading.Timer? OrderCleanupTimer;
     protected override void OnInitialized()
     {
         Orders ??= new();
+        OrderCleanupTimer = new System.Threading.Timer(_ =>
+        {
+            InvokeAsync(() =>
+            {
+                var now = DateTime.Now;
+                Orders.RemoveAll(o => (now - o.ThoiGianTao).TotalMinutes >= 10);
+                if (CurrentOrderIndex >= Orders.Count)
+                {
+                    CurrentOrderIndex = Orders.Count - 1;
+                }
+                StateHasChanged();
+            });
+        }, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
     }
 
 
@@ -576,12 +599,12 @@
             {
                 var hoadonchitiet = new HoaDonChiTiet()
                 {
-                    GiayId = item.GiayId,
+                    GiayChiTietId = item.GiayChiTietId,
                     HoaDonId = result.HoaDonId,
-                    SoLuongSanPham = item.SoLuongDat    ,
-
+                    SoLuongSanPham = item.SoLuongDat,
+                    TrangThai = true, 
                 };
-                var result3 = await HoaDonChiTietService.Create(hoadonchitiet);
+                var result3 = await HoaDonChiTietService.Create(hoadonchitiet); 
                 if (result3 != null)
                 {
 
@@ -645,7 +668,8 @@
             Gia = item.Gia,
             SoLuongDat = item.SoLuongDat
 
-        });
+        }); 
+
     }
 
     private bool IsCustomerModalVisible = false;
@@ -732,5 +756,9 @@
             DiscountPercent = 0; 
         }
     }
-
+    private async Task SaveOrdersToStorage()
+    {
+        await LocalStorage.SetItemAsync("banhang_orders", Orders);
+        await LocalStorage.SetItemAsync("banhang_currentIndex", CurrentOrderIndex);
+    }
 }

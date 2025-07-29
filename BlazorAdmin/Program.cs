@@ -4,12 +4,12 @@ using API.IService;
 using BlazorAdmin.Components;
 using BlazorAdmin.Service;
 using BlazorAdmin.Service.IService;
-using BlazorAdmin.Service.IService;
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.FileProviders;
 
-var builder = WebApplication.CreateBuilder(args); 
-
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddBlazorBootstrap();
 
 builder.Services.AddRazorComponents()

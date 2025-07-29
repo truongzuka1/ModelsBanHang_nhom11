@@ -17,7 +17,7 @@ namespace API.IRepository.Repository
         {
             var query = _context.HoaDons
                 .Include(h => h.HoaDonChiTiets)
-                .ThenInclude(hdc => hdc.Giays)
+                .ThenInclude(hdc => hdc.GiayChiTiet)
                    .Include(h => h.nhanVien)
                  .Include(h => h.khachHang)
                 .Include(h => h.hinhThucThanhToan)
@@ -38,7 +38,7 @@ namespace API.IRepository.Repository
         {
             return await _context.HoaDons
                 .Include(h => h.HoaDonChiTiets)
-                .ThenInclude(hdc => hdc.Giays)
+                .ThenInclude(hdc => hdc.GiayChiTiet)
                 .Include(h => h.nhanVien)
                  .Include(h => h.khachHang)
                 .Include(h => h.hinhThucThanhToan)
@@ -49,7 +49,7 @@ namespace API.IRepository.Repository
         {
             return await _context.HoaDonChiTiets
                 .Where(hdc => hdc.HoaDonId == hoaDonId && hdc.TrangThai == true)
-                .Include(hdc => hdc.Giays)
+                .Include(hdc => hdc.GiayChiTiet)
                 .OrderByDescending(hdc => hdc.NgayTraHang)
                 .ToListAsync();
         }
@@ -61,7 +61,7 @@ namespace API.IRepository.Repository
                 .ToListAsync();
 
             var result = new Dictionary<Guid, int>();
-            foreach (var group in chiTiets.GroupBy(hdc => hdc.GiayId))
+            foreach (var group in chiTiets.GroupBy(hdc => hdc.GiayChiTietId))
             {
                 var soLuongMua = group.Where(hdc => !hdc.TrangThai).Sum(hdc => hdc.SoLuongSanPham);
                 var soLuongDaTra = group.Where(hdc => hdc.TrangThai).Sum(hdc => hdc.SoLuongSanPham);
@@ -80,7 +80,7 @@ namespace API.IRepository.Repository
         public async Task<bool> SanPhamNamTrongHoaDon(Guid hoaDonId, Guid giayId)
         {
             return await _context.HoaDonChiTiets
-                .AnyAsync(hdc => hdc.HoaDonId == hoaDonId && hdc.GiayId == giayId);
+                .AnyAsync(hdc => hdc.HoaDonId == hoaDonId && hdc.GiayChiTietId == giayId);
         }
 
         public async Task<bool> KiemTraDuocPhepTra(Guid hoaDonId, Guid giayId, int soLuongMuonTra)
@@ -95,15 +95,15 @@ namespace API.IRepository.Repository
 
             foreach (var item in items)
             {
-                if (!await KiemTraDuocPhepTra(hoaDonId, item.GiayId, item.SoLuong)) return false;
+                if (!await KiemTraDuocPhepTra(hoaDonId, item.GiayChiTietId, item.SoLuong)) return false;
 
                 var chiTiet = new HoaDonChiTiet
                 {
                     HoaDonId = hoaDonId,
-                    GiayId = item.GiayId,
+                    GiayChiTietId = item.GiayChiTietId,
                     SoLuongSanPham = item.SoLuong,
                     Gia = (await _context.HoaDonChiTiets
-                        .FirstAsync(hdc => hdc.HoaDonId == hoaDonId && hdc.GiayId == item.GiayId && !hdc.TrangThai)).Gia,
+                        .FirstAsync(hdc => hdc.HoaDonId == hoaDonId && hdc.GiayChiTietId == item.GiayChiTietId && !hdc.TrangThai)).Gia,
                     TrangThai = true,
                     NgayTraHang = DateTime.UtcNow,
                     GhiChu = item.GhiChu
@@ -131,7 +131,7 @@ namespace API.IRepository.Repository
         {
             return await _context.HoaDonChiTiets
                 .Where(hdc => hdc.HoaDonId == hoaDonId)
-                .Include(hdc => hdc.Giays)
+                .Include(hdc => hdc.GiayChiTiet.Giay.TenGiay)
                 .OrderByDescending(hdc => hdc.NgayTraHang ?? DateTime.MaxValue)
                 .ToListAsync();
         }

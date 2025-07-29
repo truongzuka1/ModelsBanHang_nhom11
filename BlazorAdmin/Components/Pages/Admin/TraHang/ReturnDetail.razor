@@ -347,7 +347,7 @@
                     HoaDonId = HoaDonId,
                     Items = ReturnInfo.SanPhams?.Select(sp => new ChiTietTraHangDTO
                     {
-                        GiayId = sp.GiayId,
+                        GiayChiTietId = sp.GiayChiTietId,
                         GhiChu = string.Empty
                     }).ToList() ?? new List<ChiTietTraHangDTO>()
                 };
@@ -446,11 +446,11 @@
             if (returnItem.SoLuong <= 0 || returnItem.SoLuong > product.SoLuongConLai)
             {
                 ErrorMessage = $"Số lượng trả không hợp lệ cho sản phẩm {product.TenSanPham}. Tối đa: {product.SoLuongConLai}.";
-                JSRuntime.InvokeVoidAsync("console.error", $"Invalid quantity for GiayId: {returnItem.GiayId}, SoLuong: {returnItem.SoLuong}");
+                JSRuntime.InvokeVoidAsync("console.error", $"Invalid quantity for GiayId: {returnItem.GiayChiTietId}, SoLuong: {returnItem.SoLuong}");
                 return;
             }
 
-            var existingPending = PendingReturns.FirstOrDefault(p => p.GiayId == returnItem.GiayId);
+            var existingPending = PendingReturns.FirstOrDefault(p => p.GiayId == returnItem.GiayChiTietId);
             if (existingPending != null)
             {
                 existingPending.SoLuong = returnItem.SoLuong;
@@ -460,7 +460,7 @@
             {
                 PendingReturns.Add(new ReturnHistoryDTO
                     {
-                        GiayId = returnItem.GiayId,
+                        GiayId = returnItem.GiayChiTietId,
                         TenSanPham = product.TenSanPham,
                         SoLuong = returnItem.SoLuong,
                         Gia = product.Gia,
@@ -472,7 +472,7 @@
             // Đóng collapse sau khi xác nhận
             ShowCollapses[index] = false;
 
-            JSRuntime.InvokeVoidAsync("console.log", $"Confirmed return item for GiayId: {returnItem.GiayId}, SoLuong: {returnItem.SoLuong}");
+            JSRuntime.InvokeVoidAsync("console.log", $"Confirmed return item for GiayId: {returnItem.GiayChiTietId}, SoLuong: {returnItem.SoLuong}");
             StateHasChanged();
         }
         catch (Exception ex)
@@ -495,7 +495,7 @@
             }
 
             PendingReturns.RemoveAll(p => p.GiayId == giayId);
-            var index = CreateReturnRequest.Items.FindIndex(i => i.GiayId == giayId);
+            var index = CreateReturnRequest.Items.FindIndex(i => i.GiayChiTietId == giayId);
             if (index >= 0)
             {
                 CreateReturnRequest.Items[index].SoLuong = 0;
@@ -579,7 +579,7 @@
                 CreateReturnRequest = new CreateReturnDTO
                     {
                         HoaDonId = HoaDonId,
-                        Items = ReturnInfo.SanPhams?.Select(sp => new ChiTietTraHangDTO { GiayId = sp.GiayId }).ToList() ?? new List<ChiTietTraHangDTO>()
+                    Items = ReturnInfo.SanPhams?.Select(sp => new ChiTietTraHangDTO { GiayChiTietId = sp.GiayChiTietId }).ToList() ?? new List<ChiTietTraHangDTO>()
                     };
 
                 await JSRuntime.InvokeVoidAsync("alert", "Trả hàng thành công!");
