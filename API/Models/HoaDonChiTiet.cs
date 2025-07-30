@@ -36,8 +36,8 @@ namespace Data.Models
         public string? GhiChu { get; set; }
 
         // Navigation properties
-        public virtual HoaDon HoaDons { get; set; }
-        public virtual GiayChiTiet GiayChiTiet { get; set; }
+        public virtual HoaDon? HoaDons { get; set; }
+        public virtual GiayChiTiet? GiayChiTiet { get; set; }
     }
 
 

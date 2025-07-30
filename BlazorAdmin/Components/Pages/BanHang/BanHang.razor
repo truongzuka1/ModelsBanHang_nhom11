@@ -616,6 +616,7 @@
             }
             foreach (var item2 in CurrentOrder.Products)
             {
+                item2.SoLuongCon -= item2.SoLuongDat;
                 var result4 = await GiayChiTietService.UpdateAsync(item2.GiayChiTietId , item2);
                 if (result4 != null)
                 {
@@ -655,20 +656,43 @@
     }
     private bool IsProductModalVisible = false;
 
-    private void HandleAddProduct(GiayChiTietDTO item)
+    private async Task HandleAddProduct(GiayChiTietDTO item)
     {
         if (CurrentOrder == null) return;
 
-        CurrentOrder.Products.Add(new GiayChiTietDTO
+        var existing = CurrentOrder.Products.Find(x => x.GiayChiTietId == item.GiayChiTietId);
+        if (existing != null)
         {
-            GiayChiTietId = item.GiayChiTietId,
-            GiayId = item.GiayId,
-            TenGiay = item.TenGiay ?? "Không tên",
-            SoLuongCon = item.SoLuongCon,
-            Gia = item.Gia,
-            SoLuongDat = item.SoLuongDat
+            existing.SoLuongDat += item.SoLuongDat;
+            if (existing.SoLuongDat > existing.SoLuongCon)
+            {
+                existing.SoLuongDat = existing.SoLuongCon;
+            }
+        }
+        else
+        {
 
-        }); 
+            var newProduct = new GiayChiTietDTO
+            {
+                GiayChiTietId = item.GiayChiTietId,
+                GiayId = item.GiayId,
+                TenGiay = item.TenGiay,
+                MauSacId = item.MauSacId,
+                KichCoId = item.KichCoId,
+                GiaGoc = item.GiaGoc,
+                SoLuongCon = item.SoLuongCon,
+                Gia = item.Gia,
+                AnhGiay = item.AnhGiay,
+                SoLuongDat = item.SoLuongDat > 0 ? item.SoLuongDat : 1,
+                TrangThai = item.TrangThai
+            };
+
+            CurrentOrder.Products.Add(newProduct);
+        }
+
+
+        item.SoLuongDat = 1;
+        await SaveOrdersToStorage();
 
     }
 
