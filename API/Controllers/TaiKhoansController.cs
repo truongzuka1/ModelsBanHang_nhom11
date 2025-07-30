@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Data.Models;
 using API.IRepository;
 using API.Models.DTO;
+using Data.Repositories;
 
 namespace API.Controllers
 {
@@ -15,6 +16,7 @@ namespace API.Controllers
     {
         private readonly ITaiKhoanRepository _context;
         private readonly INhanVienRepository _nhanVienRepository;
+        private readonly IKhachHangRepository _khachHangRepository;
         private readonly IChucVuRepository _chucVuRepository;
         private readonly IThongBaoRepository _thongBaoRepository; // ✅ thêm
 
@@ -22,12 +24,15 @@ namespace API.Controllers
             ITaiKhoanRepository context,
             INhanVienRepository nhanVienRepository,
             IChucVuRepository chucVuRepository,
-            IThongBaoRepository thongBaoRepository) // ✅ inject
+            IThongBaoRepository thongBaoRepository,
+            IKhachHangRepository khachHangRepository
+            ) // ✅ inject
         {
             _context = context;
             _nhanVienRepository = nhanVienRepository;
             _chucVuRepository = chucVuRepository;
             _thongBaoRepository = thongBaoRepository;
+            _khachHangRepository = khachHangRepository;
         }
 
         [HttpGet]
@@ -123,6 +128,46 @@ namespace API.Controllers
                     IsSuccess = true,
                     Username = username,
                     Role = role,
+                    Message = "Đăng nhập thành công!"
+                });
+            }
+            else
+            {
+                return Unauthorized(new LoginResponseDto
+                {
+                    IsSuccess = false,
+                    Username = username,
+                    Role = null,
+                    Message = "Tên đăng nhập hoặc mật khẩu không đúng."
+                });
+            }
+        }
+        [HttpGet("loginkh")]
+        public async Task<ActionResult<LoginResponseDto>> LoginKH(string username, string pass)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(new LoginResponseDto
+                {
+                    IsSuccess = false,
+                    Message = "Dữ liệu đăng nhập không hợp lệ: " + string.Join("; ", errors)
+                });
+            }
+
+            var userChucVu = await _context.GetKhachHang(username, pass);
+
+            if (userChucVu != null)
+            {
+                return Ok(new LoginResponseDto
+                {
+                    Id = userChucVu.KhachHang.KhachHangId,
+                    IsSuccess = true,
+                    Username = username,
                     Message = "Đăng nhập thành công!"
                 });
             }

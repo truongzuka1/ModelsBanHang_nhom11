@@ -100,7 +100,11 @@ namespace API.IRepository.Repository
             return tk;
         }
 
-
-
+        public async Task<TaiKhoan> GetKhachHang(string username, string password)
+        {
+            return await _contextApp.TaiKhoans
+               .Include(tk => tk.KhachHang)
+                    .FirstOrDefaultAsync(x => x.Username == username && x.Password == password);
+        }
     }
 }

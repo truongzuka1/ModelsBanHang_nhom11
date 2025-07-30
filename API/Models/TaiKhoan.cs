@@ -23,7 +23,7 @@ namespace Data.Models
         public DateTime Ngaytaotaikhoan { get; set; }
 
         public virtual NhanVien? NhanVien { get; set; }
-
+        public virtual KhachHang? KhachHang { get; set; }
     }
 
 

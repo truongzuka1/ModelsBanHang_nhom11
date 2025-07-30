@@ -12,7 +12,7 @@ namespace API.IRepository
         Task UpdateTaiKhoanAsync(TaiKhoan tk);
         Task DeleteTaiKhoanAsync(Guid id);
         Task<TaiKhoan> GetByIdChucVuAsync (string username, string password);
-
+        Task<TaiKhoan> GetKhachHang(string username, string password);
         Task<TaiKhoan> GetByUsernameAsync(string username);
         //hahahahah 
     }

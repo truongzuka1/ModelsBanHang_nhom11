@@ -13,7 +13,7 @@ namespace BlazorKhachHang.Service
         {
             try
             {
-                var loginResponseDto = await taiKhoanService.GetByIdChucVuAsync(username, password);
+                var loginResponseDto = await taiKhoanService.GetKhachHang(username, password);
 
                 if (loginResponseDto.IsSuccess)
                 {
