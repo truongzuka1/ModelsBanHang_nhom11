@@ -83,3 +83,7 @@ table.table-hover tbody tr:hover {
         opacity: 1;
     }
 }
+.validation-message {
+    color: red;
+    font-size: 0.9rem;
+}
