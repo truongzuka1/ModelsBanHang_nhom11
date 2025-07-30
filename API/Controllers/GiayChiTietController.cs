@@ -29,7 +29,8 @@ namespace API.Controllers
                     g.TrangThai &&
                     g.NgayBatDau <= now &&
                     g.NgayKetThuc >= now &&
-                    g.GiayDotGiamGias.Any(x => x.GiayChiTietId == entity.GiayChiTietId));
+                  g.GiayDotGiamGias.Any(x => x.GiayChiTietId == entity.GiayChiTietId));
+
 
             if (dot != null)
             {

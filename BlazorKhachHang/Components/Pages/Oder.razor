@@ -1,0 +1,101 @@
+﻿@page "/Oder"
+@rendermode InteractiveServer
+@using Data.Models
+@using BlazorKhachHang.Service.IService
+@using API.Models.DTO
+@inject IHoaDonService service
+@inject IHoaDonChiTietService HoaDonCTService
+@inject NavigationManager manager
+@inject IJSRuntime JS
+<link href="css/Oder.css" rel="stylesheet">
+<h3>Đơn hàng</h3>
+
+<!-- Tabs lọc -->
+<div class="tab-container">
+    @foreach (var t in Tabs)
+    {
+        <div class="tab @(t == ActiveTab ? "active" : "")" @onclick="@(() => SelectTab(t))">@t</div>
+    }
+</div>
+
+<!-- Danh sách đơn hàng -->
+@foreach (var order in FilteredOrders)
+{
+    <div class="order-card">
+        <div class="order-header">
+            <div><strong>@order.ShopName</strong></div>
+            <div class="status">@order.Status</div>
+        </div>
+
+        <div class="order-item">
+            <img src="@order.ImageUrl" alt="Product" />
+            <div class="order-details">
+                <h4>@order.ProductName</h4>
+                <div class="order-meta">
+                    Phân loại hàng: @order.Variant<br />
+                    Số lượng: @order.Quantity<br />
+                    Giá gốc: <del>@order.OriginalPrice</del>
+                </div>
+                <div class="order-price">Thành tiền: @order.FinalPrice</div>
+            </div>
+        </div>
+
+        <div class="order-footer">
+            <div class="note">Đánh giá sản phẩm trước <strong>@order.ReviewDeadline.ToString("dd-MM-yyyy")</strong></div>
+            <div class="action-group">
+                <button class="btn">Đánh Giá</button>
+                <button class="btn">Yêu Cầu Trả Hàng</button>
+            </div>
+        </div>
+    </div>
+}
+
+
+@code {
+    // Danh sách các tab lọc
+    private List<string> Tabs = new()
+    {
+        "Tất cả", "Chờ thanh toán", "Vận chuyển", "Chờ giao hàng", "Hoàn thành", "Đã hủy", "Trả hàng/Hoàn tiền"
+    };
+
+    private string ActiveTab = "Tất cả";
+
+    // Lớp model đơn hàng
+    public class OrderModel
+    {
+        public string ShopName { get; set; } = "Gia dụng tại kho";
+        public string Status { get; set; } = "HOÀN THÀNH";
+        public string ProductName { get; set; }
+        public string Variant { get; set; }
+        public int Quantity { get; set; }
+        public string OriginalPrice { get; set; }
+        public string FinalPrice { get; set; }
+        public string ImageUrl { get; set; }
+        public DateTime ReviewDeadline { get; set; }
+        public string Category { get; set; } = "Hoàn thành"; // Dùng để lọc
+    }
+
+    private List<OrderModel> Orders = new()
+    {
+        new OrderModel {
+            ProductName = "Nike",
+            Variant = "Thể Thao",
+            Quantity = 1,
+            OriginalPrice = "₫2.000.000",
+            FinalPrice = "₫1.800.000",
+            ImageUrl = "img/Screenshot 2025-06-09 110633.png",
+            ReviewDeadline = new DateTime(2025, 8, 14),
+            Category = "Hoàn thành"
+        },
+        // Thêm đơn hàng khác ở đây nếu cần
+    };
+
+    private List<OrderModel> FilteredOrders =>
+        ActiveTab == "Tất cả" ? Orders : Orders.Where(o => o.Category == ActiveTab).ToList();
+
+    private void SelectTab(string tab)
+    {
+        ActiveTab = tab;
+    }
+}
+

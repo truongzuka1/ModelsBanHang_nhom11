@@ -23,7 +23,7 @@
                 <div class="mb-3">
                     <label class="form-label">Tên đế giày</label>
                     <input class="form-control" @bind="FormData.TenDeGiay" />
-                    <ValidationMessage For="@(() => FormData.TenDeGiay)" />
+                    <ValidationMessage For="@(() => FormData.TenDeGiay)" class="validation-message" />
                 </div>
 
                 <div class="mb-3">
@@ -46,4 +46,9 @@
         </div>
     </div>
 }
-
+<style>
+    .validation-message {
+        color: red;
+        font-size: 1rem;
+    }
+</style>
