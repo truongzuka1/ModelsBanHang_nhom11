@@ -1,6 +1,7 @@
 ﻿using API.Models;
 using Data.Models;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Data.Models
 

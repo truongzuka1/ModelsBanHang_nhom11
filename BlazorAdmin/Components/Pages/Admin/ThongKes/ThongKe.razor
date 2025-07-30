@@ -408,6 +408,7 @@
 					GiaTien = (decimal)(group.Min(x => x.Gia))
 				};
 		})
+		.OrderBy(x => x.SoLuong)
 		.ToList();
 
 
@@ -588,7 +589,7 @@
 
 		sanPhamBanChays = (from hd in hoaDons
 									join hdct in hoaDonChiTiets on hd.HoaDonId equals hdct.HoaDonId
-									join gct in giayChiTiets on hdct.GiayChiTietId equals gct.GiayId
+									join gct in giayChiTiets on hdct.GiayChiTietId equals gct.GiayChiTietId
 									where hd.NgayTao.Date >= startDateFilter &&
 									hd.NgayTao.Date <= endDateFilter &&
 									hd.TrangThai.ToLower() == "hoàn thành" &&
@@ -606,7 +607,7 @@
 							   {
 								   TenSanPham = g.Key,
 								   Anh = g.First().DuongDanAnh,
-								   GiaTien = g.Sum(x => x.Gia * x.SoLuong),
+								   GiaTien = g.Sum(x => x.Gia),
 								   Kichco = string.Join(", ", g.Select(x => x.kc).Distinct()),
 								   SoLuong = g.Sum(x => x.SoLuong)
 							   })

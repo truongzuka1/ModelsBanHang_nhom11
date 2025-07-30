@@ -599,6 +599,7 @@
             {
                 var hoadonchitiet = new HoaDonChiTiet()
                 {
+                    Gia = (decimal)item.Gia * (decimal)item.SoLuongDat,
                     GiayChiTietId = item.GiayChiTietId,
                     HoaDonId = result.HoaDonId,
                     SoLuongSanPham = item.SoLuongDat,
@@ -617,14 +618,19 @@
             foreach (var item2 in CurrentOrder.Products)
             {
                 item2.SoLuongCon -= item2.SoLuongDat;
-                var result4 = await GiayChiTietService.UpdateAsync(item2.GiayChiTietId , item2);
-                if (result4 != null)
+                var giaychitiet = await GiayChiTietService.GetByIdAsync(item2.GiayChiTietId);
+                if (giaychitiet != null)
                 {
+                    giaychitiet.SoLuongCon -= item2.SoLuongDat;
+                    var result4 = await GiayChiTietService.UpdateAsync(item2.GiayChiTietId, giaychitiet);
+                    if (result4 != null)
+                    {
 
-                }
-                else
-                {
-                    continue;
+                    }
+                    else
+                    {
+                        continue;
+                    }
                 }
             }
             await JS.InvokeVoidAsync("Swal.fire", new
@@ -726,6 +732,7 @@
     {
         TinhThanh = await xuLyDiaChi.ParseDiaChiAsync("wwwroot/Files/ThanhPho.txt");
         vouchers = await voucherService.GetAll();
+        vouchers = vouchers.Where(x => x.TrangThai == true).ToList();
     }
     private string Tinh = "";
     void OnTinhChanged(ChangeEventArgs e)
@@ -773,7 +780,13 @@
         if (voucher != null)
         {
             selectedVoucher = voucher;
-            DiscountPercent = voucher.PhanTram;
+            if (voucher.PhanTram != 0)
+            {
+                DiscountPercent = voucher.PhanTram;
+            } else if (voucher.SoTienGiam != 0)
+            {
+                DiscountPercent = voucher.SoTienGiam;
+            }
         }
         else
         {
