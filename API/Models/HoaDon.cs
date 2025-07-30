@@ -19,7 +19,7 @@ namespace Data.Models
         public Guid? HinhThucThanhToanId { get; set; }
         public Guid? VoucherId { get; set; }
 
-        public DateTime NgayTao { get; set; }
+        public DateTime NgayTao { get; set; } = DateTime.Now;
         public DateTime NgayNhanHang { get; set; }
 
         public float TongTienSauKhiGiam { get; set; }//Tong tiền sau khi áp dụng voucher và giảm giá (nếu có),va phiship

@@ -49,7 +49,7 @@
             {
                 var chiTiets = ChiTietTheoHoaDon.GetValueOrDefault(hoaDon.HoaDonId);
                 var tongSoSP = chiTiets?.Sum(c => c.SoLuongSanPham) ?? 0;
-                var tongTien = chiTiets?.Sum(c => c.SoLuongSanPham * c.Gia) ?? 0m;
+                var tongTien = chiTiets?.Sum(c => c.Gia) ?? 0m;
 
                 <tr class="border-b">
                     <td class="p-2">@stt</td>

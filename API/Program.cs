@@ -3,6 +3,7 @@ using API.IRepository.Repository;
 using API.Repository;
 using Data.IRepository;
 using Data.Models;
+using Data.Repositories;
 using Data.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
@@ -55,6 +56,7 @@ builder.Services.AddScoped<ITaiKhoanRepository, TaiKhoanRepository>();
 builder.Services.AddScoped<IChucVuRepository, ChucVuRepository>();
 builder.Services.AddScoped<IReturnRepository, ReturnRepository>();
 builder.Services.AddScoped<IGiayYeuThichRepository, GiayYeuThichRepository>();
+builder.Services.AddScoped<IKhachHangRepository, KhachHangRepository>();
 
 
 var app = builder.Build();
