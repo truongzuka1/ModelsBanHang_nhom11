@@ -11,7 +11,7 @@ namespace BlazorKhachHang.Service.IService
         Task CreateTaiKhoanAsync(TaiKhoan tk);
         Task UpdateTaiKhoanAsync(TaiKhoan tk);
         Task DeleteTaiKhoanAsync(Guid id);
-        Task<LoginResponseDto> GetByIdChucVuAsync(string username, string password );
+        Task<LoginResponseDto> GetKhachHang(string username, string password );
         Task<TaiKhoan> GetByUsernameAsync(string username);
 
     }

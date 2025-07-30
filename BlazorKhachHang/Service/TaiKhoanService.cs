@@ -61,11 +61,11 @@ namespace BlazorKhachHang.Service
         }
 
 
-        public async Task<LoginResponseDto> GetByIdChucVuAsync(string username , string password )
+        public async Task<LoginResponseDto> GetKhachHang(string username , string password )
         {
             try
             {
-                var response = await _httpClient.GetAsync($"/api/TaiKhoans/login?username={username}&pass={password}");
+                var response = await _httpClient.GetAsync($"/api/TaiKhoans/loginkh?username={username}&pass={password}");
                 response.EnsureSuccessStatusCode();
                 return await response.Content.ReadFromJsonAsync<LoginResponseDto>();
             }
